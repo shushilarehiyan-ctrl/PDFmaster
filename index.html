@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PDFMaster - Free Online PDF & Image Tools</title>
+
+    <meta name="description" content="PDFMaster offers free online PDF tools. Convert photos to PDF, merge PDF files, split PDFs, compress PDFs and images, and protect PDFs with a password.">
+
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#101116">
+
+    <link rel="canonical" href="https://YOUR-USERNAME.github.io/YOUR-REPOSITORY/">
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- MOBILE MENU BUTTON -->
+
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation menu" aria-expanded="false">
+        ☰
+    </button>
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <a href="#" class="logo">
+            <span class="logo-icon">P</span>
+            <span>PDF<span class="logo-accent">Master</span></span>
+        </a>
+
+
+        <div class="sidebar-label">WORKSPACE</div>
+
+        <nav class="sidebar-nav">
+
+            <a href="#" class="nav-link active">
+                <span class="nav-icon">⌂</span>
+                Dashboard
+            </a>
+
+            <a href="#tools" class="nav-link">
+                <span class="nav-icon">▦</span>
+                All Tools
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-label">PDF TOOLS</div>
+
+        <nav class="sidebar-nav">
+
+            <a href="#photo-to-pdf" class="nav-link">
+                <span class="nav-icon">▤</span>
+                Photo to PDF
+            </a>
+
+            <a href="#merge-pdf" class="nav-link">
+                <span class="nav-icon">▧</span>
+                Merge PDF
+            </a>
+
+            <a href="#split-pdf" class="nav-link">
+                <span class="nav-icon">✂</span>
+                Split PDF
+            </a>
+
+            <a href="#compress-pdf" class="nav-link">
+                <span class="nav-icon">⇩</span>
+                Compress PDF
+            </a>
+
+            <a href="#protect-pdf" class="nav-link">
+                <span class="nav-icon">♧</span>
+                Protect PDF
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-label">IMAGE TOOLS</div>
+
+        <nav class="sidebar-nav">
+
+            <a href="#image-compressor" class="nav-link">
+                <span class="nav-icon">▧</span>
+                Image Compressor
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <a href="#about" class="nav-link">
+                <span class="nav-icon">ⓘ</span>
+                About PDFMaster
+            </a>
+
+            <a href="#faq" class="nav-link">
+                <span class="nav-icon">?</span>
+                Help & FAQs
+            </a>
+
+            <a href="contact.html" class="nav-link">
+                <span class="nav-icon">✉</span>
+                Contact Us
+            </a>
+
+            <a href="privacy.html" class="nav-link">
+                <span class="nav-icon">▣</span>
+                Privacy Policy
+            </a>
+
+            <a href="terms.html" class="nav-link">
+                <span class="nav-icon">▤</span>
+                Terms & Conditions
+            </a>
+
+            <a href="disclaimer.html" class="nav-link">
+                <span class="nav-icon">ⓘ</span>
+                Disclaimer
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main-content">
+
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+                <div class="breadcrumb">
+                    Workspace <span>/</span> Dashboard
+                </div>
+            </div>
+
+
+            <div class="topbar-right">
+
+                <div class="search-box">
+                    <span class="search-icon">⌕</span>
+
+                    <input
+                        type="text"
+                        id="toolSearch"
+                        placeholder="Search tools..."
+                        aria-label="Search PDF and image tools"
+                    >
+
+                    <button type="button" onclick="searchTools()">
+                        Search
+                    </button>
+                </div>
+
+                <div class="topbar-badge">
+                    <span class="status-dot"></span>
+                    Free Workspace
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- HERO SECTION -->
+
+        <section class="hero">
+
+            <div class="hero-content">
+
+                <span class="hero-badge">
+                    ✨ YOUR DOCUMENT WORKSPACE
+                </span>
+
+                <h1>
+                    Everything you need.
+                    <span>All in one place.</span>
+                </h1>
+
+                <p>
+                    Manage your PDFs and images with simple,
+                    fast and easy-to-use tools.
+                </p>
+
+                <a href="#tools" class="hero-button">
+                    Explore Tools <span>→</span>
+                </a>
+
+            </div>
+
+
+            <div class="hero-decoration">
+
+                <div class="hero-glow"></div>
+
+                <div class="hero-document">
+                    <div class="document-icon">PDF</div>
+                    <div class="document-line"></div>
+                    <div class="document-line short"></div>
+                    <div class="document-line"></div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- QUICK STATS -->
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-icon purple">▦</div>
+                <div>
+                    <h3>06</h3>
+                    <p>Available Tools</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon blue">⚡</div>
+                <div>
+                    <h3>Fast</h3>
+                    <p>Simple Processing</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon green">🔒</div>
+                <div>
+                    <h3>Easy</h3>
+                    <p>Browser-Based Tools</p>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- TOOLS SECTION -->
+
+        <section id="tools" class="tools-section">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="section-label">YOUR TOOLKIT</span>
+                    <h2>Explore All Tools</h2>
+                    <p>Choose a tool and get your work done.</p>
+                </div>
+
+                <span class="tools-count">06 TOOLS</span>
+
+            </div>
+
+
+            <div class="tools-container">
+
+
+                <!-- PHOTO TO PDF -->
+
+                <div class="tool-card" id="photo-to-pdf">
+
+                    <div class="tool-card-top">
+                        <div class="tool-icon purple">▤</div>
+                        <span class="tool-category">CONVERT</span>
+                    </div>
+
+                    <h3>Photo to PDF</h3>
+
+                    <p>
+                        Convert your JPG and PNG images
+                        into professional PDF documents.
+                    </p>
+
+                    <input
+                        type="file"
+                        id="photoInput"
+                        accept="image/jpeg,image/png"
+                        multiple
+                    >
+
+                    <div id="photoList"></div>
+
+                    <div class="tool-actions">
+
+                        <button type="button" class="secondary-btn" onclick="clearPhotos()">
+                            Clear All
+                        </button>
+
+                        <button type="button" onclick="convertImagesToPDF()">
+                            Convert to PDF →
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- MERGE PDF -->
+
+                <div class="tool-card" id="merge-pdf">
+
+                    <div class="tool-card-top">
+                        <div class="tool-icon blue">▧</div>
+                        <span class="tool-category">ORGANIZE</span>
+                    </div>
+
+                    <h3>Merge PDF</h3>
+
+                    <p>
+                        Combine multiple PDF documents
+                        into one single file.
+                    </p>
+
+                    <input
+                        type="file"
+                        id="pdfInput"
+                        accept="application/pdf"
+                        multiple
+                    >
+
+                    <div id="pdfList"></div>
+
+                    <div class="tool-actions">
+
+                        <button type="button" class="secondary-btn" onclick="clearPDFs()">
+                            Clear All
+                        </button>
+
+                        <button type="button" onclick="mergePDFs()">
+                            Merge PDF →
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SPLIT PDF -->
+
+                <div class="tool-card" id="split-pdf">
+
+                    <div class="tool-card-top">
+                        <div class="tool-icon orange">✂</div>
+                        <span class="tool-category">ORGANIZE</span>
+                    </div>
+
+                    <h3>Split PDF</h3>
+
+                    <p>
+                        Extract selected pages or remove
+                        unwanted pages from your PDF.
+                    </p>
+
+                    <input
+                        type="file"
+                        id="splitPDFInput"
+                        accept="application/pdf"
+                    >
+
+                    <div id="splitPDFInfo"></div>
+
+                    <label for="splitMode">
+                        Select Split Mode
+                    </label>
+
+                    <select id="splitMode">
+
+                        <option value="extract">
+                            Extract Selected Pages
+                        </option>
+
+                        <option value="remove">
+                            Remove Selected Pages
+                        </option>
+
+                    </select>
+
+                    <input
+                        type="text"
+                        id="splitPageRange"
+                        placeholder="Example: 1-3, 5, 7-9"
+                    >
+
+                    <p id="splitModeInfo">
+                        Only the selected pages will be kept
+                        in the new PDF.
+                    </p>
+
+                    <div class="tool-actions">
+
+                        <button type="button" class="secondary-btn" onclick="clearSplitPDF()">
+                            Clear All
+                        </button>
+
+                        <button type="button" onclick="splitPDF()">
+                            Split PDF →
+                        </button>
+
+                    </div>
+
+                    <div id="splitPDFResult"></div>
+
+                </div>
+
+
+                <!-- COMPRESS PDF -->
+
+                <div class="tool-card" id="compress-pdf">
+
+                    <div class="tool-card-top">
+                        <div class="tool-icon green">⇩</div>
+                        <span class="tool-category">OPTIMIZE</span>
+                    </div>
+
+                    <h3>Compress PDF</h3>
+
+                    <p>
+                        Reduce PDF file size and make
+                        documents easier to share.
+                    </p>
+
+                    <input
+                        type="file"
+                        id="compressPDFInput"
+                        accept="application/pdf"
+                    >
+
+                    <div id="compressPDFInfo"></div>
+
+                    <label for="compressionLevel">
+                        Select Compression Level
+                    </label>
+
+                    <select id="compressionLevel">
+
+                        <option value="basic">
+                            Basic - Preserve Text
+                        </option>
+
+                        <option value="recommended" selected>
+                            Recommended - Balanced
+                        </option>
+
+                        <option value="high">
+                            High - Smaller File
+                        </option>
+
+                    </select>
+
+                    <p id="compressionWarning">
+                        Recommended and High modes convert
+                        pages into images. Text selection,
+                        links and forms may not be preserved.
+                    </p>
+
+                    <div class="tool-actions">
+
+                        <button type="button" class="secondary-btn" onclick="clearCompressPDF()">
+                            Clear All
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="compressPDF()"
+                            id="compressPDFButton"
+                        >
+                            Compress PDF →
+                        </button>
+
+                    </div>
+
+                    <div id="compressPDFResult"></div>
+
+                </div>
+
+
+                <!-- PROTECT PDF -->
+
+                <div class="tool-card" id="protect-pdf">
+
+                    <div class="tool-card-top">
+                        <div class="tool-icon red">🔐</div>
+                        <span class="tool-category">SECURITY</span>
+                    </div>
+
+                    <h3>Protect PDF</h3>
+
+                    <p>
+                        Add password protection to your PDF
+                        and help keep your documents private.
+                    </p>
+
+                    <input
+                        type="file"
+                        id="protectPDFInput"
+                        accept="application/pdf,.pdf"
+                    >
+
+                    <div id="protectPDFInfo"></div>
+
+                    <label for="protectPDFPassword">
+                        Create Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="protectPDFPassword"
+                        placeholder="Enter a strong password"
+                        minlength="8"
+                        maxlength="128"
+                        autocomplete="new-password"
+                    >
+
+                    <label for="confirmProtectPDFPassword">
+                        Confirm Password (Re-enter Password)
+                    </label>
+
+                    <input
+                        type="password"
+                        id="confirmProtectPDFPassword"
+                        placeholder="Re-enter your password"
+                        minlength="8"
+                        maxlength="128"
+                        autocomplete="new-password"
+                    >
+
+                    <p id="protectPDFWarning">
+                        Use at least 8 characters. Both passwords
+                        must match. Remember your password because
+                        PDFMaster cannot recover it.
+                    </p>
+
+                    <div class="tool-actions">
+
+                        <button type="button" class="secondary-btn" onclick="clearProtectPDF()">
+                            Clear All
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="protectPDF()"
+                            id="protectPDFButton"
+                        >
+                            Protect PDF →
+                        </button>
+
+                    </div>
+
+                    <div id="protectPDFResult"></div>
+
+                </div>
+
+
+                <!-- IMAGE COMPRESSOR -->
+
+                <div class="tool-card" id="image-compressor">
+
+                    <div class="tool-card-top">
+                        <div class="tool-icon pink">▧</div>
+                        <span class="tool-category">OPTIMIZE</span>
+                    </div>
+
+                    <h3>Image Compressor</h3>
+
+                    <p>
+                        Reduce image file size while
+                        maintaining adjustable image quality.
+                    </p>
+
+                    <input
+                        type="file"
+                        id="imageInput"
+                        accept="image/jpeg,image/png,image/webp"
+                        multiple
+                    >
+
+                    <div id="imageList"></div>
+
+                    <label for="imageQuality">
+                        Compression Quality:
+                        <span id="imageQualityValue">75%</span>
+                    </label>
+
+                    <input
+                        type="range"
+                        id="imageQuality"
+                        min="10"
+                        max="100"
+                        value="75"
+                    >
+
+                    <label for="imageOutputFormat">
+                        Output Format
+                    </label>
+
+                    <select id="imageOutputFormat">
+
+                        <option value="original">
+                            Keep Original Format
+                        </option>
+
+                        <option value="image/jpeg">
+                            JPG
+                        </option>
+
+                        <option value="image/webp">
+                            WebP
+                        </option>
+
+                        <option value="image/png">
+                            PNG
+                        </option>
+
+                    </select>
+
+                    <p id="imageFormatInfo">
+                        Select an output format and quality
+                        to compress your images.
+                    </p>
+
+                    <div class="tool-actions">
+
+                        <button type="button" class="secondary-btn" onclick="clearImages()">
+                            Clear All
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="compressImages()"
+                            id="compressImagesButton"
+                        >
+                            Compress Images →
+                        </button>
+
+                    </div>
+
+                    <div id="imageCompressorResult"></div>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- ABOUT SECTION -->
+
+        <section id="about" class="info-section">
+
+            <span class="section-label">ABOUT PDFMASTER</span>
+
+            <h2>Simple Tools for Everyday Tasks</h2>
+
+            <p>
+                PDFMaster is designed to make working with
+                PDF documents and images easier.
+                Our goal is to provide accessible,
+                simple and useful online tools.
+            </p>
+
+        </section>
+
+
+        <!-- FAQ SECTION -->
+
+        <section id="faq" class="info-section">
+
+            <span class="section-label">HELP CENTER</span>
+
+            <h2>Frequently Asked Questions</h2>
+
+            <details>
+                <summary>Is PDFMaster free to use?</summary>
+                <p>PDFMaster's available tools are free to use.</p>
+            </details>
+
+            <details>
+                <summary>Can I merge multiple PDF files?</summary>
+                <p>Yes. Select at least two PDF files and use the Merge PDF feature.</p>
+            </details>
+
+            <details>
+                <summary>Can I convert photos into PDF?</summary>
+                <p>Yes. Select JPG or PNG images and convert them into a PDF document.</p>
+            </details>
+
+            <details>
+                <summary>Can I extract or remove PDF pages?</summary>
+                <p>
+                    Yes. Choose Extract Selected Pages to keep only
+                    the selected pages, or Remove Selected Pages
+                    to delete them and keep the remaining pages.
+                </p>
+            </details>
+
+            <details>
+                <summary>Can I compress PDF files?</summary>
+                <p>Yes. Select a compression level and create a smaller PDF when possible.</p>
+            </details>
+
+            <details>
+                <summary>Can I protect PDF files with a password?</summary>
+                <p>
+                    Yes. Select a PDF, create a password,
+                    confirm it and download your password-protected PDF.
+                </p>
+            </details>
+
+            <details>
+                <summary>Can I compress images?</summary>
+                <p>
+                    Yes. Select JPG, PNG or WebP images,
+                    adjust the compression quality and download
+                    the compressed images.
+                </p>
+            </details>
+
+            <details>
+                <summary>Do I need to install software?</summary>
+                <p>No installation is required to use the browser-based tools.</p>
+            </details>
+
+        </section>
+
+
+        <!-- FOOTER -->
+
+        <footer class="footer">
+
+            <a href="#" class="logo">
+                PDF<span class="logo-accent">Master</span>
+            </a>
+
+            <p>Free, Fast and Easy PDF & Image Tools.</p>
+
+            <div class="footer-links">
+                <a href="#about">About Us</a>
+                <a href="#faq">FAQs</a>
+                <a href="#tools">All Tools</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms & Conditions</a>
+                <a href="disclaimer.html">Disclaimer</a>
+            </div>
+
+            <p class="copyright">
+                © 2026 PDFMaster. All Rights Reserved.
+            </p>
+
+        </footer>
+
+
+    </main>
+
+
+    <!-- PDF LIBRARIES -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <script>
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc =
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+        }
+    </script>
+
+    <script src="script.js"></script>
+
+
+    <!-- MOBILE SIDEBAR TOGGLE -->
+
+    <script>
+        const menuToggle = document.getElementById("menuToggle");
+        const sidebar = document.getElementById("sidebar");
+
+        menuToggle.addEventListener("click", function () {
+
+            const isOpen = sidebar.classList.toggle("open");
+
+            menuToggle.setAttribute("aria-expanded", isOpen);
+
+        });
+
+
+        document.querySelectorAll(".sidebar-nav a").forEach(function(link) {
+
+            link.addEventListener("click", function() {
+
+                sidebar.classList.remove("open");
+
+                menuToggle.setAttribute("aria-expanded", "false");
+
+            });
+
+        });
+    </script>
+
+</body>
+</html>
