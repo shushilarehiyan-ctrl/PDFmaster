@@ -1,0 +1,5 @@
+
+User-agent: *
+Allow: /
+
+Sitemap: https://shushilarehiyan-ctrl.github.io/PDFmaster/sitemap.xml
