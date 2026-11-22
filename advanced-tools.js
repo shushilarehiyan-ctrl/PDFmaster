@@ -509,6 +509,7 @@
   else container.insertAdjacentElement("afterend", workspace);
 
   let activeToolCard = null;
+  const movedNodes = new Map();
   function cardIconText(card) {
     const title = (card.querySelector("h3")?.textContent || "").trim().toUpperCase();
     if (title.includes("WORD") || title.includes("DOC")) return "DOC";
