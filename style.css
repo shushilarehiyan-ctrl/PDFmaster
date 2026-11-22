@@ -1952,3 +1952,149 @@ body {
 @media (prefers-reduced-motion: reduce) {
     .hero::after { animation: none !important; }
 }
+
+
+/* ==========================================
+   GOLDEN FINISH — SIDEBAR & HELP CENTER
+========================================== */
+
+/* Sidebar: richer obsidian surface with a warm edge */
+.sidebar {
+    background:
+        radial-gradient(ellipse at 12% 0%, rgba(214,168,63,0.10), transparent 38%),
+        linear-gradient(180deg, #15130f 0%, #101114 48%, #0c0d10 100%);
+    border-right-color: rgba(242,196,91,0.20);
+    box-shadow: 10px 0 38px rgba(0,0,0,0.22);
+}
+.sidebar .logo {
+    color: #fff3d1;
+    text-shadow: 0 0 22px rgba(230,184,82,0.12);
+}
+.sidebar-label {
+    color: #c5a45b;
+    letter-spacing: 1.8px;
+}
+.sidebar-nav { gap: 8px; }
+.nav-link {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: color 260ms ease, background 260ms ease,
+                border-color 260ms ease, transform 260ms ease,
+                box-shadow 260ms ease;
+}
+.nav-link::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 20%;
+    bottom: 20%;
+    width: 2px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #fff0b5, #bd872b);
+    opacity: 0;
+    transform: scaleY(0.35);
+    transition: opacity 260ms ease, transform 260ms ease;
+}
+.nav-link:hover {
+    transform: translateX(3px);
+    border-color: rgba(242,196,91,0.15);
+    background: linear-gradient(100deg, rgba(214,168,63,0.16), rgba(214,168,63,0.035));
+    color: #fff0c4;
+    box-shadow: inset 0 0 22px rgba(214,168,63,0.035);
+}
+.nav-link.active {
+    border-color: rgba(242,196,91,0.28);
+    background: linear-gradient(100deg, rgba(214,168,63,0.22), rgba(214,168,63,0.055));
+    color: #ffe5a3;
+    box-shadow: inset 0 0 24px rgba(214,168,63,0.055), 0 5px 20px rgba(0,0,0,0.16);
+}
+.nav-link.active::before,
+.nav-link:hover::before {
+    opacity: 1;
+    transform: scaleY(1);
+}
+.nav-icon {
+    color: #c5a45b;
+    filter: drop-shadow(0 0 7px rgba(214,168,63,0.16));
+}
+.nav-link.active .nav-icon { color: #ffe09a; }
+.sidebar-bottom {
+    border-top-color: rgba(242,196,91,0.18);
+}
+
+/* Help Center: layered gold-edged accordion cards */
+#faq {
+    position: relative;
+    overflow: hidden;
+    border-color: rgba(242,196,91,0.20);
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(214,168,63,0.075), transparent 42%),
+        linear-gradient(145deg, #1c1a15, #121316 72%);
+    box-shadow: 0 16px 44px rgba(0,0,0,0.20), inset 0 1px rgba(255,231,171,0.045);
+}
+#faq .section-label { color: #d9b765; }
+#faq h2 { color: #fff0c9; }
+#faq details {
+    position: relative;
+    border-color: rgba(242,196,91,0.15);
+    background: linear-gradient(110deg, rgba(255,255,255,0.025), rgba(214,168,63,0.025));
+    transition: border-color 280ms ease, background 280ms ease,
+                box-shadow 280ms ease, transform 280ms ease;
+}
+#faq details::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 2px;
+    background: linear-gradient(180deg, transparent, #f6d98e, #a87925, transparent);
+    opacity: 0;
+    transition: opacity 280ms ease;
+}
+#faq details:hover {
+    transform: translateY(-2px);
+    border-color: rgba(242,196,91,0.38);
+    background: linear-gradient(110deg, rgba(214,168,63,0.10), rgba(214,168,63,0.035));
+    box-shadow: 0 8px 24px rgba(0,0,0,0.16), 0 0 18px rgba(214,168,63,0.055);
+}
+#faq details[open] {
+    border-color: rgba(242,196,91,0.46);
+    background: linear-gradient(110deg, rgba(214,168,63,0.105), rgba(214,168,63,0.035));
+    box-shadow: 0 10px 28px rgba(0,0,0,0.18), inset 0 0 22px rgba(214,168,63,0.035);
+}
+#faq details:hover::before,
+#faq details[open]::before { opacity: 1; }
+#faq summary {
+    color: #e9dfc7;
+    transition: color 260ms ease;
+}
+#faq summary:hover { color: #fff0c4; }
+#faq summary::after {
+    border: 1px solid rgba(242,196,91,0.22);
+    background: linear-gradient(145deg, rgba(214,168,63,0.16), rgba(214,168,63,0.045));
+    color: #f3d58e;
+    transition: transform 260ms ease, background 260ms ease,
+                color 260ms ease, box-shadow 260ms ease;
+}
+#faq details[open] summary::after {
+    transform: translateY(-50%) rotate(45deg);
+    border-color: rgba(255,224,154,0.58);
+    background: linear-gradient(135deg, #f5d889, #b9872c);
+    color: #211807;
+    box-shadow: 0 0 18px rgba(214,168,63,0.20);
+}
+#faq details p,
+#faq details ul,
+#faq details ol { color: #bdb39e; }
+#faq details strong { color: #ffe5a3; }
+#faq details a { color: #f0ce80; }
+#faq details a:hover { color: #fff5d9; }
+#faq summary:focus-visible {
+    outline: 2px solid #f3d58e;
+    outline-offset: -4px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .nav-link, .nav-link::before, #faq details, #faq summary,
+    #faq summary::after { transition: none !important; }
+    .nav-link:hover, #faq details:hover { transform: none; }
+}
