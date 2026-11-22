@@ -3052,3 +3052,449 @@ select:focus-visible {
         transform: none;
     }
 }
+
+
+/* =========================================================
+   PDFMASTER — ROYAL BURGUNDY ESTATE · FINAL PALETTE
+   Oxblood / Jet Black / Antique Brass / Warm Ivory
+   Restrained finishes, no neon or excessive lighting.
+========================================================= */
+
+:root {
+    --bg: #3B0715;
+    --sidebar: #260610;
+    --surface: #100D10;
+    --surface-light: #1A1216;
+    --surface-hover: #24171D;
+    --border: rgba(176, 141, 80, 0.30);
+    --text: #F1E8DC;
+    --muted: #C5B7AD;
+    --primary: #B08D50;
+    --primary-light: #D9B77E;
+    --blue: #D9B77E;
+    --green: #B7C4A4;
+    --orange: #D9B77E;
+    --red: #C98E91;
+    --pink: #C9A2AA;
+    --shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+}
+
+html,
+body {
+    background: #3B0715 !important;
+    background-image: none !important;
+    color: #F1E8DC !important;
+}
+
+body {
+    --bg: #3B0715;
+}
+
+/* Deep oxblood architectural backdrop */
+.main-content,
+main,
+.tools-container {
+    background: transparent !important;
+}
+
+.sidebar {
+    background: #260610 !important;
+    border-right: 1px solid rgba(176, 141, 80, 0.34) !important;
+    box-shadow: none !important;
+}
+
+.sidebar .logo,
+.sidebar-label {
+    color: #D9B77E !important;
+    text-shadow: none !important;
+}
+
+.logo-icon,
+.document-icon {
+    color: #17100A !important;
+    background: linear-gradient(145deg, #D9B77E, #B08D50) !important;
+    box-shadow: none !important;
+}
+
+.logo-accent,
+.breadcrumb span,
+.nav-icon,
+.sidebar-bottom {
+    color: #B08D50 !important;
+}
+
+.nav-link {
+    color: #E0D3C9 !important;
+    border: 1px solid transparent;
+    box-shadow: none !important;
+    transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+.nav-link:hover {
+    color: #F1E8DC !important;
+    background: rgba(176, 141, 80, 0.10) !important;
+    border-color: rgba(176, 141, 80, 0.22) !important;
+    transform: none !important;
+}
+
+.nav-link.active {
+    color: #F1D8A9 !important;
+    background: rgba(176, 141, 80, 0.14) !important;
+    border-color: rgba(176, 141, 80, 0.38) !important;
+    box-shadow: inset 3px 0 #B08D50 !important;
+}
+
+.nav-link::before {
+    display: none !important;
+}
+
+.sidebar-bottom {
+    border-top-color: rgba(176, 141, 80, 0.24) !important;
+}
+
+/* Jet-black search field with a fine antique-brass outline */
+.search-box {
+    background: #100D10 !important;
+    border: 1px solid rgba(176, 141, 80, 0.56) !important;
+    box-shadow: none !important;
+}
+
+.search-box:focus-within {
+    border-color: #D9B77E !important;
+    box-shadow: 0 0 0 2px rgba(176, 141, 80, 0.12) !important;
+}
+
+.search-box input,
+.search-box #toolSearch {
+    color: #F1E8DC !important;
+    background: transparent !important;
+}
+
+.search-box input::placeholder,
+.search-box #toolSearch::placeholder {
+    color: #BBAEA4 !important;
+}
+
+.search-icon {
+    color: #D9B77E !important;
+}
+
+/* Brass controls — metallic but not glowing */
+.search-box button,
+.hero-button,
+.tool-card button,
+#faq > a {
+    color: #1B1209 !important;
+    background: linear-gradient(135deg, #D9B77E, #B08D50) !important;
+    border: 1px solid #E3C995 !important;
+    box-shadow: none !important;
+}
+
+.search-box button:hover,
+.hero-button:hover,
+.tool-card button:hover,
+#faq > a:hover {
+    color: #160F09 !important;
+    background: #D9B77E !important;
+    box-shadow: none !important;
+    filter: none !important;
+    transform: translateY(-1px);
+}
+
+.tool-card button.secondary-btn {
+    color: #E1C58F !important;
+    background: #1A1216 !important;
+    border: 1px solid rgba(176, 141, 80, 0.42) !important;
+}
+
+/* Burgundy hero panel; decorative orbit retained with quiet brass edges */
+.hero {
+    background: #2B0815 !important;
+    border: 1px solid rgba(176, 141, 80, 0.40) !important;
+    box-shadow: none !important;
+}
+
+.hero::before,
+.hero::after,
+body::before,
+body::after,
+.main-content::before,
+.main-content::after {
+    display: none !important;
+    content: none !important;
+    animation: none !important;
+    filter: none !important;
+    box-shadow: none !important;
+}
+
+.hero h1,
+.hero h1 span,
+.hero-badge {
+    color: #D9B77E !important;
+}
+
+.hero p {
+    color: #D6C8BE !important;
+}
+
+.hero-badge {
+    background: rgba(176, 141, 80, 0.08) !important;
+    border: 1px solid rgba(176, 141, 80, 0.34) !important;
+}
+
+.hero-glow,
+.orbit-particle {
+    display: none !important;
+    opacity: 0 !important;
+    box-shadow: none !important;
+}
+
+.orbit-ring {
+    border-color: rgba(217, 183, 126, 0.32) !important;
+    box-shadow: none !important;
+}
+
+.orbit-ring-two {
+    border-color: rgba(217, 183, 126, 0.18) !important;
+}
+
+.paper-sheet {
+    background: rgba(241, 232, 220, 0.035) !important;
+    border-color: rgba(217, 183, 126, 0.34) !important;
+    box-shadow: none !important;
+}
+
+.hero-document {
+    background: #100D10 !important;
+    border: 1px solid rgba(176, 141, 80, 0.42) !important;
+    box-shadow: none !important;
+}
+
+/* Jet-black marble inspired surfaces with extremely subtle veining */
+.stat-card,
+.tool-card,
+.info-section,
+#faq {
+    color: #F1E8DC !important;
+    background-color: #100D10 !important;
+    background-image:
+        linear-gradient(132deg, transparent 0 37%, rgba(184, 181, 178, 0.035) 37.12%, transparent 37.35%),
+        linear-gradient(148deg, transparent 0 68%, rgba(184, 181, 178, 0.025) 68.12%, transparent 68.32%) !important;
+    border: 1px solid rgba(176, 141, 80, 0.28) !important;
+    box-shadow: none !important;
+}
+
+.stat-card:hover,
+.tool-card:hover {
+    border-color: rgba(217, 183, 126, 0.48) !important;
+    box-shadow: none !important;
+    transform: translateY(-2px);
+}
+
+.stat-card h3,
+.tool-card h3,
+.section-heading h2,
+.info-section h2,
+.section-label {
+    color: #D9B77E !important;
+}
+
+.stat-card p,
+.tool-card > p,
+.section-heading p,
+.info-section > p {
+    color: #C5B7AD !important;
+}
+
+.tool-category {
+    color: #BFA06B !important;
+}
+
+.tool-icon.purple,
+.tool-icon.blue,
+.tool-icon.orange,
+.tool-icon.green,
+.tool-icon.red,
+.tool-icon.pink,
+.stat-icon.purple,
+.stat-icon.blue,
+.stat-icon.green {
+    color: #D9B77E !important;
+    background: rgba(176, 141, 80, 0.12) !important;
+}
+
+/* File controls, text fields and selects */
+.tool-card label {
+    color: #E1D5CC !important;
+}
+
+.tool-card input:not([type="range"]),
+.tool-card select,
+.tool-card textarea {
+    color: #F1E8DC !important;
+    background: #100D10 !important;
+    border: 1px solid rgba(176, 141, 80, 0.32) !important;
+}
+
+.tool-card input::placeholder,
+.tool-card textarea::placeholder {
+    color: #BBAEA4 !important;
+}
+
+.tool-card select option {
+    color: #F1E8DC !important;
+    background: #100D10 !important;
+}
+
+.tool-card input[type="file"] {
+    color: #E1D5CC !important;
+    background: rgba(16, 13, 16, 0.72) !important;
+    border-color: rgba(176, 141, 80, 0.34) !important;
+}
+
+.tool-card input[type="file"]::file-selector-button {
+    color: #1B1209 !important;
+    background: #B08D50 !important;
+}
+
+.tool-card input[type="range"] {
+    accent-color: #B08D50 !important;
+}
+
+.tool-card input:focus,
+.tool-card select:focus,
+.tool-card textarea:focus {
+    outline: none !important;
+    border-color: #D9B77E !important;
+    box-shadow: 0 0 0 2px rgba(176, 141, 80, 0.11) !important;
+}
+
+/* Notices, results and download actions */
+#splitModeInfo,
+#compressionWarning,
+#protectPDFWarning,
+#imageFormatInfo {
+    color: #DED1C8 !important;
+    border-left-color: #B08D50 !important;
+    background: rgba(16, 13, 16, 0.72) !important;
+}
+
+#splitPDFResult a,
+#compressPDFResult a,
+#protectPDFResult a,
+#imageCompressorResult a {
+    color: #1B1209 !important;
+    background: #B08D50 !important;
+}
+
+/* Help Center */
+#faq details {
+    background: rgba(16, 13, 16, 0.76) !important;
+    border: 1px solid rgba(176, 141, 80, 0.22) !important;
+    box-shadow: none !important;
+    transition: background 180ms ease, border-color 180ms ease;
+}
+
+#faq details::before {
+    display: none !important;
+}
+
+#faq details:hover,
+#faq details[open] {
+    background: #1A1216 !important;
+    border-color: rgba(217, 183, 126, 0.44) !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+#faq summary {
+    color: #F1E8DC !important;
+}
+
+#faq summary:hover,
+#faq details[open] summary {
+    color: #E8D2A7 !important;
+}
+
+#faq summary::after {
+    color: #1B1209 !important;
+    background: #B08D50 !important;
+    border: 1px solid #D9B77E !important;
+    box-shadow: none !important;
+}
+
+#faq details[open] summary::after {
+    color: #1B1209 !important;
+    background: #D9B77E !important;
+    border-color: #E3C995 !important;
+    box-shadow: none !important;
+}
+
+#faq details p,
+#faq details ul,
+#faq details ol {
+    color: #C5B7AD !important;
+}
+
+#faq details strong,
+#faq details a {
+    color: #D9B77E !important;
+}
+
+/* Footer and fine details */
+.footer {
+    color: #C5B7AD !important;
+    border-top-color: rgba(176, 141, 80, 0.28) !important;
+}
+
+.footer-links a {
+    color: #D9B77E !important;
+}
+
+.footer-links a:hover {
+    color: #F1E8DC !important;
+}
+
+::-webkit-scrollbar-track {
+    background: #260610 !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #765B4A !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #B08D50 !important;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+    outline-color: #D9B77E !important;
+}
+
+@media (max-width: 900px) {
+    .sidebar {
+        background: #260610 !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nav-link,
+    .search-box button,
+    .hero-button,
+    .tool-card button,
+    .tool-card,
+    .stat-card,
+    #faq details {
+        transition: none !important;
+    }
+
+    .tool-card:hover,
+    .stat-card:hover,
+    #faq details:hover {
+        transform: none !important;
+    }
+}
