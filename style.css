@@ -4219,3 +4219,64 @@ summary:focus-visible {
     .tool-page-active .tool-workspace-close { width: 100%; }
     .tools-container .tool-category-column > .tool-card { min-height: 62px; }
 }
+
+
+/* Real, indeterminate processing feedback — no fabricated percentage. */
+.tool-page-active .tool-workspace-body {
+    position: relative;
+}
+.tool-page-active .tool-workspace-body.is-processing::before {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    top: -14px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    overflow: hidden;
+    border-radius: 99px;
+    background: rgba(217,183,126,.13);
+    background-image: linear-gradient(90deg, transparent, #d9b77e, #b08d50, transparent);
+    background-size: 220% 100%;
+    animation: pdfProcessingSweep 1.35s ease-in-out infinite;
+}
+.tool-page-active .tool-processing-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 0;
+    padding: 13px 15px;
+    border: 1px solid rgba(217,183,126,.22);
+    border-radius: 10px;
+    background: rgba(176,141,80,.08);
+    color: #d9b77e;
+    font-size: 12px;
+    animation: pdfStatusPulse 1.8s ease-in-out infinite;
+}
+.tool-page-active .tool-processing-status::before {
+    content: "";
+    width: 12px;
+    height: 12px;
+    flex: 0 0 12px;
+    border: 2px solid rgba(217,183,126,.35);
+    border-top-color: #d9b77e;
+    border-radius: 50%;
+    animation: pdfToolSpin .75s linear infinite;
+}
+@keyframes pdfProcessingSweep {
+    from { background-position: 100% 0; }
+    to { background-position: -120% 0; }
+}
+@keyframes pdfStatusPulse {
+    0%, 100% { opacity: .78; }
+    50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .tool-page-active .tool-workspace,
+    .tool-page-active .tool-processing-status,
+    .tool-page-active .tool-workspace-body.is-processing::before,
+    .tool-page-active .tool-processing-status::before {
+        animation: none !important;
+        transition: none !important;
+    }
+}
