@@ -459,25 +459,26 @@
     Array.from(container.querySelectorAll(".tool-card")).map(function (card) { return [card.id, card]; })
   );
   const categorizedCards = new Set();
-  const categoryColumns = categoryGroups.map(function (group) {
-    const column = make("section", "tool-category-column");
+  const categorySections = categoryGroups.map(function (group) {
+    const section = make("section", "tool-category-column");
     const heading = make("h3", "tool-category-heading", group.title);
-    column.appendChild(heading);
+    const grid = make("div", "tool-category-grid");
+    section.appendChild(heading);
+    section.appendChild(grid);
     group.ids.forEach(function (id) {
       const card = toolCardMap.get(id);
       if (card) {
-        column.appendChild(card);
+        grid.appendChild(card);
         categorizedCards.add(card);
       }
     });
-    return column;
+    return section;
   });
-  // Keep the two existing image utilities available separately; the six-column PDF menu
-  // contains exactly the 23 tools listed in the supplied reference.
+  // Keep the two existing image utilities in their own section, using the same three-column card grid.
   const extraCards = Array.from(toolCardMap.values()).filter(function (card) {
     return !categorizedCards.has(card);
   });
-  container.replaceChildren.apply(container, categoryColumns);
+  container.replaceChildren.apply(container, categorySections);
   if (extraCards.length) {
     const extras = make("section", "tool-extra-tools");
     extras.appendChild(make("h3", "tool-category-heading", "Additional Image Tools"));
@@ -518,17 +519,34 @@
   let activeToolCard = null;
   const movedNodes = new Map();
   function cardIconText(card) {
-    const title = (card.querySelector("h3")?.textContent || "").trim().toUpperCase();
-    if (title.includes("WORD") || title.includes("DOC")) return "DOC";
-    if (title.includes("EXCEL")) return "XLS";
-    if (title.includes("POWERPOINT") || title.includes("PPT")) return "PPT";
-    if (title.includes("PNG")) return "PNG";
-    if (title.includes("JPG") || title.includes("PHOTO") || title.includes("IMAGE")) return "IMG";
-    if (title.includes("SIGN")) return "SIGN";
-    if (title.includes("FORM")) return "FORM";
-    if (title.includes("MERGE") || title.includes("SPLIT") || title.includes("EDIT")) return "PDF";
-    if (title.includes("EPUB")) return "EPUB";
-    return "PDF";
+    const icons = {
+      "edit-pdf": "✎",
+      "compress-pdf": "⇩",
+      "split-pdf": "✂",
+      "merge-pdf": "⇄",
+      "pdf-to-word": "W",
+      "pdf-to-png": "▧",
+      "pdf-to-epub": "E",
+      "pdf-to-jpg": "▣",
+      "pdf-to-pptx": "P",
+      "pdf-to-excel": "X",
+      "word-to-pdf": "W↓",
+      "png-to-pdf": "▧↓",
+      "epub-to-pdf": "E↓",
+      "jpg-to-pdf": "▣↓",
+      "pptx-to-pdf": "P↓",
+      "excel-to-pdf": "X↓",
+      "protect-pdf": "🔒",
+      "sign-pdf": "✍",
+      "form-w-9": "W9",
+      "form-ds-11": "DS",
+      "form-1099": "1099",
+      "form-941": "941",
+      "form-w-2": "W2",
+      "photo-to-pdf": "▧",
+      "image-compressor": "◩"
+    };
+    return icons[card.id] || "▤";
   }
 
   function closeActiveTool() {
