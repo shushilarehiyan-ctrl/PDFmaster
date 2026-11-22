@@ -1479,3 +1479,41 @@ async function protectPDF() {
         protectPDFButton.textContent = "Protect PDF →";
     }
 }
+
+
+// ========================================
+// SHARED TOOL PROCESSING FEEDBACK
+// ========================================
+async function runToolWithAnimation(button, operation) {
+    if (button.disabled) return;
+    const workspaceBody = button.closest(".tool-workspace-body");
+    const originalText = button.textContent;
+    button.disabled = true;
+    button.classList.add("is-processing");
+    button.setAttribute("aria-busy", "true");
+    if (workspaceBody) {
+        workspaceBody.classList.add("is-processing");
+        let status = workspaceBody.querySelector(".tool-processing-status");
+        if (!status) {
+            status = document.createElement("p");
+            status.className = "tool-processing-status";
+            status.setAttribute("role", "status");
+            status.setAttribute("aria-live", "polite");
+            workspaceBody.appendChild(status);
+        }
+        status.textContent = "Processing your file… Please keep this page open.";
+    }
+    try {
+        await operation();
+    } finally {
+        button.disabled = false;
+        button.classList.remove("is-processing");
+        button.removeAttribute("aria-busy");
+        if (workspaceBody) {
+            workspaceBody.classList.remove("is-processing");
+            const status = workspaceBody.querySelector(".tool-processing-status");
+            if (status) status.remove();
+        }
+        button.textContent = originalText;
+    }
+}
