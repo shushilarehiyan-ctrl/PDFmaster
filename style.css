@@ -5531,3 +5531,29 @@ a:hover,
     gap: 10px 16px;
   }
 }
+
+
+/* ---------- FAQ: MATCH CLOSED STATE TO OPEN STATE, NO HOVER RECOLOR ---------- */
+#faq details,
+#faq details:hover,
+#faq details[open],
+#faq details[open]:hover {
+  background: #1A1216 !important;
+  border-color: rgba(176, 141, 80, 0.22) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+#faq details::before,
+#faq details:hover::before,
+#faq details[open]::before {
+  display: none !important;
+  opacity: 0 !important;
+}
+#faq summary,
+#faq summary:hover {
+  color: #F1E8DC !important;
+}
+#faq details[open] summary,
+#faq details[open] summary:hover {
+  color: #E8D2A7 !important;
+}
