@@ -6133,3 +6133,125 @@ body:not(.tool-page-active) .topbar-badge:hover {
     pointer-events: auto !important;
   }
 }
+
+
+/* ---------- MOBILE GOLDEN HERO + FORM 1099 SIDEBAR ALIGNMENT ---------- */
+@media (max-width: 650px) {
+  /* Golden treatment is limited to the mobile hero. */
+  .hero {
+    border-color: rgba(231, 190, 91, .52) !important;
+    background:
+      radial-gradient(ellipse at 76% 58%, rgba(224, 174, 65, .24), transparent 43%),
+      radial-gradient(ellipse at 18% 8%, rgba(120, 83, 25, .18), transparent 42%),
+      linear-gradient(145deg, #17140e 0%, #211b10 58%, #100f0c 100%) !important;
+    box-shadow: 0 18px 48px rgba(0,0,0,.42), 0 0 28px rgba(214,166,55,.13), inset 0 1px rgba(255,231,174,.10) !important;
+  }
+
+  .hero h1 span {
+    color: #f2cc73 !important;
+    text-shadow: 0 0 18px rgba(235,190,91,.22) !important;
+  }
+
+  .hero-badge {
+    border-color: rgba(231,190,91,.42) !important;
+    background: rgba(191,143,43,.12) !important;
+    color: #f3d58d !important;
+  }
+
+  .hero-button,
+  .hero .btn-primary,
+  .hero a.primary-btn {
+    border-color: rgba(255,226,157,.48) !important;
+    background: linear-gradient(135deg, #f1d18a, #b9852d) !important;
+    color: #211809 !important;
+    box-shadow: 0 7px 22px rgba(197,145,44,.25) !important;
+  }
+
+  .hero-glow {
+    background: radial-gradient(ellipse, rgba(230,181,77,.30), transparent 68%) !important;
+    animation: none !important;
+  }
+
+  .hero-document {
+    border-color: rgba(234,194,111,.52) !important;
+    box-shadow: 0 12px 34px rgba(0,0,0,.38), 0 0 25px rgba(220,171,70,.16) !important;
+    animation: none !important;
+  }
+
+  .hero-document::after {
+    border-color: rgba(234,194,111,.4) !important;
+    background: rgba(43,32,13,.92) !important;
+    color: #f0d69c !important;
+  }
+
+  .document-line {
+    background: rgba(242,213,153,.78) !important;
+  }
+
+  .orbit-ring {
+    border-color: rgba(224,183,99,.26) !important;
+    box-shadow: 0 0 22px rgba(211,160,57,.10) !important;
+    animation: none !important;
+  }
+
+  .orbit-particle {
+    border-color: rgba(244,207,127,.8) !important;
+    background: rgba(219,170,73,.36) !important;
+    box-shadow: 0 0 13px rgba(231,183,82,.32) !important;
+    animation: none !important;
+  }
+
+  /* Keep one and only one visible animation: a slow golden light sweep. */
+  .hero::before {
+    background: radial-gradient(ellipse at 74% 46%, rgba(238,190,83,.20), transparent 54%) !important;
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .hero::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: -35% auto -35% -55% !important;
+    width: 42% !important;
+    transform: skewX(-18deg) !important;
+    pointer-events: none !important;
+    background: linear-gradient(90deg, transparent, rgba(255,231,171,.04) 25%, rgba(255,224,143,.30) 50%, rgba(255,231,171,.06) 75%, transparent) !important;
+    filter: blur(5px) !important;
+    animation: pdfmaster-mobile-gold-light 6.5s ease-in-out infinite !important;
+    opacity: .95 !important;
+  }
+
+  /* The 1099 icon is wider than the standard icon; reserve a fixed icon column. */
+  .sidebar-nav a[href="#form-1099"] {
+    align-items: center !important;
+    gap: 13px !important;
+  }
+
+  .sidebar-nav a[href="#form-1099"] .nav-icon {
+    display: inline-flex !important;
+    flex: 0 0 23px !important;
+    width: 23px !important;
+    min-width: 23px !important;
+    justify-content: center !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+    font-size: 10px !important;
+    letter-spacing: -0.65px !important;
+    line-height: 1 !important;
+  }
+}
+
+@keyframes pdfmaster-mobile-gold-light {
+  0%, 12% { left: -55%; opacity: 0; }
+  25% { opacity: .95; }
+  68% { opacity: .72; }
+  100% { left: 125%; opacity: 0; }
+}
+
+@media (max-width: 650px) and (prefers-reduced-motion: reduce) {
+  .hero::after {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+}
