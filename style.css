@@ -6483,3 +6483,36 @@ body:not(.tool-page-active) .topbar-badge:hover {
   font-size: 9px;
   line-height: 1.45;
 }
+
+
+/* PDFMASTER OPTIONAL IN-BROWSER AI */
+.pm-assistant-browser-toggle {
+  padding: 7px 10px;
+  border: 1px solid rgba(119, 197, 255, .38);
+  border-radius: 20px;
+  color: #c6e7ff !important;
+  background: rgba(58, 132, 190, .12) !important;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.pm-assistant-browser-toggle:hover {
+  background: rgba(58, 132, 190, .22) !important;
+}
+.pm-assistant-browser-toggle.is-active {
+  color: #101923 !important;
+  border-color: #9bd4ff !important;
+  background: linear-gradient(135deg, #c6e7ff, #71b7e8) !important;
+}
+.pm-assistant-browser-toggle:disabled {
+  opacity: .65;
+  cursor: wait;
+}
+.pm-assistant-browser-status {
+  padding: 8px 14px;
+  color: #aab8ca;
+  background: rgba(91, 153, 204, .07);
+  font-size: 9px;
+  line-height: 1.5;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
