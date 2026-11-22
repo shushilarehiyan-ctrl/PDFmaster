@@ -5671,3 +5671,36 @@ body:not(.tool-page-active) .topbar-badge:hover {
     box-shadow: 0 0 14px rgba(176, 141, 80, .12);
 }
 
+
+
+/* ---------- TOOL WORKSPACE: CUSTOM CHOOSE FILES BUTTON ---------- */
+.tool-page-active .tool-workspace-body > input[type="file"]::file-selector-button {
+    appearance: none;
+    margin: 0 14px 0 0;
+    padding: 11px 18px;
+    border: 1px solid rgba(217, 183, 126, .72);
+    border-radius: 9px;
+    background: linear-gradient(135deg, #B08D50, #D9B77E);
+    color: #100D10;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: filter .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.tool-page-active .tool-workspace-body > input[type="file"]::file-selector-button:hover {
+    filter: brightness(1.08);
+    box-shadow: 0 0 14px rgba(176, 141, 80, .22);
+    transform: translateY(-1px);
+}
+.tool-page-active .tool-workspace-body > input[type="file"]::-webkit-file-upload-button {
+    appearance: none;
+    margin: 0 14px 0 0;
+    padding: 11px 18px;
+    border: 1px solid rgba(217, 183, 126, .72);
+    border-radius: 9px;
+    background: linear-gradient(135deg, #B08D50, #D9B77E);
+    color: #100D10;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
