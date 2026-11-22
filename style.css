@@ -6255,3 +6255,51 @@ body:not(.tool-page-active) .topbar-badge:hover {
     opacity: 0 !important;
   }
 }
+
+
+/* ---------- COMPACT MOBILE HERO HEIGHT ---------- */
+@media (max-width: 650px) {
+  .hero {
+    min-height: 430px !important;
+    padding: 24px 20px 150px !important;
+  }
+
+  .hero-badge {
+    margin-bottom: 13px !important;
+  }
+
+  .hero p {
+    margin-top: 10px !important;
+    line-height: 1.55 !important;
+  }
+
+  .hero-button {
+    margin-top: 14px !important;
+  }
+
+  .hero-decoration {
+    bottom: 8px !important;
+    height: 138px !important;
+  }
+
+  .hero-document {
+    width: 124px !important;
+    height: 90px !important;
+    gap: 6px !important;
+    padding: 14px !important;
+  }
+
+  .hero-document::after {
+    bottom: -40px !important;
+    padding: 8px 11px !important;
+    font-size: 8px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .hero {
+    min-height: 430px !important;
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+}
