@@ -342,7 +342,7 @@
                         multiple
                     >
 
-                    <div id="photoList"></div>
+                    <div id="photoList" aria-live="polite"></div>
 
                     <div class="tool-actions">
 
@@ -382,7 +382,7 @@
                         multiple
                     >
 
-                    <div id="pdfList"></div>
+                    <div id="pdfList" aria-live="polite"></div>
 
                     <div class="tool-actions">
 
@@ -462,7 +462,7 @@
 
                     </div>
 
-                    <div id="splitPDFResult"></div>
+                    <div id="splitPDFResult" aria-live="polite"></div>
 
                 </div>
 
@@ -512,9 +512,10 @@
                     </select>
 
                     <p id="compressionWarning">
-                        Recommended and High modes convert
-                        pages into images. Text selection,
-                        links and forms may not be preserved.
+                        Basic mode rewrites the PDF structure and may not reduce file size.
+                        Recommended and High modes convert pages into images to reduce size;
+                        selectable text, links, forms and accessibility features may not be preserved.
+                        Keep your original PDF.
                     </p>
 
                     <div class="tool-actions">
@@ -533,7 +534,7 @@
 
                     </div>
 
-                    <div id="compressPDFResult"></div>
+                    <div id="compressPDFResult" aria-live="polite"></div>
 
                 </div>
 
@@ -610,7 +611,7 @@
 
                     </div>
 
-                    <div id="protectPDFResult"></div>
+                    <div id="protectPDFResult" aria-live="polite"></div>
 
                 </div>
 
@@ -698,7 +699,7 @@
 
                     </div>
 
-                    <div id="imageCompressorResult"></div>
+                    <div id="imageCompressorResult" aria-live="polite"></div>
 
                 </div>
 
