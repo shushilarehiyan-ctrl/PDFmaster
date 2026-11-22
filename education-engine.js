@@ -51,6 +51,7 @@
     return String(value || "")
       .toLowerCase()
       .normalize("NFKC")
+      .replace(/[\u0027\u2019]/g, "")
       .replace(/[^\p{L}\p{N}\s]/gu, " ")
       .replace(/\s+/g, " ")
       .trim();
