@@ -439,6 +439,44 @@
     }
   }
 
+  // Arrange all 25 tools into six category columns without changing tool behavior.
+  const categoryGroups = [
+    { title: "Edit & Compress", ids: ["edit-pdf", "compress-pdf", "image-compressor"] },
+    { title: "Split & Merge", ids: ["split-pdf", "merge-pdf"] },
+    { title: "Conversion from PDF", ids: ["pdf-to-word", "pdf-to-png", "pdf-to-epub", "pdf-to-jpg", "pdf-to-pptx", "pdf-to-excel"] },
+    { title: "Conversion to PDF", ids: ["word-to-pdf", "png-to-pdf", "epub-to-pdf", "jpg-to-pdf", "pptx-to-pdf", "excel-to-pdf", "photo-to-pdf"] },
+    { title: "Sign & Security", ids: ["protect-pdf", "sign-pdf"] },
+    { title: "Forms", ids: ["form-w-9", "form-ds-11", "form-1099", "form-941", "form-w-2"] }
+  ];
+  const toolCardMap = new Map(
+    Array.from(container.querySelectorAll(".tool-card")).map(function (card) { return [card.id, card]; })
+  );
+  const categorizedCards = new Set();
+  const categoryColumns = categoryGroups.map(function (group) {
+    const column = make("section", "tool-category-column");
+    const heading = make("h3", "tool-category-heading", group.title);
+    column.appendChild(heading);
+    group.ids.forEach(function (id) {
+      const card = toolCardMap.get(id);
+      if (card) {
+        column.appendChild(card);
+        categorizedCards.add(card);
+      }
+    });
+    return column;
+  });
+  // Keep any future/unclassified cards visible instead of silently dropping them.
+  const unclassifiedCards = Array.from(toolCardMap.values()).filter(function (card) {
+    return !categorizedCards.has(card);
+  });
+  if (unclassifiedCards.length) {
+    const otherColumn = make("section", "tool-category-column");
+    otherColumn.appendChild(make("h3", "tool-category-heading", "Other Tools"));
+    unclassifiedCards.forEach(function (card) { otherColumn.appendChild(card); });
+    categoryColumns.push(otherColumn);
+  }
+  container.replaceChildren.apply(container, categoryColumns);
+
   // Stable tool launcher: cards remain in place; processing opens in one fixed workspace below.
   const allToolCards = Array.from(container.querySelectorAll(".tool-card"));
   const workspace = make("section", "tool-workspace");
