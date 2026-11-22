@@ -372,6 +372,11 @@
       const files = Array.from(fileInput.files || []);
       process.disabled = true;
       process.textContent = "Working…";
+      workspaceBody.classList.add("is-processing");
+      const processingNote = make("p", "tool-processing-status", "Processing your file… Please keep this page open.");
+      processingNote.setAttribute("role", "status");
+      processingNote.setAttribute("aria-live", "polite");
+      workspaceBody.appendChild(processingNote);
       try {
         await run(def, files, controls, output);
       } catch (error) {
@@ -380,6 +385,8 @@
       } finally {
         process.disabled = false;
         process.textContent = def.type === "sign" ? "Add Signature →" : def.type === "edit" ? "Edit PDF →" : "Convert →";
+        workspaceBody.classList.remove("is-processing");
+        processingNote.remove();
       }
     });
     actions.appendChild(clear);
