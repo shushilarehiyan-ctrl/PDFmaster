@@ -5820,3 +5820,12 @@ body:not(.tool-page-active) .topbar-badge:hover {
         animation: none !important;
     }
 }
+
+
+/* ---------- HERO: REMOVE THE LEFT-TO-RIGHT LIGHT SWEEP ---------- */
+/* Keep the rotating PDF artwork and every other Hero animation unchanged. */
+.hero-decoration::after {
+  display: none !important;
+  content: none !important;
+  animation: none !important;
+}
