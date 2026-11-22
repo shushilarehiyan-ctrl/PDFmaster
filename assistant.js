@@ -378,6 +378,7 @@
   }
 
   function stopBrowserAI(showMessage) {
+    if (pendingBrowserAI && pendingBrowserAI.loading) pendingBrowserAI.loading.remove();
     if (browserAIWorker) {
       browserAIWorker.terminate();
       browserAIWorker = null;
@@ -412,8 +413,8 @@
 
     browserAILoading = true;
     if (browserAIToggle) {
-      browserAIToggle.disabled = true;
-      browserAIToggle.textContent = "Loading AI…";
+      browserAIToggle.disabled = false;
+      browserAIToggle.textContent = "Cancel AI load";
     }
     setBrowserAIStatus("Starting Browser AI… The first download may take time. Keep this tab open.");
     try {
