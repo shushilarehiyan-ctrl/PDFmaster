@@ -1928,6 +1928,7 @@ async function protectPDF() {
     const ash = document.getElementById("memoryAsh");
     const reset = document.getElementById("memoryReset");
     const overlay = document.getElementById("memoryAshOverlay");
+    const emberCanvas = document.getElementById("emberCanvas");
     if (!input || !age || !canvas || !stage || !window.pdfjsLib) return;
 
     const ctx = canvas.getContext("2d");
@@ -1937,7 +1938,21 @@ async function protectPDF() {
     let renderTask = null;
     let renderToken = 0;
     let ashTimer = null;
+    let emberFrame = 0;
 
+    function stopBurnEffect() {
+        if (emberFrame) cancelAnimationFrame(emberFrame);
+        emberFrame = 0;
+        if (ashTimer) window.clearTimeout(ashTimer);
+        ashTimer = null;
+        if (emberCanvas) {
+            const emberContext = emberCanvas.getContext("2d");
+            emberContext.clearRect(0, 0, emberCanvas.width, emberCanvas.height);
+        }
+        canvas.style.clipPath = "";
+        stage.classList.remove("is-burning");
+        overlay.classList.remove("is-active");
+    }
     function setStatus(message, error) {
         status.textContent = message;
         status.classList.toggle("is-error", Boolean(error));
@@ -1984,9 +1999,8 @@ async function protectPDF() {
     }
     input.addEventListener("change", async function() {
         if (pdfDocument) { try { await pdfDocument.destroy(); } catch (error) {} pdfDocument = null; }
+        stopBurnEffect();
         canvas.hidden = true;
-        stage.classList.remove("is-ash", "is-burning");
-        overlay.classList.remove("is-active");
         age.disabled = true; prev.disabled = true; next.disabled = true; ash.disabled = true; reset.disabled = true;
         const file = input.files && input.files[0];
         if (!file) { info.textContent = "PDF stays in this browser tab. Maximum size: 20 MB."; return; }
@@ -2011,36 +2025,109 @@ async function protectPDF() {
         }
     });
     age.addEventListener("input", updateAge);
-    prev.addEventListener("click", function() { if (pdfDocument && pageNumber > 1) { pageNumber--; renderPage(); } });
-    next.addEventListener("click", function() { if (pdfDocument && pageNumber < pdfDocument.numPages) { pageNumber++; renderPage(); } });
+    prev.addEventListener("click", function() { if (pdfDocument && pageNumber > 1) { stopBurnEffect(); pageNumber--; renderPage(); } });
+    next.addEventListener("click", function() { if (pdfDocument && pageNumber < pdfDocument.numPages) { stopBurnEffect(); pageNumber++; renderPage(); } });
     ash.addEventListener("click", function() {
-        if (!pdfDocument) return;
-        window.clearTimeout(ashTimer);
-        stage.classList.remove("is-ash", "is-burning");
-        overlay.classList.remove("is-active");
-        void stage.offsetWidth;
+        if (!pdfDocument || !emberCanvas) return;
+        stopBurnEffect();
+        const rect = stage.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        emberCanvas.width = Math.round(rect.width * dpr);
+        emberCanvas.height = Math.round(rect.height * dpr);
+        const ectx = emberCanvas.getContext("2d");
+        ectx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const width = rect.width;
+        const height = rect.height;
+        const particles = [];
+        const duration = 5200;
+        let startedAt = 0;
         stage.classList.add("is-burning");
         overlay.classList.add("is-active");
         ash.disabled = true;
-        setStatus("Burn simulation: a glowing edge travels across this preview. Your original PDF is untouched.", false);
-        ashTimer = window.setTimeout(function() {
-            stage.classList.remove("is-burning");
-            overlay.classList.remove("is-active");
-            ash.disabled = false;
-            setStatus("Burn preview complete. Reset or choose another page to try again.", false);
-        }, 4200);
+        setStatus("Golden ember burn: the glowing edge is travelling across this local preview. Your original PDF is untouched.", false);
+
+        function addEmber(x, y) {
+            const hot = Math.random() > 0.38;
+            particles.push({
+                x, y,
+                vx: (Math.random() - 0.5) * (hot ? 1.8 : 1.1),
+                vy: -(Math.random() * (hot ? 2.8 : 1.5) + 0.45),
+                size: Math.random() * (hot ? 2.8 : 2.1) + 0.7,
+                life: 1,
+                decay: Math.random() * 0.018 + 0.012,
+                color: hot
+                    ? (Math.random() > 0.5 ? "#FFD98A" : "#FF7A32")
+                    : (Math.random() > 0.5 ? "#9B8877" : "#51433C")
+            });
+        }
+
+        function animate(timestamp) {
+            if (!startedAt) startedAt = timestamp;
+            const progress = Math.min((timestamp - startedAt) / duration, 1);
+            const lineY = height * (1 - progress);
+            canvas.style.clipPath = "inset(0 0 " + (progress * 100) + "% 0)";
+            ectx.clearRect(0, 0, width, height);
+
+            if (progress < 1) {
+                const count = Math.max(3, Math.round(width / 95));
+                for (let i = 0; i < count; i++) {
+                    addEmber(Math.random() * width, lineY + (Math.random() - 0.5) * 13);
+                }
+                const glow = ectx.createLinearGradient(0, lineY - 19, 0, lineY + 13);
+                glow.addColorStop(0, "rgba(255,120,35,0)");
+                glow.addColorStop(0.42, "rgba(255,119,36,0.28)");
+                glow.addColorStop(0.72, "rgba(255,190,82,0.95)");
+                glow.addColorStop(1, "rgba(255,220,145,0)");
+                ectx.fillStyle = glow;
+                ectx.fillRect(0, lineY - 19, width, 32);
+                ectx.save();
+                ectx.shadowBlur = 18;
+                ectx.shadowColor = "#FF8A32";
+                ectx.fillStyle = "rgba(255,198,105,0.88)";
+                ectx.fillRect(0, lineY - 1.2, width, 2.4);
+                ectx.restore();
+            }
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx + Math.sin(timestamp * 0.002 + p.y * 0.025) * 0.35;
+                p.y += p.vy;
+                p.life -= p.decay;
+                p.size *= 0.992;
+                if (p.life <= 0 || p.y < -12) { particles.splice(i, 1); continue; }
+                ectx.save();
+                ectx.globalAlpha = Math.max(0, p.life);
+                ectx.fillStyle = p.color;
+                ectx.shadowBlur = p.color === "#FFD98A" || p.color === "#FF7A32" ? 10 : 2;
+                ectx.shadowColor = "#D4AF72";
+                ectx.beginPath();
+                ectx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ectx.fill();
+                ectx.restore();
+            }
+
+            if (progress < 1 || particles.length) {
+                emberFrame = requestAnimationFrame(animate);
+            } else {
+                emberFrame = 0;
+                ectx.clearRect(0, 0, width, height);
+                stage.classList.remove("is-burning");
+                overlay.classList.remove("is-active");
+                ash.disabled = false;
+                setStatus("Burn simulation complete. Reset preview to restore the page.", false);
+            }
+        }
+        emberFrame = requestAnimationFrame(animate);
     });
     reset.addEventListener("click", function() {
         age.value = "0";
         updateAge();
-        stage.classList.remove("is-ash", "is-burning");
-        overlay.classList.remove("is-active");
+        stopBurnEffect();
         ash.disabled = !pdfDocument;
-        window.clearTimeout(ashTimer);
         setStatus("Preview restored. The original PDF was never changed.", false);
     });
     window.addEventListener("beforeunload", function() {
-        window.clearTimeout(ashTimer);
+        stopBurnEffect();
         if (pdfDocument) pdfDocument.destroy();
     });
 })();
