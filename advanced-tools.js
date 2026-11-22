@@ -399,7 +399,7 @@
     card.appendChild(make("h3", "", form.title));
     card.appendChild(make("p", "", form.description));
     card.appendChild(make("p", "advanced-note", form.note));
-    const link = make("a", "advanced-form-link", "Open official form ↗");
+    const link = make("a", "advanced-form-link", "Get official form ↗");
     link.href = form.url;
     link.target = "_blank";
     link.rel = "noopener noreferrer";
@@ -438,6 +438,41 @@
       sidebar.appendChild(sidebarNav);
     }
   }
+
+  // Collapsible tool cards: keep the logo/title visible and reveal the full tool UI on click.
+  const allToolCards = Array.from(container.querySelectorAll(".tool-card"));
+  allToolCards.forEach(function (card) {
+    card.classList.add("tool-card-collapsed");
+    card.setAttribute("aria-expanded", "false");
+    const heading = card.querySelector("h3");
+    if (heading) heading.setAttribute("title", "Click to open this tool");
+  });
+
+  function toggleToolCard(card, forceOpen) {
+    if (!card) return;
+    const open = typeof forceOpen === "boolean"
+      ? forceOpen
+      : card.classList.contains("tool-card-collapsed");
+    card.classList.toggle("tool-card-collapsed", !open);
+    card.setAttribute("aria-expanded", String(open));
+  }
+
+  container.addEventListener("click", function (event) {
+    const card = event.target.closest(".tool-card");
+    if (!card || !container.contains(card)) return;
+    if (event.target.closest("input, select, textarea, button, a, label")) return;
+    const header = event.target.closest(".tool-card-top, h3, p");
+    if (!header) return;
+    toggleToolCard(card);
+  });
+
+  // Sidebar links open the selected tool panel as well as navigating to it.
+  document.querySelectorAll(".sidebar-nav a[href^='#']").forEach(function (link) {
+    link.addEventListener("click", function () {
+      const target = document.getElementById(decodeURIComponent(link.getAttribute("href").slice(1)));
+      if (target && target.classList.contains("tool-card")) toggleToolCard(target, true);
+    });
+  });
 
   const count = container.querySelectorAll(".tool-card").length;
   const countLabel = document.querySelector(".tools-count");
