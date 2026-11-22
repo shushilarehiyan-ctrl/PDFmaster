@@ -471,47 +471,38 @@
     }
   }
 
-  // Arrange all 25 tools into six category columns without changing tool behavior.
+  // Put every tool in one continuous directory grid; keep the familiar category order
+  // without rendering category headings or separate category columns.
   const categoryGroups = [
-    { title: "Edit & Compress", ids: ["edit-pdf", "compress-pdf"] },
-    { title: "Split & Merge", ids: ["split-pdf", "merge-pdf"] },
-    { title: "Conversion from PDF", ids: ["pdf-to-word", "pdf-to-png", "pdf-to-epub", "pdf-to-jpg", "pdf-to-pptx", "pdf-to-excel"] },
-    { title: "Conversion to PDF", ids: ["word-to-pdf", "png-to-pdf", "epub-to-pdf", "jpg-to-pdf", "pptx-to-pdf", "excel-to-pdf"] },
-    { title: "Sign & Security", ids: ["protect-pdf", "sign-pdf"] },
-    { title: "Forms", ids: ["form-w-9", "form-ds-11", "form-1099", "form-941", "form-w-2"] }
+    { ids: ["edit-pdf", "compress-pdf"] },
+    { ids: ["split-pdf", "merge-pdf"] },
+    { ids: ["pdf-to-word", "pdf-to-png", "pdf-to-epub", "pdf-to-jpg", "pdf-to-pptx", "pdf-to-excel"] },
+    { ids: ["word-to-pdf", "png-to-pdf", "epub-to-pdf", "jpg-to-pdf", "pptx-to-pdf", "excel-to-pdf"] },
+    { ids: ["protect-pdf", "sign-pdf"] },
+    { ids: ["form-w-9", "form-ds-11", "form-1099", "form-941", "form-w-2"] }
   ];
   const toolCardMap = new Map(
     Array.from(container.querySelectorAll(".tool-card")).map(function (card) { return [card.id, card]; })
   );
-  const categorizedCards = new Set();
-  const categorySections = categoryGroups.map(function (group) {
-    const section = make("section", "tool-category-column");
-    const heading = make("h3", "tool-category-heading", group.title);
-    const grid = make("div", "tool-category-grid");
-    section.appendChild(heading);
-    section.appendChild(grid);
+  const directoryGrid = make("div", "tools-directory-grid");
+  const placedCards = new Set();
+  categoryGroups.forEach(function (group) {
     group.ids.forEach(function (id) {
       const card = toolCardMap.get(id);
-      if (card) {
-        grid.appendChild(card);
-        categorizedCards.add(card);
+      if (card && !placedCards.has(card)) {
+        directoryGrid.appendChild(card);
+        placedCards.add(card);
       }
     });
-    return section;
   });
-  // Keep the two existing image utilities in their own section, using the same three-column card grid.
-  const extraCards = Array.from(toolCardMap.values()).filter(function (card) {
-    return !categorizedCards.has(card);
+  // Include every remaining tool (including the two image utilities) in this same grid.
+  toolCardMap.forEach(function (card) {
+    if (!placedCards.has(card)) {
+      directoryGrid.appendChild(card);
+      placedCards.add(card);
+    }
   });
-  container.replaceChildren.apply(container, categorySections);
-  if (extraCards.length) {
-    const extras = make("section", "tool-extra-tools");
-    extras.appendChild(make("h3", "tool-category-heading", "Additional Image Tools"));
-    const extraGrid = make("div", "tool-extra-grid");
-    extraCards.forEach(function (card) { extraGrid.appendChild(card); });
-    extras.appendChild(extraGrid);
-    container.appendChild(extras);
-  }
+  container.replaceChildren(directoryGrid);
 
   // Stable tool launcher: cards remain in place; processing opens in one fixed workspace below.
   const allToolCards = Array.from(container.querySelectorAll(".tool-card"));
