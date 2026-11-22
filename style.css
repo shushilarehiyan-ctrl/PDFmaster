@@ -3864,3 +3864,63 @@ summary:focus-visible {
     grid-template-columns: minmax(0, 1fr) !important;
   }
 }
+
+
+/* Landing-page content structure: layout only; inherit the existing PDFMaster theme. */
+.featured-tool-section {
+  margin: 8px 0 28px;
+  scroll-margin-top: 90px;
+}
+.featured-tool-section .section-heading { margin-bottom: 16px; }
+#featuredToolMount .tool-workspace { margin-top: 0; }
+.feature-steps,
+.feature-benefits {
+  display: grid;
+  gap: 16px;
+  margin-top: 22px;
+}
+.feature-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.feature-benefits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.feature-steps article,
+.feature-benefits article {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.feature-steps h3,
+.feature-benefits h3 {
+  margin: 8px 0;
+  font-size: 14px;
+  font-weight: 750;
+}
+.feature-steps p,
+.feature-benefits p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.75;
+}
+.feature-step-number {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--primary-light);
+}
+.tools-container > .tool-extra-tools {
+  grid-column: 1 / -1;
+  min-width: 0;
+  margin-top: 8px;
+}
+.tool-extra-tools > .tool-category-heading { margin-bottom: 14px; }
+.tool-extra-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+@media (max-width: 760px) {
+  .feature-steps { grid-template-columns: 1fr; }
+  .feature-benefits { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .tool-extra-grid { grid-template-columns: 1fr; }
+}
