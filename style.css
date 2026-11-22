@@ -2616,3 +2616,439 @@ body::after,
         scroll-behavior: auto !important;
     }
 }
+
+
+/* =========================================================
+   PDFMASTER — ROYAL BURGUNDY ESTATE
+   Inspired by a luxury burgundy hallway, black marble,
+   antique brass and warm architectural lighting.
+   Calm surfaces: no neon, no heavy glow.
+========================================================= */
+
+:root {
+    --bg: #2b0b17;
+    --sidebar: #190710;
+    --surface: #211018;
+    --surface-light: #301521;
+    --surface-hover: #3a1a29;
+    --border: rgba(190, 158, 105, 0.25);
+    --text: #f4eee8;
+    --muted: #c5b5b0;
+    --primary: #b89555;
+    --primary-light: #dfc58e;
+    --blue: #c9ad78;
+    --green: #a9c4a5;
+    --orange: #d8ad78;
+    --red: #d79b9b;
+    --pink: #c9a0ad;
+    --shadow: 0 12px 28px rgba(8, 2, 5, 0.24);
+}
+
+html,
+body {
+    background: #2b0b17 !important;
+    color: #f4eee8;
+}
+
+body {
+    background-image: none !important;
+}
+
+/* Deep wine walls and dark architectural trim */
+.sidebar {
+    background: #190710 !important;
+    border-right: 1px solid rgba(184, 149, 85, 0.30);
+    box-shadow: 8px 0 22px rgba(8, 2, 5, 0.20);
+}
+
+.sidebar .logo,
+.sidebar-label {
+    color: #dfc58e;
+    text-shadow: none;
+}
+
+.logo-icon,
+.document-icon {
+    color: #25150b;
+    background: linear-gradient(145deg, #e2cd9d, #b89555 65%, #8d6d3e);
+    box-shadow: none;
+}
+
+.logo-accent,
+.breadcrumb span,
+.footer-links a:hover {
+    color: #dfc58e;
+}
+
+.sidebar-label {
+    letter-spacing: 1.6px;
+}
+
+.nav-link {
+    color: #d9cbc5;
+    border: 1px solid transparent;
+    transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+.nav-link:hover {
+    color: #f4e5c6;
+    background: rgba(184, 149, 85, 0.09);
+    border-color: rgba(184, 149, 85, 0.20);
+    transform: none;
+    box-shadow: none;
+}
+
+.nav-link.active {
+    color: #f0d8a7;
+    background: rgba(184, 149, 85, 0.13);
+    border-color: rgba(184, 149, 85, 0.34);
+    box-shadow: inset 3px 0 #b89555;
+}
+
+.nav-link::before {
+    display: none;
+}
+
+.nav-icon {
+    color: #c5a66f;
+    filter: none;
+}
+
+.sidebar-bottom {
+    border-top-color: rgba(184, 149, 85, 0.22);
+}
+
+/* Search bar: dark polished stone with a fine brass outline */
+.search-box {
+    background: #190a11 !important;
+    border: 1px solid rgba(184, 149, 85, 0.48);
+    box-shadow: none !important;
+}
+
+.search-box:focus-within {
+    border-color: #d2b779;
+    box-shadow: 0 0 0 2px rgba(184, 149, 85, 0.10) !important;
+}
+
+.search-box input,
+.search-box #toolSearch {
+    color: #f4eee8;
+    background: transparent;
+}
+
+.search-box input::placeholder,
+.search-box #toolSearch::placeholder {
+    color: #bbaaa3;
+}
+
+.search-icon {
+    color: #c5a66f;
+}
+
+.search-box button,
+.hero-button,
+.tool-card button,
+#faq > a {
+    color: #24170d;
+    background: linear-gradient(135deg, #dfc58e, #b89555);
+    border: 1px solid #e5d2a9;
+    box-shadow: none;
+}
+
+.search-box button:hover,
+.hero-button:hover,
+.tool-card button:hover,
+#faq > a:hover {
+    color: #1d1109;
+    background: #e5d2a9;
+    filter: none;
+    box-shadow: none;
+    transform: translateY(-1px);
+}
+
+.tool-card button.secondary-btn {
+    color: #e2c995;
+    background: #24121b;
+    border: 1px solid rgba(184, 149, 85, 0.38);
+}
+
+/* Hero: burgundy wall panel with a restrained brass frame */
+.hero {
+    background: #3a1424 !important;
+    border: 1px solid rgba(184, 149, 85, 0.38);
+    box-shadow: 0 12px 26px rgba(8, 2, 5, 0.22);
+}
+
+.hero::before,
+.hero::after {
+    display: none !important;
+    content: none !important;
+    animation: none !important;
+}
+
+.hero h1,
+.hero h1 span,
+.hero-badge {
+    color: #e2c995;
+}
+
+.hero p {
+    color: #ddcfca;
+}
+
+.hero-badge {
+    background: rgba(184, 149, 85, 0.09);
+    border: 1px solid rgba(184, 149, 85, 0.34);
+}
+
+.hero-glow,
+.orbit-particle {
+    display: none !important;
+    box-shadow: none !important;
+}
+
+.orbit-ring {
+    border-color: rgba(205, 177, 124, 0.38);
+    box-shadow: none;
+}
+
+.orbit-ring-two {
+    border-color: rgba(205, 177, 124, 0.22);
+}
+
+.paper-sheet {
+    background: rgba(242, 232, 216, 0.07);
+    border-color: rgba(205, 177, 124, 0.42);
+    box-shadow: none;
+}
+
+.hero-document {
+    background: #24121b;
+    border: 1px solid rgba(205, 177, 124, 0.48);
+    box-shadow: 0 10px 24px rgba(8, 2, 5, 0.25);
+}
+
+/* Black-marble inspired cards with restrained, fine veining */
+.stat-card,
+.tool-card,
+.info-section,
+#faq {
+    color: #f4eee8;
+    background-color: #171216;
+    background-image:
+        linear-gradient(132deg, transparent 0 37%, rgba(235, 229, 219, 0.035) 37.15%, transparent 37.55%),
+        linear-gradient(148deg, transparent 0 68%, rgba(235, 229, 219, 0.025) 68.15%, transparent 68.5%),
+        linear-gradient(180deg, #211820, #151116 78%);
+    border: 1px solid rgba(184, 149, 85, 0.25);
+    box-shadow: 0 9px 22px rgba(8, 2, 5, 0.20);
+}
+
+.stat-card:hover,
+.tool-card:hover {
+    border-color: rgba(205, 177, 124, 0.48);
+    box-shadow: 0 11px 25px rgba(8, 2, 5, 0.25);
+    transform: translateY(-2px);
+}
+
+.stat-card h3,
+.tool-card h3,
+.section-heading h2,
+.info-section h2,
+.section-label {
+    color: #e2c995;
+}
+
+.stat-card p,
+.tool-card > p,
+.section-heading p,
+.info-section > p {
+    color: #c8b9b3;
+}
+
+.tool-category {
+    color: #c5a66f;
+}
+
+.tool-icon.purple,
+.tool-icon.blue,
+.tool-icon.orange,
+.tool-icon.green,
+.tool-icon.red,
+.tool-icon.pink,
+.stat-icon.purple,
+.stat-icon.blue,
+.stat-icon.green {
+    color: #dfc58e;
+    background: rgba(184, 149, 85, 0.12);
+}
+
+/* Uploads, fields and selects */
+.tool-card label {
+    color: #dfd1c9;
+}
+
+.tool-card input:not([type="range"]),
+.tool-card select,
+.tool-card textarea {
+    color: #f4eee8;
+    background: #1a0d14;
+    border: 1px solid rgba(184, 149, 85, 0.30);
+}
+
+.tool-card input::placeholder,
+.tool-card textarea::placeholder {
+    color: #bbaaa3;
+}
+
+.tool-card select option {
+    color: #f4eee8;
+    background: #211018;
+}
+
+.tool-card input[type="file"] {
+    color: #e5d9d2;
+    background: rgba(10, 5, 8, 0.30);
+    border-color: rgba(184, 149, 85, 0.34);
+}
+
+.tool-card input[type="file"]::file-selector-button {
+    color: #24170d;
+    background: #c6a66a;
+}
+
+.tool-card input[type="range"] {
+    accent-color: #c6a66a;
+}
+
+.tool-card input:focus,
+.tool-card select:focus,
+.tool-card textarea:focus {
+    outline: none;
+    border-color: #d2b779;
+    box-shadow: 0 0 0 2px rgba(184, 149, 85, 0.10);
+}
+
+#splitModeInfo,
+#compressionWarning,
+#protectPDFWarning,
+#imageFormatInfo {
+    color: #e0d2cb;
+    border-left-color: #b89555;
+    background: rgba(10, 5, 8, 0.34);
+}
+
+/* Help Center: dark stone panels and antique-brass separators */
+#faq details {
+    background: rgba(12, 8, 11, 0.52);
+    border: 1px solid rgba(184, 149, 85, 0.20);
+    box-shadow: none;
+    transition: background 180ms ease, border-color 180ms ease;
+}
+
+#faq details::before {
+    display: none;
+}
+
+#faq details:hover,
+#faq details[open] {
+    background: #251722;
+    border-color: rgba(205, 177, 124, 0.44);
+    box-shadow: none;
+    transform: none;
+}
+
+#faq summary {
+    color: #eee2d8;
+}
+
+#faq summary:hover,
+#faq details[open] summary {
+    color: #e8d2a7;
+}
+
+#faq summary::after {
+    color: #24170d;
+    background: #c6a66a;
+    border: 1px solid #dfc58e;
+    box-shadow: none;
+}
+
+#faq details[open] summary::after {
+    color: #24170d;
+    background: #dfc58e;
+    border-color: #ead9b4;
+    box-shadow: none;
+}
+
+#faq details p,
+#faq details ul,
+#faq details ol {
+    color: #c8b9b3;
+}
+
+#faq details strong,
+#faq details a {
+    color: #dfc58e;
+}
+
+#faq details a:hover {
+    color: #f4e8cd;
+}
+
+#faq summary:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline-color: #dfc58e;
+}
+
+/* Footer, scrollbar and remaining details */
+.footer {
+    color: #c8b9b3;
+    border-top-color: rgba(184, 149, 85, 0.25);
+}
+
+.footer-links a {
+    color: #dfc58e;
+}
+
+.footer-links a:hover {
+    color: #f4e8cd;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a0710;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #755b55;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a58a67;
+}
+
+@media (max-width: 900px) {
+    .sidebar {
+        background: #190710 !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nav-link,
+    .search-box button,
+    .hero-button,
+    .tool-card button,
+    .tool-card,
+    .stat-card,
+    #faq details {
+        transition: none !important;
+    }
+
+    .tool-card:hover,
+    .stat-card:hover,
+    #faq details:hover {
+        transform: none;
+    }
+}
