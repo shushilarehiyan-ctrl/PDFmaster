@@ -572,7 +572,7 @@
     const card = event.target.closest(".tool-card");
     if (!card || !container.contains(card)) return;
     if (event.target.closest("input, select, textarea, button, a, label")) return;
-    if (event.target.closest(".tool-card-top, h3, .tool-card > p")) openTool(card);
+    openTool(card);
   });
   closeWorkspace.addEventListener("click", closeActiveTool);
 
