@@ -4954,3 +4954,122 @@ select:focus-visible {
     transition: none !important;
   }
 }
+
+
+
+/* ---------- GOLDEN RESTING STATE + FULL HOVER GLOW ---------- */
+/* About, Help Center, Simple Process and linked information pages. */
+.info-section,
+.info-section#about,
+.info-section#faq,
+.how-it-works-section,
+.why-pdfmaster-section,
+.contact-card,
+.privacy-card,
+.terms-card,
+.disclaimer-card {
+  border: 1px solid rgba(176,141,80,.22) !important;
+  box-shadow: 0 0 10px rgba(217,183,126,.10), inset 0 0 16px rgba(217,183,126,.025) !important;
+  transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease, background .22s ease !important;
+}
+.info-section:hover,
+.info-section#about:hover,
+.info-section#faq:hover,
+.how-it-works-section:hover,
+.why-pdfmaster-section:hover,
+.contact-card:hover,
+.privacy-card:hover,
+.terms-card:hover,
+.disclaimer-card:hover {
+  border-color: rgba(217,183,126,.82) !important;
+  box-shadow: 0 0 0 1px rgba(217,183,126,.20), 0 0 18px rgba(217,183,126,.42), 0 0 36px rgba(176,141,80,.22), inset 0 0 22px rgba(217,183,126,.055) !important;
+}
+.feature-steps article,
+.feature-benefits article,
+#faq details {
+  border: 1px solid rgba(176,141,80,.18);
+  border-radius: 13px;
+  box-shadow: 0 0 10px rgba(217,183,126,.09), inset 0 0 14px rgba(217,183,126,.025);
+  transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease, background .22s ease;
+}
+.feature-steps article:hover,
+.feature-benefits article:hover,
+#faq details:hover {
+  border-color: rgba(217,183,126,.76);
+  box-shadow: 0 0 14px rgba(217,183,126,.36), 0 0 28px rgba(176,141,80,.18), inset 0 0 18px rgba(217,183,126,.05);
+  transform: translateY(-2px);
+}
+#faq details[open] {
+  border-color: rgba(217,183,126,.58);
+  box-shadow: 0 0 14px rgba(217,183,126,.22), inset 0 0 16px rgba(217,183,126,.04);
+}
+#faq summary,
+.info-section .section-label,
+.info-section h2 {
+  text-shadow: 0 0 8px rgba(217,183,126,.10);
+}
+.contact-hero,
+.privacy-hero,
+.terms-hero,
+.disclaimer-hero {
+  box-shadow: 0 0 12px rgba(217,183,126,.10), inset 0 0 18px rgba(217,183,126,.025) !important;
+}
+.contact-hero:hover,
+.privacy-hero:hover,
+.terms-hero:hover,
+.disclaimer-hero:hover {
+  box-shadow: 0 0 22px rgba(217,183,126,.34), 0 0 38px rgba(176,141,80,.18), inset 0 0 24px rgba(217,183,126,.07) !important;
+}
+
+/* All Tools: keep the burgundy base visible; show a faint gold tint before hover. */
+.tools-container .tools-directory-grid > .tool-card {
+  background: linear-gradient(120deg, #3b0715 0%, #260610 100%) !important;
+  border: 1px solid rgba(176,141,80,.32) !important;
+  box-shadow: 0 5px 16px rgba(0,0,0,.20), 0 0 10px rgba(217,183,126,.10), inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+.tools-container .tools-directory-grid > .tool-card::before {
+  opacity: .10;
+  background: radial-gradient(circle at 50% 50%, rgba(255,248,222,.8), rgba(255,239,190,.22) 38%, transparent 72%);
+}
+.tools-container .tools-directory-grid > .tool-card .tool-icon {
+  background: rgba(217,183,126,.14) !important;
+  color: #d9b77e !important;
+}
+.tools-container .tools-directory-grid > .tool-card h3 {
+  color: #f1e8dc !important;
+}
+.tools-container .tools-directory-grid > .tool-card > p {
+  color: rgba(241,232,220,.76) !important;
+}
+.tools-container .tools-directory-grid > .tool-card::after {
+  color: #d9b77e !important;
+}
+.tools-container .tools-directory-grid > .tool-card:hover {
+  background: linear-gradient(120deg, #f1d69e 0%, #d9b77e 52%, #c6a05e 100%) !important;
+  border-color: #fff0c9 !important;
+  box-shadow: 0 0 0 1px rgba(255,239,190,.65), 0 0 18px rgba(217,183,126,.72), 0 0 34px rgba(176,141,80,.42), 0 12px 25px rgba(38,6,16,.2), inset 0 1px 0 rgba(255,255,255,.6) !important;
+}
+.tools-container .tools-directory-grid > .tool-card:hover::before {
+  opacity: 1;
+}
+.tools-container .tools-directory-grid > .tool-card:hover .tool-icon {
+  background: linear-gradient(145deg, #3b0715, #260610) !important;
+  color: #f1e8dc !important;
+}
+.tools-container .tools-directory-grid > .tool-card:hover h3 {
+  color: #260610 !important;
+}
+.tools-container .tools-directory-grid > .tool-card:hover > p {
+  color: rgba(38,6,16,.82) !important;
+}
+.tools-container .tools-directory-grid > .tool-card:hover::after {
+  color: #3b0715 !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .feature-steps article,
+  .feature-benefits article,
+  #faq details,
+  .tools-container .tools-directory-grid > .tool-card {
+    transition: none !important;
+  }
+}
