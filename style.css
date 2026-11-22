@@ -1525,3 +1525,189 @@ summary:focus-visible {
         padding-left: 32px;
     }
 }
+
+/* ==========================================
+   PDFMASTER SIGNATURE: PAPER ORBIT
+   Original layered-paper motion + electric light
+========================================== */
+
+.hero {
+    isolation: isolate;
+    background:
+        radial-gradient(ellipse at 82% 48%, rgba(38, 196, 255, 0.16), transparent 34%),
+        radial-gradient(ellipse at 70% 100%, rgba(139, 92, 246, 0.18), transparent 42%),
+        linear-gradient(115deg, #111827, #171b31 56%, #171b3a);
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    inset: -45%;
+    z-index: 0;
+    pointer-events: none;
+    background: conic-gradient(from 0deg, transparent 0 68%, rgba(51, 204, 255, 0.08) 76%, transparent 84% 100%);
+    animation: pdfmaster-aura-turn 24s linear infinite;
+}
+
+.hero-glow {
+    background: rgba(51, 190, 255, 0.24);
+    box-shadow: 0 0 70px rgba(51, 190, 255, 0.22), 0 0 110px rgba(139, 92, 246, 0.16);
+    animation: pdfmaster-glow-breathe 5.5s ease-in-out infinite;
+}
+
+.paper-orbit {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    perspective: 700px;
+}
+
+.orbit-ring {
+    position: absolute;
+    width: 205px;
+    height: 82px;
+    border: 1px solid rgba(89, 211, 255, 0.34);
+    border-radius: 50%;
+    box-shadow: 0 0 18px rgba(55, 190, 255, 0.12), inset 0 0 16px rgba(139, 92, 246, 0.08);
+}
+
+.orbit-ring-one {
+    transform: rotate(-27deg);
+    animation: pdfmaster-orbit-one 12s linear infinite;
+}
+
+.orbit-ring-two {
+    width: 180px;
+    height: 112px;
+    border-color: rgba(167, 139, 250, 0.38);
+    transform: rotate(54deg);
+    animation: pdfmaster-orbit-two 15s linear infinite;
+}
+
+.paper-sheet {
+    position: absolute;
+    width: 82px;
+    height: 108px;
+    border: 1px solid rgba(190, 229, 255, 0.48);
+    border-radius: 9px;
+    background:
+        linear-gradient(135deg, rgba(255,255,255,0.18), rgba(84, 150, 255, 0.06)),
+        repeating-linear-gradient(to bottom, transparent 0 15px, rgba(210, 235, 255, 0.16) 16px 17px);
+    box-shadow: 0 12px 36px rgba(15, 170, 255, 0.12), inset 0 0 22px rgba(255,255,255,0.05);
+    backdrop-filter: blur(7px);
+}
+
+.paper-sheet-back {
+    transform: translate(-31px, 7px) rotate(-17deg);
+    animation: pdfmaster-sheet-back 7s ease-in-out infinite;
+}
+
+.paper-sheet-front {
+    transform: translate(25px, -5px) rotate(13deg);
+    border-color: rgba(168, 139, 250, 0.62);
+    animation: pdfmaster-sheet-front 6s ease-in-out infinite;
+}
+
+.orbit-particle {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #8be7ff;
+    box-shadow: 0 0 12px 3px rgba(69, 203, 255, 0.55);
+}
+
+.orbit-particle-one {
+    top: 27%;
+    right: 17%;
+    animation: pdfmaster-particle-float 4s ease-in-out infinite;
+}
+
+.orbit-particle-two {
+    bottom: 23%;
+    left: 19%;
+    width: 5px;
+    height: 5px;
+    background: #c4a7ff;
+    box-shadow: 0 0 13px 3px rgba(160, 116, 255, 0.6);
+    animation: pdfmaster-particle-float 5s ease-in-out -1.5s infinite;
+}
+
+.hero-document {
+    z-index: 1;
+    border-color: rgba(135, 220, 255, 0.5);
+    background: linear-gradient(145deg, rgba(50, 78, 126, 0.92), rgba(30, 35, 72, 0.94));
+    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.38), 0 0 34px rgba(42, 190, 255, 0.2);
+    animation: pdfmaster-document-hover 6s ease-in-out infinite;
+}
+
+.hero-content {
+    z-index: 2;
+}
+
+.tool-card,
+.stat-card {
+    transition: transform 260ms ease, border-color 260ms ease, box-shadow 260ms ease;
+}
+
+.tool-card:hover,
+.stat-card:hover {
+    border-color: rgba(91, 203, 255, 0.38);
+    box-shadow: 0 16px 42px rgba(26, 151, 255, 0.1), 0 0 24px rgba(139, 92, 246, 0.08);
+}
+
+@keyframes pdfmaster-aura-turn {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pdfmaster-glow-breathe {
+    0%, 100% { opacity: 0.65; transform: scale(0.92); }
+    50% { opacity: 1; transform: scale(1.12); }
+}
+
+@keyframes pdfmaster-orbit-one {
+    from { transform: rotate(-27deg); }
+    to { transform: rotate(333deg); }
+}
+
+@keyframes pdfmaster-orbit-two {
+    from { transform: rotate(54deg); }
+    to { transform: rotate(-306deg); }
+}
+
+@keyframes pdfmaster-sheet-back {
+    0%, 100% { translate: -31px 7px; rotate: -17deg; }
+    50% { translate: -39px -2px; rotate: -12deg; }
+}
+
+@keyframes pdfmaster-sheet-front {
+    0%, 100% { translate: 25px -5px; rotate: 13deg; }
+    50% { translate: 33px 5px; rotate: 18deg; }
+}
+
+@keyframes pdfmaster-particle-float {
+    0%, 100% { translate: 0 0; opacity: 0.55; }
+    50% { translate: 0 -13px; opacity: 1; }
+}
+
+@keyframes pdfmaster-document-hover {
+    0%, 100% { transform: rotate(7deg) translateY(0); }
+    50% { transform: rotate(3deg) translateY(-8px); }
+}
+
+@media (max-width: 700px) {
+    .paper-orbit { transform: scale(0.82); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero::before,
+    .hero-glow,
+    .orbit-ring,
+    .paper-sheet,
+    .orbit-particle,
+    .hero-document {
+        animation: none !important;
+    }
+}
