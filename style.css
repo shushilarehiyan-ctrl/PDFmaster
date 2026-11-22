@@ -4327,3 +4327,11 @@ summary:focus-visible {
 .memory-stage.is-burning canvas.memory-ember-canvas {
     clip-path: none !important;
 }
+
+
+/* The JavaScript ember sweep owns the PDF reveal; prevent the older keyframe from competing with it. */
+.memory-stage.is-burning canvas#memoryCanvas {
+    animation: none !important;
+    opacity: 1;
+    filter: sepia(.92) contrast(1.2) brightness(.78);
+}
