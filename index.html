@@ -102,6 +102,11 @@
                 Haunted File Lab
             </a>
 
+            <a href="#memory-decay" class="nav-link archive-nav-link">
+                <span class="nav-icon">⌛</span>
+                Memory Decay
+            </a>
+
         </nav>
 
 
@@ -399,6 +404,41 @@
                     <div class="xray-fingerprint"><span>SHA-256 FILE FINGERPRINT</span><code id="xrayHash">—</code></div>
                     <p class="xray-disclaimer">Important: This is a basic local document inspection, not antivirus, malware detection, a digital-signature validator, or proof that a file is safe or authentic. Metadata can be edited. A clean result does not guarantee safety.</p>
                     <button type="button" id="xrayClearButton" class="xray-clear">Clear inspection</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MEMORY DECAY — LOCAL AGING PREVIEW -->
+        <section id="memory-decay" class="memory-section">
+            <div class="memory-heading">
+                <span class="memory-kicker">BEYOND IMAGINATION · EXPERIMENT 01</span>
+                <h2>Memory Decay</h2>
+                <p>Watch a document grow old inside this local preview. Choose a PDF, explore its pages, and control its simulated age.</p>
+            </div>
+            <div class="memory-panel">
+                <div class="memory-controls">
+                    <label class="memory-file-label" for="memoryPDFInput">CHOOSE A PDF</label>
+                    <input id="memoryPDFInput" class="memory-file-input" type="file" accept="application/pdf,.pdf">
+                    <p id="memoryFileInfo" class="memory-info">PDF stays in this browser tab. Maximum size: 20 MB.</p>
+                    <label class="memory-age-label" for="memoryAge">DOCUMENT AGE <strong id="memoryAgeValue">0 years</strong></label>
+                    <input id="memoryAge" class="memory-age-slider" type="range" min="0" max="500" step="1" value="0" disabled>
+                    <div class="memory-age-scale"><span>NEW</span><span>100 YEARS</span><span>500 YEARS</span></div>
+                    <div class="memory-page-controls">
+                        <button type="button" id="memoryPrev" disabled>← Previous</button>
+                        <span id="memoryPageCount">PAGE — / —</span>
+                        <button type="button" id="memoryNext" disabled>Next →</button>
+                    </div>
+                    <button type="button" id="memoryAsh" class="memory-ash-button" disabled>Simulate Digital Ash</button>
+                    <button type="button" id="memoryReset" class="memory-reset-button" disabled>Reset Preview</button>
+                    <p id="memoryStatus" class="memory-status" role="status" aria-live="polite">Choose a PDF to begin the experiment.</p>
+                </div>
+                <div class="memory-stage-wrap">
+                    <div id="memoryStage" class="memory-stage">
+                        <div class="memory-empty"><span>✧</span><strong>THE PASSAGE OF TIME</strong><small>Your document will appear here</small></div>
+                        <canvas id="memoryCanvas" hidden></canvas>
+                        <div id="memoryAshOverlay" class="memory-ash-overlay" aria-hidden="true"></div>
+                    </div>
+                    <p class="memory-note">This is a visual preview only. It does not alter or delete the original PDF. Downloaded copies remain unaffected; closing or refreshing this page clears the preview.</p>
                 </div>
             </div>
         </section>
