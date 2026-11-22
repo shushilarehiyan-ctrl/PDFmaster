@@ -496,9 +496,9 @@
   workspaceTitles.appendChild(workspaceTitle);
   workspaceHeading.appendChild(workspaceIcon);
   workspaceHeading.appendChild(workspaceTitles);
-  const closeWorkspace = make("button", "tool-workspace-close", "Close ×");
+  const closeWorkspace = make("button", "tool-workspace-close", "← Back to all tools");
   closeWorkspace.type = "button";
-  closeWorkspace.setAttribute("aria-label", "Close tool workspace");
+  closeWorkspace.setAttribute("aria-label", "Back to all tools");
   workspaceHead.appendChild(workspaceHeading);
   workspaceHead.appendChild(closeWorkspace);
   const workspaceBody = make("div", "tool-workspace-body");
@@ -531,6 +531,7 @@
     activeToolCard.classList.remove("tool-card-active");
     activeToolCard.setAttribute("aria-expanded", "false");
     activeToolCard = null;
+    document.body.classList.remove("tool-page-active");
     workspace.hidden = true;
     workspaceBody.replaceChildren();
   }
@@ -542,13 +543,10 @@
     }
     closeActiveTool();
     activeToolCard = card;
+    document.body.classList.add("tool-page-active");
     card.classList.add("tool-card-active");
     card.setAttribute("aria-expanded", "true");
     workspaceTitle.textContent = card.querySelector("h3")?.textContent || "PDF Tool";
-    const featuredTitle = document.getElementById("featuredToolTitle");
-    const featuredDescription = document.getElementById("featuredToolDescription");
-    if (featuredTitle) featuredTitle.textContent = card.querySelector("h3")?.textContent || "PDF Tool";
-    if (featuredDescription) featuredDescription.textContent = card.querySelector(":scope > p")?.textContent.trim() || "Use the selected tool in the workspace below.";
     workspaceIcon.textContent = cardIconText(card);
     const nodes = Array.from(card.children).slice(3);
     movedNodes.set(card, nodes);
