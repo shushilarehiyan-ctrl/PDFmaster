@@ -1491,7 +1491,7 @@ async function protectPDF() {
     const MAX_PDF_BYTES = 50 * 1024 * 1024;
     const MAX_CONTAINER_BYTES = 110 * 1024 * 1024;
     const PBKDF2_ITERATIONS = 250000;
-    const MAGIC = "PDFMASTER-DUALREALITY-V1\\n";
+    const MAGIC = "PDFMASTER-DUALREALITY-V1\n";
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
 
@@ -1532,9 +1532,9 @@ async function protectPDF() {
     function safeFileName(name) {
         const cleaned = String(name || "document.pdf")
             .split(/[\\/]/).pop()
-            .replace(/[<>:"|?*\\x00-\\x1F]/g, "_")
+            .replace(/[<>:"|?*\x00-\x1F]/g, "_")
             .trim();
-        return (/\\.pdf$/i.test(cleaned) ? cleaned : cleaned + ".pdf") || "document.pdf";
+        return (/\.pdf$/i.test(cleaned) ? cleaned : cleaned + ".pdf") || "document.pdf";
     }
 
     function checkPDFHeader(bytes) {
