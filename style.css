@@ -5565,3 +5565,50 @@ a:hover,
 #tools .tools-container .tool-card:not(:hover) {
   background: #3B0715 !important;
 }
+
+
+/* ---------- SIMPLE PROCESS + WHY PDFMASTER: QUIET EDITORIAL FINISH ---------- */
+/* Keep the existing content and card layout; use the same calm palette as About. */
+.how-it-works-section,
+.why-pdfmaster-section {
+  background: #100D10 !important;
+  color: #F1E8DC !important;
+  border: 1px solid rgba(176,141,80,.28) !important;
+  box-shadow: 0 0 10px rgba(217,183,126,.08), inset 0 0 16px rgba(217,183,126,.02) !important;
+}
+.how-it-works-section > .section-label,
+.why-pdfmaster-section > .section-label {
+  color: #D9B77E !important;
+}
+.how-it-works-section > h2,
+.why-pdfmaster-section > h2 {
+  color: #F1E8DC !important;
+  line-height: 1.25;
+}
+.how-it-works-section .feature-steps article,
+.why-pdfmaster-section .feature-benefits article {
+  background: #3B0715 !important;
+  color: #F1E8DC !important;
+  border: 1px solid rgba(176,141,80,.24) !important;
+  box-shadow: 0 0 8px rgba(217,183,126,.07), inset 0 0 12px rgba(217,183,126,.018) !important;
+  transform: none !important;
+}
+.how-it-works-section .feature-steps article:hover,
+.why-pdfmaster-section .feature-benefits article:hover {
+  border-color: rgba(217,183,126,.58) !important;
+  box-shadow: 0 0 12px rgba(217,183,126,.16), inset 0 0 14px rgba(217,183,126,.035) !important;
+  transform: none !important;
+}
+.how-it-works-section .feature-step-number,
+.how-it-works-section .feature-steps h3,
+.why-pdfmaster-section .feature-benefits h3 {
+  color: #F1E8DC !important;
+}
+.how-it-works-section .feature-step-number {
+  color: #D9B77E !important;
+}
+.how-it-works-section .feature-steps p,
+.why-pdfmaster-section .feature-benefits p {
+  color: rgba(241,232,220,.76) !important;
+  line-height: 1.7;
+}
