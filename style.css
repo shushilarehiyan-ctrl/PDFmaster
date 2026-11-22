@@ -6114,3 +6114,22 @@ body:not(.tool-page-active) .topbar-badge:hover {
     animation: none !important;
   }
 }
+
+
+/* ---------- MOBILE SIDEBAR TOGGLE FIX ---------- */
+/* The public-homepage rule hides the sidebar by default.
+   Allow it to become visible when the hamburger adds .open. */
+@media (max-width: 650px) {
+  body:not(.tool-page-active) > .sidebar.open {
+    display: flex !important;
+  }
+
+  body:not(.tool-page-active) > .sidebar:not(.open) {
+    display: none !important;
+  }
+
+  .menu-toggle {
+    z-index: 1101 !important;
+    pointer-events: auto !important;
+  }
+}
