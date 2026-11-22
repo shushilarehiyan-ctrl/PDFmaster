@@ -565,7 +565,15 @@
 
   allToolCards.forEach(function (card) {
     card.setAttribute("aria-expanded", "false");
-    card.setAttribute("role", "group");
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+    card.setAttribute("aria-label", "Open " + (card.querySelector("h3")?.textContent || "PDF tool"));
+    card.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openTool(card);
+      }
+    });
     const icon = card.querySelector(".tool-icon");
     if (icon) {
       icon.textContent = cardIconText(card);
