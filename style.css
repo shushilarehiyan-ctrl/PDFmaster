@@ -4857,3 +4857,100 @@ body:not(.tool-page-active)>.main-content{margin-left:0;width:min(100%,1680px);p
     transition: none !important;
   }
 }
+
+
+/* ---------- PDFMASTER SITE-WIDE GOLDEN LIGHTING ---------- */
+/* Shared Royal Burgundy / Gold hover glow for every page, including legal pages. */
+:root {
+  --pdf-gold: #d9b77e;
+  --pdf-gold-deep: #b08d50;
+  --pdf-burgundy: #3b0715;
+}
+.contact-card,
+.privacy-card,
+.terms-card,
+.disclaimer-card,
+.contact-hero,
+.privacy-hero,
+.terms-hero,
+.disclaimer-hero,
+.info-section,
+.stat-card,
+.popular-tool-card,
+.tools-directory-grid > .tool-card {
+  border-color: rgba(176,141,80,.3);
+  transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease, background-color .22s ease;
+}
+.contact-card:hover,
+.privacy-card:hover,
+.terms-card:hover,
+.disclaimer-card:hover,
+.info-section:hover,
+.stat-card:hover {
+  border-color: rgba(217,183,126,.78) !important;
+  box-shadow: 0 0 0 1px rgba(217,183,126,.18), 0 0 16px rgba(217,183,126,.36), 0 0 34px rgba(176,141,80,.2), 0 12px 28px rgba(16,13,16,.28) !important;
+}
+.contact-hero:hover,
+.privacy-hero:hover,
+.terms-hero:hover,
+.disclaimer-hero:hover {
+  box-shadow: 0 0 22px rgba(176,141,80,.2), inset 0 0 24px rgba(217,183,126,.045);
+}
+button,
+.button,
+.contact-email,
+.contact-back,
+.privacy-back,
+.terms-back,
+.disclaimer-back,
+.footer-links a,
+.contact-card a,
+.privacy-card a,
+.terms-card a,
+.disclaimer-card a {
+  transition: color .2s ease, border-color .2s ease, box-shadow .22s ease, background-color .2s ease, transform .2s ease;
+}
+button:hover,
+.button:hover,
+.contact-email:hover {
+  border-color: rgba(217,183,126,.82) !important;
+  box-shadow: 0 0 10px rgba(217,183,126,.38), 0 0 22px rgba(176,141,80,.24) !important;
+}
+.contact-back:hover,
+.privacy-back:hover,
+.terms-back:hover,
+.disclaimer-back:hover,
+.footer-links a:hover,
+.contact-card a:hover,
+.privacy-card a:hover,
+.terms-card a:hover,
+.disclaimer-card a:hover {
+  color: #f1d69e !important;
+  text-shadow: 0 0 9px rgba(217,183,126,.55);
+}
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #d9b77e !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(217,183,126,.16), 0 0 16px rgba(217,183,126,.28);
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-card,
+  .privacy-card,
+  .terms-card,
+  .disclaimer-card,
+  .contact-hero,
+  .privacy-hero,
+  .terms-hero,
+  .disclaimer-hero,
+  .info-section,
+  .stat-card,
+  button,
+  .button,
+  a {
+    transition: none !important;
+  }
+}
