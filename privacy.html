@@ -218,7 +218,80 @@
                 gap: 13px;
             }
         }
-    </style>
+    
+        /* Shared blue legal-page palette */
+        body:has(.privacy-page) {
+            background: #080F1D !important;
+            color: #EAF2FF !important;
+        }
+        .privacy-page {
+            background: transparent !important;
+            color: #EAF2FF !important;
+        }
+        .privacy-back,
+        .privacy-card a {
+            color: #60A5FA !important;
+        }
+        .privacy-back:hover,
+        .privacy-card a:hover {
+            color: #BFDBFE !important;
+        }
+        .privacy-hero {
+            background: radial-gradient(circle at 85% 15%, rgba(59,130,246,.22), transparent 38%), linear-gradient(135deg, #142746, #0C172B) !important;
+            border: 1px solid rgba(96,165,250,.38) !important;
+        }
+        .privacy-label {
+            background: rgba(59,130,246,.16) !important;
+            border: 1px solid rgba(96,165,250,.34) !important;
+            color: #93C5FD !important;
+        }
+        .privacy-hero h1,
+        .privacy-hero h1 span {
+            color: #93C5FD !important;
+        }
+        .privacy-hero p,
+        .privacy-card p {
+            color: #C5D4E8 !important;
+        }
+        .privacy-date {
+            background: rgba(96,165,250,.10) !important;
+            color: #DCEBFF !important;
+            border: 1px solid rgba(96,165,250,.22) !important;
+        }
+        .privacy-card {
+            background: linear-gradient(145deg, #14243D, #101B2E) !important;
+            border: 1px solid rgba(96,165,250,.24) !important;
+            color: #EAF2FF !important;
+        }
+        .privacy-card:hover {
+            border-color: rgba(96,165,250,.72) !important;
+            box-shadow: 0 12px 30px rgba(37,99,235,.16) !important;
+        }
+        .privacy-card h2,
+        .privacy-card h3 {
+            color: #BFDBFE !important;
+        }
+        .privacy-footer {
+            background: #080F1D !important;
+            border-top: 1px solid rgba(96,165,250,.24) !important;
+        }
+        .privacy-footer .logo,
+        .privacy-footer .logo span {
+            color: #93C5FD !important;
+        }
+        .privacy-footer > p {
+            color: #AFC2DC !important;
+        }
+        .privacy-footer .footer-links a {
+            color: #B8CBE4 !important;
+        }
+        .privacy-footer .footer-links a:hover {
+            color: #60A5FA !important;
+        }
+        .privacy-footer .copyright {
+            color: #8298B5 !important;
+        }
+</style>
 </head>
 
 <body>
