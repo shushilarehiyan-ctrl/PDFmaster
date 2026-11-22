@@ -2518,3 +2518,101 @@ main {
         transform: none;
     }
 }
+
+
+/* ==========================================
+   FINAL POLISH — REMOVE MAROON/GOLD LIGHTING
+   Keep solid Classic Maroon and restrained Gold.
+========================================== */
+html,
+body {
+    background: #800000 !important;
+    background-image: none !important;
+}
+
+body::before,
+body::after,
+.main-content::before,
+.main-content::after,
+.hero::before,
+.hero::after {
+    display: none !important;
+    content: none !important;
+    animation: none !important;
+    filter: none !important;
+    box-shadow: none !important;
+}
+
+.hero,
+.sidebar,
+#faq,
+.stat-card,
+.tool-card,
+.info-section {
+    background-image: none !important;
+}
+
+.hero {
+    background-color: #690000 !important;
+    box-shadow: 0 8px 18px rgba(35, 0, 0, 0.14) !important;
+}
+
+.hero-glow,
+.orbit-particle {
+    display: none !important;
+    opacity: 0 !important;
+    box-shadow: none !important;
+}
+
+.orbit-ring,
+.paper-sheet,
+.hero-document {
+    filter: none !important;
+    box-shadow: none !important;
+}
+
+.stat-card,
+.tool-card,
+.info-section,
+#faq,
+.sidebar {
+    box-shadow: none !important;
+}
+
+.stat-card:hover,
+.tool-card:hover,
+#faq details:hover,
+#faq details[open] {
+    box-shadow: none !important;
+}
+
+.nav-icon,
+.sidebar .logo {
+    filter: none !important;
+    text-shadow: none !important;
+}
+
+.search-box,
+.tool-card input,
+.tool-card select,
+.tool-card textarea {
+    box-shadow: none !important;
+}
+
+.search-box:focus-within,
+.tool-card input:focus,
+.tool-card select:focus,
+.tool-card textarea:focus {
+    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.18) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
