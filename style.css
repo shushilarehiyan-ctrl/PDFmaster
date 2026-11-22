@@ -1736,3 +1736,219 @@ summary:focus-visible {
         padding-right: 12px;
     }
 }
+
+
+/* ==========================================
+   PDFMASTER GOLDEN FUTURE — SIGNATURE THEME
+   Warm metallic gold over a deep obsidian base
+========================================== */
+:root {
+    --bg: #090a0d;
+    --sidebar: #101114;
+    --surface: #151619;
+    --surface-light: #202024;
+    --surface-hover: #292821;
+    --border: rgba(242, 196, 91, 0.14);
+    --text: #f8f4e9;
+    --muted: #a9a18e;
+    --primary: #d6a83f;
+    --primary-light: #ffe09a;
+    --blue: #e8bd5a;
+    --green: #8fc7a1;
+    --orange: #e6ad55;
+    --red: #d98a79;
+    --pink: #d9b0c6;
+    --shadow: 0 14px 42px rgba(0,0,0,0.34);
+}
+
+body {
+    background:
+        radial-gradient(ellipse at 78% 0%, rgba(206, 157, 54, 0.10), transparent 31%),
+        radial-gradient(ellipse at 8% 38%, rgba(117, 86, 34, 0.07), transparent 35%),
+        var(--bg);
+}
+
+::selection { background: #c99b36; color: #17130a; }
+
+.logo-icon,
+.document-icon {
+    background: linear-gradient(135deg, #fff0b5 0%, #d8a83e 48%, #8e641b 100%);
+    color: #211807;
+    box-shadow: 0 5px 24px rgba(222, 174, 68, 0.28);
+}
+
+.logo-accent,
+.breadcrumb span,
+.footer-links a:hover {
+    color: var(--primary-light);
+}
+
+.nav-link:hover {
+    background: linear-gradient(100deg, rgba(214,168,63,0.12), rgba(214,168,63,0.035));
+    color: #fff0c4;
+}
+.nav-link.active {
+    background: linear-gradient(100deg, rgba(214,168,63,0.19), rgba(214,168,63,0.055));
+    color: #ffe09a;
+    border-color: rgba(242,196,91,0.22);
+}
+
+.search-box:focus-within,
+.tool-card input:focus,
+.tool-card select:focus {
+    border-color: rgba(242,196,91,0.72);
+    box-shadow: 0 0 0 3px rgba(214,168,63,0.12);
+}
+
+.search-box button,
+.tool-card button,
+.hero-button,
+#faq > a {
+    background: linear-gradient(120deg, #f5d889 0%, #d5a43b 48%, #9b6d20 100%);
+    color: #211807;
+    box-shadow: 0 7px 22px rgba(194,145,43,0.20);
+}
+.search-box button:hover,
+.tool-card button:hover,
+.hero-button:hover,
+#faq > a:hover {
+    filter: brightness(1.12);
+    box-shadow: 0 10px 28px rgba(214,168,63,0.30);
+}
+.tool-card button.secondary-btn {
+    background: linear-gradient(145deg, #26231b, #191a1d);
+    border: 1px solid rgba(242,196,91,0.18);
+    color: #e8d6a8;
+}
+
+.hero {
+    border-color: rgba(235,190,85,0.28);
+    background:
+        radial-gradient(ellipse at 82% 48%, rgba(225,178,72,0.19), transparent 35%),
+        radial-gradient(ellipse at 72% 100%, rgba(128,91,33,0.17), transparent 44%),
+        linear-gradient(115deg, #171613, #201c14 56%, #282116);
+    box-shadow: 0 18px 55px rgba(0,0,0,0.35), inset 0 1px rgba(255,235,180,0.07);
+}
+.hero::before {
+    background: conic-gradient(from 0deg, transparent 0 65%, rgba(255,218,130,0.11) 75%, transparent 86% 100%);
+}
+.hero-badge {
+    border-color: rgba(255,218,130,0.28);
+    background: rgba(214,168,63,0.10);
+    color: #ffe09a;
+}
+.hero h1 span { color: #f3cc72; }
+.hero p { color: #c0b69f; }
+
+.hero-glow {
+    background: rgba(227,177,66,0.27);
+    box-shadow: 0 0 75px rgba(227,177,66,0.28), 0 0 125px rgba(146,101,34,0.18);
+}
+.orbit-ring {
+    border-color: rgba(255,220,137,0.62);
+    box-shadow: 0 0 18px rgba(255,204,91,0.23), inset 0 0 18px rgba(214,168,63,0.12);
+}
+.orbit-ring-two { border-color: rgba(184,139,57,0.72); }
+.paper-sheet {
+    border-color: rgba(255,224,154,0.65);
+    background:
+        linear-gradient(135deg, rgba(255,244,210,0.20), rgba(188,137,39,0.09)),
+        repeating-linear-gradient(to bottom, transparent 0 15px, rgba(255,225,160,0.22) 16px 17px);
+    box-shadow: 0 12px 36px rgba(214,168,63,0.16), inset 0 0 22px rgba(255,239,197,0.08);
+}
+.paper-sheet-front { border-color: rgba(255,205,104,0.82); }
+.orbit-particle {
+    background: #fff0b5;
+    box-shadow: 0 0 14px 4px rgba(255,211,111,0.72);
+}
+.orbit-particle-two {
+    background: #d5a64b;
+    box-shadow: 0 0 13px 3px rgba(210,158,58,0.68);
+}
+.hero-document {
+    border-color: rgba(255,220,137,0.72);
+    background: linear-gradient(145deg, rgba(100,76,33,0.96), rgba(37,31,20,0.98));
+    box-shadow: 0 20px 55px rgba(0,0,0,0.42), 0 0 38px rgba(230,181,76,0.25);
+}
+
+.stat-card,
+.tool-card,
+.info-section {
+    border-color: rgba(242,196,91,0.13);
+    background: linear-gradient(145deg, rgba(28,27,24,0.97), rgba(18,19,21,0.98));
+}
+.stat-card:hover,
+.tool-card:hover {
+    border-color: rgba(242,196,91,0.48);
+    box-shadow: 0 16px 42px rgba(0,0,0,0.28), 0 0 25px rgba(214,168,63,0.10);
+}
+.section-label,
+.tool-card h3,
+.section-heading h2,
+.info-section h2 { color: #f4e5bd; }
+
+.tool-icon.purple,
+.tool-icon.blue,
+.tool-icon.orange,
+.tool-icon.green,
+.tool-icon.red,
+.tool-icon.pink,
+.stat-icon.purple,
+.stat-icon.blue,
+.stat-icon.green {
+    color: #f3d58e;
+    background: rgba(214,168,63,0.13);
+}
+.tool-category { color: #b7a77f; }
+.tool-card input[type="file"] {
+    border-color: rgba(214,168,63,0.38);
+    background: rgba(214,168,63,0.045);
+}
+.tool-card input[type="file"]::file-selector-button {
+    background: rgba(214,168,63,0.18);
+    color: #f3d58e;
+}
+.tool-card input[type="range"] { accent-color: #d6a83f; }
+#splitModeInfo,
+#compressionWarning,
+#protectPDFWarning,
+#imageFormatInfo {
+    border-left-color: #d6a83f;
+    background: rgba(214,168,63,0.07);
+}
+#faq details:hover,
+#faq details[open] {
+    border-color: rgba(242,196,91,0.34);
+    background: rgba(214,168,63,0.07);
+}
+#faq summary::after {
+    background: rgba(214,168,63,0.14);
+    color: #f3d58e;
+}
+#faq details[open] summary { color: #f3d58e; }
+#faq details[open] summary::after {
+    background: linear-gradient(135deg, #f5d889, #b9872c);
+    color: #211807;
+}
+#faq summary:focus-visible { outline-color: #f3d58e; }
+.footer { border-top-color: rgba(242,196,91,0.16); }
+
+@keyframes pdfmaster-gold-shimmer {
+    0%, 100% { opacity: 0.22; transform: translateX(-12%) rotate(12deg); }
+    50% { opacity: 0.62; transform: translateX(12%) rotate(12deg); }
+}
+.hero::after {
+    content: "";
+    position: absolute;
+    top: -60%;
+    left: -30%;
+    width: 35%;
+    height: 220%;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(255,231,171,0.07), transparent);
+    filter: blur(8px);
+    animation: pdfmaster-gold-shimmer 9s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+    .hero::after { animation: none !important; }
+}
