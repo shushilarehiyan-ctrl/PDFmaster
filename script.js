@@ -1479,3 +1479,290 @@ async function protectPDF() {
         protectPDFButton.textContent = "Protect PDF →";
     }
 }
+
+
+// =================================
+// PDFMASTER — THE HAUNTED FILE LAB
+// Local-only PDF metadata + SHA-256 fingerprint
+// =================================
+
+(function initHauntedFileLab() {
+    const fileInput = document.getElementById("archivePDFInput");
+    const analyzeButton = document.getElementById("archiveAnalyzeButton");
+    const status = document.getElementById("archiveStatus");
+    const result = document.getElementById("archiveResult");
+    const downloadButton = document.getElementById("archiveDownloadButton");
+    const shareButton = document.getElementById("archiveShareButton");
+    const clearButton = document.getElementById("archiveClearButton");
+
+    if (!fileInput || !analyzeButton || !status || !result) return;
+
+    let selectedFile = null;
+    let currentRecord = null;
+
+    const archiveTypes = [
+        "THE FORGOTTEN SCROLL",
+        "THE MIDNIGHT MANUSCRIPT",
+        "THE SILENT WITNESS",
+        "THE OXBLOOD CODEX",
+        "THE LOST CHAPTER",
+        "THE VEILED ARCHIVE",
+        "THE LAST TESTAMENT",
+        "THE UNKNOWN VOLUME"
+    ];
+
+    function setStatus(message, isError) {
+        status.textContent = message;
+        status.classList.toggle("is-error", Boolean(isError));
+    }
+
+    function formatBytes(bytes) {
+        if (bytes < 1024) return bytes + " B";
+        const units = ["KB", "MB", "GB"];
+        let value = bytes / 1024;
+        let unit = 0;
+        while (value >= 1024 && unit < units.length - 1) {
+            value /= 1024;
+            unit++;
+        }
+        return value.toFixed(value >= 10 ? 1 : 2) + " " + units[unit];
+    }
+
+    function getPageFormat(width, height) {
+        const shortSide = Math.min(width, height);
+        const longSide = Math.max(width, height);
+        const ratio = longSide / shortSide;
+        if (Math.abs(shortSide - 595.28) < 8 && Math.abs(longSide - 841.89) < 12) return "A4";
+        if (Math.abs(shortSide - 612) < 8 && Math.abs(longSide - 792) < 12) return "LETTER";
+        if (ratio > 1.35 && ratio < 1.45) return "A-SERIES";
+        return "CUSTOM";
+    }
+
+    async function createFingerprint(file) {
+        if (!window.crypto || !window.crypto.subtle) {
+            throw new Error("Secure fingerprinting needs a modern browser on HTTPS. Please open the secure PDFMaster website.");
+        }
+        const bytes = await file.arrayBuffer();
+        const digest = await window.crypto.subtle.digest("SHA-256", bytes);
+        return Array.from(new Uint8Array(digest))
+            .map(function (byte) { return byte.toString(16).padStart(2, "0"); })
+            .join("");
+    }
+
+    fileInput.addEventListener("change", function () {
+        const file = fileInput.files && fileInput.files[0];
+        result.hidden = true;
+        currentRecord = null;
+        selectedFile = null;
+        analyzeButton.disabled = true;
+
+        if (!file) {
+            setStatus("", false);
+            return;
+        }
+
+        if (file.type !== "application/pdf" && !/\.pdf$/i.test(file.name)) {
+            fileInput.value = "";
+            setStatus("Please choose a PDF file.", true);
+            return;
+        }
+
+        selectedFile = file;
+        analyzeButton.disabled = false;
+        setStatus("Selected: " + file.name + " · " + formatBytes(file.size), false);
+    });
+
+    analyzeButton.addEventListener("click", async function () {
+        if (!selectedFile) {
+            setStatus("Choose a PDF document first.", true);
+            return;
+        }
+        if (!window.PDFLib || !window.PDFLib.PDFDocument) {
+            setStatus("The PDF reader could not load. Refresh the page and try again.", true);
+            return;
+        }
+
+        const file = selectedFile;
+        analyzeButton.disabled = true;
+        analyzeButton.textContent = "Reading the archive…";
+        result.hidden = true;
+        setStatus("Examining your document locally…", false);
+
+        try {
+            const bytes = await file.arrayBuffer();
+            const pdf = await window.PDFLib.PDFDocument.load(bytes);
+            const pages = pdf.getPages();
+            const firstPageSize = pages.length ? pages[0].getSize() : { width: 0, height: 0 };
+            const fingerprint = await createFingerprint(file);
+            const typeIndex = parseInt(fingerprint.slice(0, 2), 16) % archiveTypes.length;
+            const archiveId = "ARCHIVE-" + fingerprint.slice(0, 4).toUpperCase() + "-" + fingerprint.slice(4, 8).toUpperCase();
+
+            currentRecord = {
+                fileName: file.name,
+                pages: pages.length,
+                size: formatBytes(file.size),
+                format: getPageFormat(firstPageSize.width, firstPageSize.height),
+                type: archiveTypes[typeIndex],
+                id: archiveId,
+                hash: fingerprint
+            };
+
+            document.getElementById("archiveType").textContent = currentRecord.type;
+            document.getElementById("archiveId").textContent = currentRecord.id;
+            document.getElementById("archivePages").textContent = String(currentRecord.pages);
+            document.getElementById("archiveSize").textContent = currentRecord.size;
+            document.getElementById("archiveFormat").textContent = currentRecord.format;
+            document.getElementById("archiveHash").textContent = fingerprint;
+            result.hidden = false;
+            setStatus("Archive record generated. Your original PDF has not been changed.", false);
+            result.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        } catch (error) {
+            console.error("Haunted File Lab Error:", error);
+            setStatus("Could not read this PDF. It may be damaged, password-protected, or unsupported.", true);
+        } finally {
+            analyzeButton.disabled = !selectedFile;
+            analyzeButton.innerHTML = 'Reveal Document DNA <span>↗</span>';
+        }
+    });
+
+    function drawShareCard() {
+        if (!currentRecord) return null;
+        const canvas = document.createElement("canvas");
+        canvas.width = 1200;
+        canvas.height = 630;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return null;
+
+        const background = ctx.createLinearGradient(0, 0, 1200, 630);
+        background.addColorStop(0, "#16070D");
+        background.addColorStop(0.55, "#3B0715");
+        background.addColorStop(1, "#100D10");
+        ctx.fillStyle = background;
+        ctx.fillRect(0, 0, 1200, 630);
+
+        ctx.strokeStyle = "rgba(217,183,126,0.55)";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(34, 34, 1132, 562);
+        ctx.strokeStyle = "rgba(217,183,126,0.18)";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(48, 48, 1104, 534);
+
+        ctx.fillStyle = "#D9B77E";
+        ctx.font = "600 20px Arial";
+        ctx.fillText("PDFMASTER  /  THE HAUNTED ARCHIVE", 78, 100);
+        ctx.textAlign = "right";
+        ctx.fillText("FIRST EDITION · 01", 1120, 100);
+        ctx.textAlign = "left";
+
+        ctx.fillStyle = "rgba(217,183,126,0.10)";
+        ctx.beginPath();
+        ctx.arc(170, 290, 88, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#B08D50";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(170, 290, 68, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = "#D9B77E";
+        ctx.font = "bold 42px Georgia";
+        ctx.textAlign = "center";
+        ctx.fillText("✦", 170, 305);
+        ctx.textAlign = "left";
+
+        ctx.fillStyle = "#C5B7AD";
+        ctx.font = "600 19px Arial";
+        ctx.fillText("DOCUMENT DNA", 300, 220);
+        ctx.fillStyle = "#F1E8DC";
+        ctx.font = "bold 42px Georgia";
+        ctx.fillText(currentRecord.type, 300, 280, 790);
+        ctx.fillStyle = "#D9B77E";
+        ctx.font = "600 22px Arial";
+        ctx.fillText(currentRecord.id, 300, 326);
+
+        ctx.strokeStyle = "rgba(217,183,126,0.35)";
+        ctx.beginPath();
+        ctx.moveTo(80, 390);
+        ctx.lineTo(1120, 390);
+        ctx.stroke();
+
+        const metrics = [
+            ["PAGES", String(currentRecord.pages)],
+            ["FILE SIZE", currentRecord.size],
+            ["FIRST PAGE", currentRecord.format]
+        ];
+        metrics.forEach(function (metric, index) {
+            const x = 90 + index * 350;
+            ctx.fillStyle = "#D9B77E";
+            ctx.font = "600 16px Arial";
+            ctx.fillText(metric[0], x, 440);
+            ctx.fillStyle = "#F1E8DC";
+            ctx.font = "bold 30px Arial";
+            ctx.fillText(metric[1], x, 482);
+        });
+
+        ctx.fillStyle = "#C5B7AD";
+        ctx.font = "14px Arial";
+        ctx.fillText("SHA-256  " + currentRecord.hash.slice(0, 32) + "…", 90, 540);
+        ctx.textAlign = "right";
+        ctx.fillText("ANALYSED LOCALLY · PDFMASTER", 1110, 565);
+        ctx.textAlign = "left";
+        return canvas;
+    }
+
+    function downloadCard() {
+        const canvas = drawShareCard();
+        if (!canvas) {
+            setStatus("Could not create the share card in this browser.", true);
+            return;
+        }
+        const link = document.createElement("a");
+        link.download = "PDFMaster-Document-DNA.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        setStatus("Your Document DNA card is ready. Share the image wherever you like.", false);
+    }
+
+    downloadButton.addEventListener("click", downloadCard);
+
+    shareButton.addEventListener("click", async function () {
+        const canvas = drawShareCard();
+        if (!canvas) {
+            setStatus("Could not create the share card in this browser.", true);
+            return;
+        }
+
+        try {
+            const blob = await new Promise(function (resolve) {
+                canvas.toBlob(resolve, "image/png");
+            });
+            if (!blob) throw new Error("Image export failed.");
+            const imageFile = new File([blob], "PDFMaster-Document-DNA.png", { type: "image/png" });
+
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [imageFile] })) {
+                await navigator.share({
+                    title: "My PDFMaster Document DNA",
+                    text: "I discovered my document's DNA in the PDFMaster Haunted Archive.",
+                    files: [imageFile]
+                });
+                setStatus("Share sheet opened.", false);
+            } else {
+                downloadCard();
+                setStatus("Direct sharing is not available here, so the card was downloaded instead.", false);
+            }
+        } catch (error) {
+            if (error.name !== "AbortError") {
+                console.error("Document DNA share error:", error);
+                setStatus("Sharing is unavailable. Use Download DNA Card instead.", true);
+            }
+        }
+    });
+
+    clearButton.addEventListener("click", function () {
+        selectedFile = null;
+        currentRecord = null;
+        fileInput.value = "";
+        result.hidden = true;
+        analyzeButton.disabled = true;
+        setStatus("Archive cleared. Choose another PDF when you're ready.", false);
+    });
+})();
