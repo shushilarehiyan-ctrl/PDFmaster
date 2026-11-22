@@ -97,6 +97,11 @@
                 All Tools
             </a>
 
+            <a href="#haunted-file-lab" class="nav-link archive-nav-link">
+                <span class="nav-icon">◈</span>
+                Haunted File Lab
+            </a>
+
         </nav>
 
 
@@ -274,6 +279,74 @@
 
             </div>
 
+        </section>
+
+
+        <!-- HAUNTED FILE LAB — LOCAL PDF FINGERPRINT EXPERIENCE -->
+
+        <section id="haunted-file-lab" class="archive-section">
+            <div class="archive-heading">
+                <span class="archive-kicker">THE HAUNTED ARCHIVE · FIRST EDITION</span>
+                <h2>The Haunted File Lab</h2>
+                <p>Every document leaves a signature. Reveal your PDF's unique Document DNA — privately, right in your browser.</p>
+            </div>
+
+            <div class="archive-lab">
+                <div class="archive-intro">
+                    <div class="archive-seal" aria-hidden="true"><span>PDF</span><i></i></div>
+                    <div>
+                        <span class="archive-overline">ENTER THE ARCHIVE</span>
+                        <h3>Discover your Document DNA</h3>
+                        <p>Choose a PDF to reveal its page count, file size, page dimensions and a unique SHA-256 fingerprint.</p>
+                    </div>
+                </div>
+
+                <div class="archive-upload">
+                    <label for="archivePDFInput" class="archive-dropzone">
+                        <span class="archive-upload-icon" aria-hidden="true">⇧</span>
+                        <strong>Choose a PDF document</strong>
+                        <span>PDF files only · Processed locally in this browser</span>
+                        <input type="file" id="archivePDFInput" accept="application/pdf,.pdf">
+                    </label>
+                    <button type="button" id="archiveAnalyzeButton" class="archive-action" disabled>Reveal Document DNA <span>↗</span></button>
+                    <p class="archive-privacy"><span>◆</span> Your file is not uploaded to PDFMaster. Analysis happens on your device.</p>
+                    <p id="archiveStatus" class="archive-status" role="status" aria-live="polite"></p>
+                </div>
+
+                <div id="archiveResult" class="archive-result" hidden>
+                    <div class="archive-result-top">
+                        <div>
+                            <span class="archive-overline">ARCHIVE RECORD CREATED</span>
+                            <h3>Your document has a signature.</h3>
+                        </div>
+                        <span class="archive-stamp">CLASSIFIED</span>
+                    </div>
+                    <div class="archive-dna-card" id="archiveShareCard">
+                        <div class="archive-card-topline"><span>PDFMASTER · THE HAUNTED ARCHIVE</span><span>EDITION 01</span></div>
+                        <div class="archive-card-main">
+                            <div class="archive-card-emblem" aria-hidden="true">✦</div>
+                            <div class="archive-card-copy">
+                                <span>DOCUMENT DNA</span>
+                                <h4 id="archiveType">THE UNKNOWN</h4>
+                                <p id="archiveId">ARCHIVE-0000-0000</p>
+                            </div>
+                        </div>
+                        <div class="archive-metrics">
+                            <div><strong id="archivePages">—</strong><span>PAGES</span></div>
+                            <div><strong id="archiveSize">—</strong><span>FILE SIZE</span></div>
+                            <div><strong id="archiveFormat">—</strong><span>FIRST PAGE</span></div>
+                        </div>
+                        <div class="archive-fingerprint"><span>SHA-256 FINGERPRINT</span><code id="archiveHash">—</code></div>
+                        <div class="archive-card-footer"><span>ANALYSED LOCALLY</span><span>PDFMASTER ARCHIVE</span></div>
+                    </div>
+                    <p class="archive-result-note">This is a playful visual classification, not a security scan or a judgement about the document's contents.</p>
+                    <div class="archive-result-actions">
+                        <button type="button" id="archiveDownloadButton" class="archive-action">Download DNA Card ↓</button>
+                        <button type="button" id="archiveShareButton" class="archive-secondary-action">Share Card ↗</button>
+                        <button type="button" id="archiveClearButton" class="archive-text-action">Clear file</button>
+                    </div>
+                </div>
+            </div>
         </section>
 
 
