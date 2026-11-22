@@ -3924,3 +3924,88 @@ summary:focus-visible {
 @media (max-width: 480px) {
   .tool-extra-grid { grid-template-columns: 1fr; }
 }
+
+
+/* ---------- SINGLE SHARED UPLOAD ---------- */
+.shared-upload-section {
+    margin: 34px 0 42px;
+}
+.shared-upload-heading {
+    margin-bottom: 18px;
+}
+.shared-upload-heading h2 {
+    font-size: clamp(23px, 2.5vw, 32px);
+    line-height: 1.25;
+    letter-spacing: -0.8px;
+}
+.shared-upload-heading p {
+    margin-top: 9px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+.shared-upload-box {
+    min-height: 190px;
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    text-align: center;
+    cursor: pointer;
+    border: 1.5px dashed var(--primary);
+    border-radius: var(--radius);
+    background: var(--surface);
+    transition: border-color .2s ease, background .2s ease, transform .2s ease;
+}
+.shared-upload-box:hover,
+.shared-upload-box.is-dragging {
+    border-color: var(--primary-light);
+    background: var(--surface-light);
+    transform: translateY(-2px);
+}
+.shared-upload-icon {
+    width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 3px;
+    border-radius: 13px;
+    background: rgba(119,117,255,.15);
+    color: var(--primary-light);
+    font-size: 27px;
+    font-weight: 700;
+}
+.shared-upload-box strong {
+    font-size: 15px;
+}
+.shared-upload-box span:not(.shared-upload-icon) {
+    color: var(--muted);
+    font-size: 12px;
+}
+.shared-upload-box small {
+    color: var(--muted);
+    font-size: 11px;
+}
+.shared-upload-box input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+.shared-upload-status {
+    min-height: 20px;
+    margin-top: 11px;
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+}
+.tool-card input[type="file"] {
+    display: none !important;
+}
+#toolWorkspaceMount {
+    width: 100%;
+}
