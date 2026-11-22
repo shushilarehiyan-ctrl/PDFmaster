@@ -1908,3 +1908,133 @@ async function protectPDF() {
         setStatus("Inspection cleared.", false);
     });
 })();
+
+
+// =================================
+// PDFMASTER — MEMORY DECAY EXPERIMENT
+// Local visual aging preview; original PDF is never modified.
+// =================================
+(function initMemoryDecay() {
+    const input = document.getElementById("memoryPDFInput");
+    const age = document.getElementById("memoryAge");
+    const ageValue = document.getElementById("memoryAgeValue");
+    const canvas = document.getElementById("memoryCanvas");
+    const stage = document.getElementById("memoryStage");
+    const info = document.getElementById("memoryFileInfo");
+    const count = document.getElementById("memoryPageCount");
+    const status = document.getElementById("memoryStatus");
+    const prev = document.getElementById("memoryPrev");
+    const next = document.getElementById("memoryNext");
+    const ash = document.getElementById("memoryAsh");
+    const reset = document.getElementById("memoryReset");
+    const overlay = document.getElementById("memoryAshOverlay");
+    if (!input || !age || !canvas || !stage || !window.pdfjsLib) return;
+
+    const ctx = canvas.getContext("2d");
+    const maxBytes = 20 * 1024 * 1024;
+    let pdfDocument = null;
+    let pageNumber = 1;
+    let renderTask = null;
+    let renderToken = 0;
+    let ashTimer = null;
+
+    function setStatus(message, error) {
+        status.textContent = message;
+        status.classList.toggle("is-error", Boolean(error));
+    }
+    function updateAge() {
+        const years = Number(age.value);
+        ageValue.textContent = years + (years === 1 ? " year" : " years");
+        stage.style.setProperty("--memory-age", String(years / 500));
+        stage.classList.toggle("is-aged", years > 0);
+    }
+    async function renderPage() {
+        if (!pdfDocument) return;
+        const token = ++renderToken;
+        if (renderTask) {
+            try { renderTask.cancel(); } catch (error) {}
+            renderTask = null;
+        }
+        try {
+            const page = await pdfDocument.getPage(pageNumber);
+            if (token !== renderToken) return;
+            const viewport = page.getViewport({ scale: 1.35 });
+            const maxWidth = Math.max(240, Math.min(stage.clientWidth - 36, 760));
+            const scale = Math.min(1, maxWidth / viewport.width);
+            const scaled = page.getViewport({ scale: 1.35 * scale });
+            canvas.width = Math.ceil(scaled.width);
+            canvas.height = Math.ceil(scaled.height);
+            canvas.hidden = false;
+            const task = page.render({ canvasContext: ctx, viewport: scaled });
+            renderTask = task;
+            await task.promise;
+            if (token !== renderToken) return;
+            renderTask = null;
+            count.textContent = "PAGE " + pageNumber + " / " + pdfDocument.numPages;
+            prev.disabled = pageNumber <= 1;
+            next.disabled = pageNumber >= pdfDocument.numPages;
+            updateAge();
+            setStatus("Page rendered locally. Adjust the age slider to change its appearance.", false);
+        } catch (error) {
+            if (error && error.name === "RenderingCancelledException") return;
+            console.error("Memory Decay render error:", error);
+            setStatus("This page could not be rendered. Try another PDF.", true);
+        }
+    }
+    input.addEventListener("change", async function() {
+        if (pdfDocument) { try { await pdfDocument.destroy(); } catch (error) {} pdfDocument = null; }
+        canvas.hidden = true;
+        stage.classList.remove("is-ash");
+        overlay.classList.remove("is-active");
+        age.disabled = true; prev.disabled = true; next.disabled = true; ash.disabled = true; reset.disabled = true;
+        const file = input.files && input.files[0];
+        if (!file) { info.textContent = "PDF stays in this browser tab. Maximum size: 20 MB."; return; }
+        if ((file.type !== "application/pdf" && !/\.pdf$/i.test(file.name)) || file.size > maxBytes) {
+            input.value = "";
+            info.textContent = "Choose a PDF up to 20 MB.";
+            setStatus("Unsupported file or file exceeds the 20 MB limit.", true);
+            return;
+        }
+        info.textContent = file.name + " · " + (file.size / 1024 / 1024).toFixed(2) + " MB";
+        setStatus("Opening document locally…", false);
+        try {
+            const bytes = new Uint8Array(await file.arrayBuffer());
+            pdfDocument = await window.pdfjsLib.getDocument({ data: bytes }).promise;
+            pageNumber = 1;
+            age.value = "0";
+            age.disabled = false; ash.disabled = false; reset.disabled = false;
+            await renderPage();
+        } catch (error) {
+            console.error("Memory Decay load error:", error);
+            setStatus("Could not open this PDF. It may be damaged, encrypted, or unsupported.", true);
+        }
+    });
+    age.addEventListener("input", updateAge);
+    prev.addEventListener("click", function() { if (pdfDocument && pageNumber > 1) { pageNumber--; renderPage(); } });
+    next.addEventListener("click", function() { if (pdfDocument && pageNumber < pdfDocument.numPages) { pageNumber++; renderPage(); } });
+    ash.addEventListener("click", function() {
+        if (!pdfDocument) return;
+        window.clearTimeout(ashTimer);
+        stage.classList.remove("is-ash");
+        overlay.classList.remove("is-active");
+        void stage.offsetWidth;
+        stage.classList.add("is-ash");
+        overlay.classList.add("is-active");
+        setStatus("Digital Ash simulation: visual particles are fading from this preview only. Your PDF is untouched.", false);
+        ashTimer = window.setTimeout(function() {
+            stage.classList.remove("is-ash");
+            overlay.classList.remove("is-active");
+        }, 2600);
+    });
+    reset.addEventListener("click", function() {
+        age.value = "0";
+        updateAge();
+        stage.classList.remove("is-ash");
+        overlay.classList.remove("is-active");
+        setStatus("Preview restored. The original PDF was never changed.", false);
+    });
+    window.addEventListener("beforeunload", function() {
+        window.clearTimeout(ashTimer);
+        if (pdfDocument) pdfDocument.destroy();
+    });
+})();
