@@ -439,49 +439,99 @@
     }
   }
 
-  // Collapsible tool cards: keep the logo/title visible and reveal the full tool UI on click.
+  // Stable tool launcher: cards remain in place; processing opens in one fixed workspace below.
   const allToolCards = Array.from(container.querySelectorAll(".tool-card"));
-  allToolCards.forEach(function (card) {
-    card.classList.add("tool-card-collapsed");
-    card.setAttribute("aria-expanded", "false");
-    const heading = card.querySelector("h3");
-    if (heading) heading.setAttribute("title", "Click to open this tool");
-  });
+  const workspace = make("section", "tool-workspace");
+  workspace.id = "toolWorkspace";
+  workspace.hidden = true;
+  workspace.setAttribute("aria-live", "polite");
+  const workspaceHead = make("div", "tool-workspace-head");
+  const workspaceHeading = make("div", "tool-workspace-heading");
+  const workspaceIcon = make("div", "tool-workspace-icon", "PDF");
+  const workspaceTitles = make("div", "tool-workspace-titles");
+  const workspaceEyebrow = make("span", "tool-workspace-eyebrow", "PDFMASTER WORKSPACE");
+  const workspaceTitle = make("h3", "", "Select a tool");
+  workspaceTitles.appendChild(workspaceEyebrow);
+  workspaceTitles.appendChild(workspaceTitle);
+  workspaceHeading.appendChild(workspaceIcon);
+  workspaceHeading.appendChild(workspaceTitles);
+  const closeWorkspace = make("button", "tool-workspace-close", "Close ×");
+  closeWorkspace.type = "button";
+  closeWorkspace.setAttribute("aria-label", "Close tool workspace");
+  workspaceHead.appendChild(workspaceHeading);
+  workspaceHead.appendChild(closeWorkspace);
+  const workspaceBody = make("div", "tool-workspace-body");
+  workspace.appendChild(workspaceHead);
+  workspace.appendChild(workspaceBody);
+  container.insertAdjacentElement("afterend", workspace);
 
-  function toggleToolCard(card, forceOpen) {
-    if (!card) return;
-    const open = typeof forceOpen === "boolean"
-      ? forceOpen
-      : card.classList.contains("tool-card-collapsed");
+  let activeToolCard = null;
+  const movedNodes = new Map();
 
-    // Keep only one tool panel expanded at any time.
-    if (open) {
-      allToolCards.forEach(function (other) {
-        if (other !== card) {
-          other.classList.add("tool-card-collapsed");
-          other.setAttribute("aria-expanded", "false");
-        }
-      });
-    }
-
-    card.classList.toggle("tool-card-collapsed", !open);
-    card.setAttribute("aria-expanded", String(open));
+  function cardIconText(card) {
+    const title = (card.querySelector("h3")?.textContent || "").trim().toUpperCase();
+    if (title.includes("WORD") || title.includes("DOC")) return "DOC";
+    if (title.includes("EXCEL")) return "XLS";
+    if (title.includes("POWERPOINT") || title.includes("PPT")) return "PPT";
+    if (title.includes("PNG")) return "PNG";
+    if (title.includes("JPG") || title.includes("PHOTO") || title.includes("IMAGE")) return "IMG";
+    if (title.includes("SIGN")) return "SIGN";
+    if (title.includes("FORM")) return "FORM";
+    if (title.includes("MERGE") || title.includes("SPLIT") || title.includes("EDIT")) return "PDF";
+    if (title.includes("EPUB")) return "EPUB";
+    return "PDF";
   }
+
+  function closeActiveTool() {
+    if (!activeToolCard) return;
+    const nodes = movedNodes.get(activeToolCard) || [];
+    nodes.forEach(function (node) { activeToolCard.appendChild(node); });
+    movedNodes.delete(activeToolCard);
+    activeToolCard.classList.remove("tool-card-active");
+    activeToolCard.setAttribute("aria-expanded", "false");
+    activeToolCard = null;
+    workspace.hidden = true;
+    workspaceBody.replaceChildren();
+  }
+
+  function openTool(card) {
+    if (!card || card === activeToolCard) {
+      if (card && card === activeToolCard) closeActiveTool();
+      return;
+    }
+    closeActiveTool();
+    activeToolCard = card;
+    card.classList.add("tool-card-active");
+    card.setAttribute("aria-expanded", "true");
+    workspaceTitle.textContent = card.querySelector("h3")?.textContent || "PDF Tool";
+    workspaceIcon.textContent = cardIconText(card);
+    const nodes = Array.from(card.children).slice(3);
+    movedNodes.set(card, nodes);
+    nodes.forEach(function (node) { workspaceBody.appendChild(node); });
+    workspace.hidden = false;
+    workspace.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  allToolCards.forEach(function (card) {
+    card.setAttribute("aria-expanded", "false");
+    card.setAttribute("role", "group");
+    card.querySelectorAll(".tool-card-top, h3, .tool-card > p").forEach(function (header) {
+      header.setAttribute("title", "Open this tool");
+    });
+  });
 
   container.addEventListener("click", function (event) {
     const card = event.target.closest(".tool-card");
     if (!card || !container.contains(card)) return;
     if (event.target.closest("input, select, textarea, button, a, label")) return;
-    const header = event.target.closest(".tool-card-top, h3, .tool-card > p");
-    if (!header) return;
-    toggleToolCard(card);
+    if (event.target.closest(".tool-card-top, h3, .tool-card > p")) openTool(card);
   });
+  closeWorkspace.addEventListener("click", closeActiveTool);
 
-  // Sidebar links open the selected tool panel as well as navigating to it.
   document.querySelectorAll(".sidebar-nav a[href^='#']").forEach(function (link) {
     link.addEventListener("click", function () {
       const target = document.getElementById(decodeURIComponent(link.getAttribute("href").slice(1)));
-      if (target && target.classList.contains("tool-card")) toggleToolCard(target, true);
+      if (target && target.classList.contains("tool-card")) openTool(target);
     });
   });
 
