@@ -453,6 +453,17 @@
     const open = typeof forceOpen === "boolean"
       ? forceOpen
       : card.classList.contains("tool-card-collapsed");
+
+    // Keep only one tool panel expanded at any time.
+    if (open) {
+      allToolCards.forEach(function (other) {
+        if (other !== card) {
+          other.classList.add("tool-card-collapsed");
+          other.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
+
     card.classList.toggle("tool-card-collapsed", !open);
     card.setAttribute("aria-expanded", String(open));
   }
