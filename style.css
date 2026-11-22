@@ -4319,3 +4319,8 @@ summary:focus-visible {
 @media(max-width:760px){.topbar{position:relative;display:block;padding:14px 0}.topbar-left{justify-content:space-between;flex-wrap:wrap;gap:14px}.home-nav{gap:14px}.topbar-right{margin-top:14px}.search-box{width:100%}.popular-tools-grid{grid-template-columns:1fr}.tools-container{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tool-category-heading{font-size:11px}}
 @media(max-width:420px){.tools-container{grid-template-columns:1fr}.tool-category-column>.tool-card{display:flex;align-items:center;gap:10px}.tool-category-column>.tool-card .tool-card-top{flex:0 0 auto}.tool-category-column>.tool-card h3{margin:0}}
 @media(prefers-reduced-motion:reduce){.popular-tool-card,.home-nav a{transition:none!important}}
+
+/* Full-width public homepage; the old sidebar is replaced by the compact top navigation. */
+body:not(.tool-page-active)>.sidebar{display:none}
+body:not(.tool-page-active)>.main-content{margin-left:0;width:min(100%,1680px);padding:0 clamp(18px,4vw,64px);margin-inline:auto}
+@media(max-width:760px){body:not(.tool-page-active)>.main-content{padding:0 16px}}
