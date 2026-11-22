@@ -58,7 +58,11 @@
   }
 
   function answer(question) {
-    const query = normalize(question);
+    // Remove common question-opening phrases before matching the actual topic.
+    const query = normalize(question)
+      .replace(/^(?:(?:please\s+)?(?:can you\s+)?(?:explain|define|describe|teach me|tell me about)\s+|(?:what is|what are|who is|who are|how does|how do|tell me)\s+)/, "")
+      .replace(/\s+(?:please|in simple words|in detail)$/, "")
+      .trim();
     if (!query) return null;
 
     let best = null;
