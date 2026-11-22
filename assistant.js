@@ -250,6 +250,66 @@
     return null;
   }
 
+
+  // More offline math and computer-science mini tools.
+  function extraToolsAnswer(question) {
+    const q=question.toLowerCase().trim();
+    let m;
+    m=q.match(/^(?:is\s+)?(-?\d+)\s+(?:an?\s+)?(even|odd)\??$/);
+    if(m){const n=Number(m[1]);return n+" is "+(Math.abs(n%2)===0?"even":"odd")+(m[2]==="even"||m[2]==="odd"?" (requested: "+m[2]+")":".");}
+    m=q.match(/^(?:is\s+)?(-?\d+)\s+(?:a\s+)?prime(?:\s+number)?\??$/);
+    if(m){const n=Number(m[1]);if(n<2)return n+" is not a prime number.";for(let i=2;i<=Math.sqrt(n);i++)if(n%i===0)return n+" is not prime; it is divisible by "+i+".";return n+" is a prime number.";}
+    m=q.match(/^(?:factorial of|factorial)\s*(\d+)\??$/);
+    if(m){const n=Number(m[1]);if(n>170)return "For this offline tool, please use a number from 0 to 170.";let r=1;for(let i=2;i<=n;i++)r*=i;return n+"! = "+r;}
+    m=q.match(/^(?:square root of|sqrt)\s*(-?\d+(?:\.\d+)?)\??$/);
+    if(m){const n=Number(m[1]);return n<0?"This simple real-number calculator does not calculate negative square roots.":"√"+n+" = "+Math.sqrt(n);}
+    m=q.match(/^(?:average|mean)\s*[:=]?\s*(-?\d+(?:\.\d+)?(?:\s*[,;]\s*-?\d+(?:\.\d+)?)+)$/);
+    if(m){const a=m[1].split(/[,;]/).map(Number);return "Average = "+(a.reduce((x,y)=>x+y,0)/a.length);}
+    m=q.match(/^(?:gcd|hcf)\s+(\d+)\s+(?:and|,)\s*(\d+)$/);
+    if(m){let a=+m[1],b=+m[2];while(b)[a,b]=[b,a%b];return "GCD / HCF = "+a;}
+    m=q.match(/^(?:lcm)\s+(\d+)\s+(?:and|,)\s*(\d+)$/);
+    if(m){let a=+m[1],b=+m[2],x=a,y=b;while(y)[x,y]=[y,x%y];return "LCM = "+(a===0||b===0?0:Math.abs(a*b/x));}
+    m=q.match(/^(?:decimal|convert)\s+(\d+)\s+to\s+binary$/);
+    if(m)return Number(m[1]).toString(2);
+    m=q.match(/^(?:binary)\s+([01]+)\s+to\s+decimal$/);
+    if(m)return "Decimal = "+parseInt(m[1],2);
+    m=q.match(/^(?:decimal|convert)\s+(\d+)\s+to\s+hex(?:adecimal)?$/);
+    if(m)return "Hexadecimal = "+Number(m[1]).toString(16).toUpperCase();
+    m=q.match(/^(?:hex|hexadecimal)\s+([0-9a-f]+)\s+to\s+decimal$/);
+    if(m)return "Decimal = "+parseInt(m[1],16);
+    m=q.match(/^(?:is it a )?leap year\s+(\d{4})\??$/);
+    if(m){const y=+m[1];return y+" "+((y%400===0||(y%4===0&&y%100!==0))?"is":"is not")+" a leap year.";}
+    if(/^sort lines\s*:\s*/i.test(question)){const lines=question.replace(/^sort lines\s*:\s*/i,"").split(/\r?\n/);return lines.sort((a,b)=>a.localeCompare(b)).join("\n");}
+    if(/^remove extra spaces\s*:\s*/i.test(question))return question.replace(/^remove extra spaces\s*:\s*/i,"").replace(/\s+/g," ").trim();
+    if(/^deduplicate lines\s*:\s*/i.test(question)){const lines=question.replace(/^deduplicate lines\s*:\s*/i,"").split(/\r?\n/);return [...new Set(lines)].join("\n");}
+    if(/^json validate\s*:\s*/i.test(question)){try{const obj=JSON.parse(question.replace(/^json validate\s*:\s*/i,""));return "Valid JSON.\nFormatted preview:\n"+JSON.stringify(obj,null,2);}catch(e){return "Invalid JSON: "+e.message;}}
+    if(/^base64 encode\s*:\s*/i.test(question)){try{return btoa(unescape(encodeURIComponent(question.replace(/^base64 encode\s*:\s*/i,""))));}catch(_){return "Could not encode this text in this browser.";}}
+    if(/^base64 decode\s*:\s*/i.test(question)){try{return decodeURIComponent(escape(atob(question.replace(/^base64 decode\s*:\s*/i,"").trim())));}catch(_){return "This does not look like valid Base64 text.";}}
+
+    const facts=[
+      [/^(what is )?(binary number system|binary system)\??$/,"Binary number system base-2 system hai; isme sirf 0 aur 1 digits hote hain."],
+      [/^(what is )?(compiler)\??$/,"Compiler source code ko doosri form, jaise machine code, mein translate karta hai."],
+      [/^(what is )?(interpreter)\??$/,"Interpreter program instructions ko execute karta hai; kai interpreters code ko step-by-step process karte hain."],
+      [/^(what is )?(variable)\??$/,"Variable program mein named storage/reference hota hai jisme value rakhi ja sakti hai."],
+      [/^(what is )?(function)\??$/,"Function reusable code block hota hai jo input le sakta hai aur result return kar sakta hai."],
+      [/^(what is )?(loop)\??$/,"Loop code ke ek block ko baar-baar execute karta hai, jab tak condition ya iteration limit allow kare."],
+      [/^(what is )?(array)\??$/,"Array values ka ordered collection hota hai, jise index se access kiya ja sakta hai."],
+      [/^(what is )?(html tag)\??$/,"HTML tag markup ka element define karta hai, jaise <p>, <h1> aur <img>."],
+      [/^(what is )?(api)\??$/,"API (Application Programming Interface) rules ka set hai jisse software systems ek doosre se communicate karte hain."],
+      [/^(what is )?(cloud computing)\??$/,"Cloud computing internet ke through servers, storage, databases aur computing resources provide karta hai."],
+      [/^(what is )?(cybersecurity)\??$/,"Cybersecurity systems, networks aur data ko unauthorized access aur digital attacks se protect karne ka practice hai."],
+      [/^(what is )?(lan)\??$/,"LAN (Local Area Network) chhote area, jaise home, lab ya office, ke devices ko connect karta hai."],
+      [/^(what is )?(wan)\??$/,"WAN (Wide Area Network) large geographic area mein networks ko connect karta hai."],
+      [/^(what is )?(ssd)\??$/,"SSD (Solid State Drive) flash memory par data store karta hai; isme moving mechanical parts nahi hote."],
+      [/^(what is )?(hdd)\??$/,"HDD (Hard Disk Drive) magnetic rotating disks par data store karta hai."],
+      [/^(what is )?(motherboard)\??$/,"Motherboard main circuit board hai jo CPU, RAM, storage aur doosre components ko connect karta hai."],
+      [/^(what is )?(git)\??$/,"Git ek version-control system hai jo code changes track karta hai aur collaboration mein help karta hai."],
+      [/^(what is )?(github)\??$/,"GitHub ek online platform hai jahan Git repositories host, share aur collaborate ki ja sakti hain."]
+    ];
+    for(const [re,answer] of facts)if(re.test(q))return answer;
+    return null;
+  }
+
   function isResearchQuestion(question) {
     if (dateTimeAnswer(question)) return false;
     return /\b(search the web|web research|research|sources?|references?|latest|current|currently|recent|news|price|2026|2027|who is|what happened|look up|google it)\b|ताज़ा|ताजा|वर्तमान|स्रोत|रिसर्च|खोजो/.test(question.toLowerCase());
@@ -286,6 +346,8 @@
     if (dateTime) return dateTime;
     const utility = utilityAnswer(question);
     if (utility) return utility;
+    const extra = extraToolsAnswer(question);
+    if (extra) return extra;
     const math = mathAnswer(question);
     if (math) return math;
     const info = basicInfoAnswer(question);
