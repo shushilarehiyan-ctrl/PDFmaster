@@ -346,6 +346,8 @@
     if (dateTime) return dateTime;
     const utility = utilityAnswer(question);
     if (utility) return utility;
+    const education = window.PDFMASTER_EDUCATION && window.PDFMASTER_EDUCATION.answer(question);
+    if (education) return education;
     const extra = extraToolsAnswer(question);
     if (extra) return extra;
     const math = mathAnswer(question);
