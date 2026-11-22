@@ -504,7 +504,9 @@
   const workspaceBody = make("div", "tool-workspace-body");
   workspace.appendChild(workspaceHead);
   workspace.appendChild(workspaceBody);
-  const featuredMount = document.getElementById("featuredToolMount");\n  if (featuredMount) featuredMount.appendChild(workspace);\n  else container.insertAdjacentElement("afterend", workspace);
+  const featuredMount = document.getElementById("featuredToolMount");
+  if (featuredMount) featuredMount.appendChild(workspace);
+  else container.insertAdjacentElement("afterend", workspace);
 
   let activeToolCard = null;
   const movedNodes = new Map();
