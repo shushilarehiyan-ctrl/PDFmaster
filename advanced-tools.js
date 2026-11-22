@@ -472,7 +472,7 @@
     const card = event.target.closest(".tool-card");
     if (!card || !container.contains(card)) return;
     if (event.target.closest("input, select, textarea, button, a, label")) return;
-    const header = event.target.closest(".tool-card-top, h3, p");
+    const header = event.target.closest(".tool-card-top, h3, .tool-card > p");
     if (!header) return;
     toggleToolCard(card);
   });
