@@ -1,4 +1,4 @@
-/* PDFMaster Assistant — free guided tools + basic calculator (no AI model connected) */
+/* PDFMaster Assistant — guided PDF help, calculator and Smart Web Research */
 (function () {
   const launcher = document.getElementById("pmAssistantLauncher");
   const panel = document.getElementById("pmAssistantPanel");
@@ -7,6 +7,12 @@
   const input = document.getElementById("pmAssistantInput");
   const messages = document.getElementById("pmAssistantMessages");
   const quick = document.getElementById("pmAssistantQuick");
+  const researchToggle = document.getElementById("pmAssistantResearchToggle");
+
+  // Set this only after deploying api/worker.js. Never place an API key here.
+  const RESEARCH_API_URL = window.PDFMASTER_RESEARCH_API || "";
+  let researchMode = false;
+
   if (!launcher || !panel || !form || !input || !messages) return;
 
   function setOpen(open) {
@@ -18,7 +24,7 @@
   launcher.addEventListener("click", () => setOpen(!panel.classList.contains("is-open")));
   if (close) close.addEventListener("click", () => setOpen(false));
 
-  function addMessage(text, who) {
+  function addMessage(text, who, sources) {
     const bubble = document.createElement("div");
     bubble.className = "pm-assistant-message " + who;
     if (who === "assistant") {
@@ -28,11 +34,45 @@
       bubble.appendChild(label);
     }
     bubble.appendChild(document.createTextNode(text));
+    if (Array.isArray(sources) && sources.length) {
+      const list = document.createElement("div");
+      list.className = "pm-assistant-sources";
+      const heading = document.createElement("strong");
+      heading.textContent = "Sources";
+      list.appendChild(heading);
+      sources.forEach((source, index) => {
+        const link = document.createElement("a");
+        link.href = source.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = (index + 1) + ". " + (source.title || source.url);
+        list.appendChild(link);
+        if (source.snippet) {
+          const note = document.createElement("small");
+          note.textContent = source.snippet;
+          list.appendChild(note);
+        }
+      });
+      bubble.appendChild(list);
+    }
     messages.appendChild(bubble);
     messages.scrollTop = messages.scrollHeight;
+    return bubble;
   }
 
-  // Small arithmetic parser: deliberately avoids eval() and supports + - * / ^ and brackets.
+  function setResearchMode(enabled) {
+    researchMode = enabled;
+    if (researchToggle) {
+      researchToggle.classList.toggle("is-active", enabled);
+      researchToggle.setAttribute("aria-pressed", String(enabled));
+      researchToggle.textContent = enabled ? "⌕ Web Research ON" : "⌕ Web Research OFF";
+    }
+  }
+  if (researchToggle) {
+    researchToggle.addEventListener("click", () => setResearchMode(!researchMode));
+  }
+
+  // Safe arithmetic parser — no eval().
   function calculate(expression) {
     const tokens = expression.match(/\d+(?:\.\d+)?|[()+\-*/^]/g);
     if (!tokens || tokens.join("") !== expression.replace(/\s+/g, "")) return null;
@@ -49,10 +89,7 @@
     }
     function power() {
       let value = primary();
-      if (tokens[pos] === "^") {
-        pos++;
-        value = Math.pow(value, unary());
-      }
+      if (tokens[pos] === "^") { pos++; value = Math.pow(value, unary()); }
       return value;
     }
     function unary() {
@@ -97,9 +134,38 @@
       const result = calculate(expression);
       if (result === null) return null;
       return "Calculation: " + expression + "\nAnswer: " + Number(result.toPrecision(12)) +
-        "\n\nThis free version handles basic arithmetic (+, −, ×, ÷, powers and brackets). It is a calculator, not a full AI tutor yet.";
+        "\n\nThis is a basic calculator, not a full AI tutor.";
     } catch (_) {
       return "I couldn't read that calculation. Please type it like this: (12 + 8) × 3 or 144 / 12.";
+    }
+  }
+
+  function isResearchQuestion(question) {
+    return /\b(search the web|web research|research|sources?|references?|latest|today|current|currently|recent|news|price|2026|2027|who is|what happened|look up|google it)\b|आज|अभी|ताज़ा|ताजा|वर्तमान|स्रोत|रिसर्च|खोजो/.test(question.toLowerCase());
+  }
+
+  async function askResearch(question) {
+    if (!RESEARCH_API_URL) {
+      addMessage(
+        "Smart Web Research ka interface tayyar hai, lekin secure search backend abhi deploy nahi hua hai. Isliye main abhi live websites search karke verified answer nahi de sakta. API key browser ya GitHub code mein nahi rakhenge.",
+        "assistant"
+      );
+      return;
+    }
+    const loading = addMessage("Searching reliable web sources…", "assistant");
+    try {
+      const response = await fetch(RESEARCH_API_URL.replace(/\/$/, "") + "/api/research", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question })
+      });
+      const data = await response.json();
+      loading.remove();
+      if (!response.ok) throw new Error(data.error || "Research request failed.");
+      addMessage(data.answer || "No answer was returned.", "assistant", data.sources || []);
+    } catch (error) {
+      loading.remove();
+      addMessage("Web research abhi complete nahi ho paya. " + (error.message || "Please try again later."), "assistant");
     }
   }
 
@@ -107,33 +173,38 @@
     const q = question.toLowerCase();
     const math = mathAnswer(question);
     if (math) return math;
-
-    if (/merge|combine|join|जोड़कर|मिलाना|एक pdf/.test(q)) return "Let’s merge your PDFs step by step.\n\nStep 1: Open the Merge PDF tool on this page.\n\nTell me when it’s open, and I’ll give you the next step.";
+    if (/merge|combine|join|जोड़कर|मिलाना|एक pdf/.test(q)) return "Let's merge your PDFs step by step.\n\nStep 1: Open the Merge PDF tool on this page.\n\nTell me when it’s open, and I’ll give you the next step.";
     if (/compress|reduce.*size|file size|size.*(big|large)|large.*file|आकार कम|साइज कम/.test(q)) return "We can try to reduce the PDF size.\n\nStep 1: Open the Compress PDF tool. Keep your original file as a backup.\n\nTell me when it’s open.";
-    if (/split|extract.*page|remove.*page|पेज अलग|पेज निकाल/.test(q)) return "Let’s split your document.\n\nStep 1: Open the Split PDF tool.\n\nTell me when it’s open, and I’ll guide you through selecting pages.";
-    if (/photo|image|jpg|png|फोटो|तस्वीर/.test(q) && /pdf|convert|बनाना/.test(q)) return "Let’s turn your photos into a PDF.\n\nStep 1: Open the Photo to PDF tool.\n\nTell me when it’s open.";
-    if (/password|protect|lock|पासवर्ड|सुरक्षित/.test(q)) return "To add password protection, open the Protect PDF tool. Use a password you can remember, and keep a secure copy of it. Tell me when the tool is open.";
-    if (/not open|cannot open|can't open|won't open|error|failed|issue|problem|upload|नहीं खुल|एरर|समस्या/.test(q)) return "Let's narrow down the problem. First, check whether the file opens on your device outside PDFMaster. Also confirm it is a PDF file and that the upload has finished.\n\nWhat exact error message do you see?";
-    if (/word|docx/.test(q)) return "PDF and Word documents can have different layouts after conversion. Tell me what you want to do: convert Word to PDF, convert PDF to Word, or fix a formatting issue?";
-    if (/hello|hi|hey|namaste|नमस्ते|नमस्कार/.test(q)) return "Hello! Tell me what you want to do with your PDF or document, or describe the error you're facing.";
-    return "I can currently guide common PDFMaster tasks, troubleshoot a few common document issues, and calculate basic arithmetic. I am not connected to a full AI model yet, so I can't reliably solve every general question or JEE/IIT problem.\n\nTell me what you want to do, and I'll help with the features available here.";
+    if (/split|extract.*page|remove.*page|पेज अलग|पेज निकाल/.test(q)) return "Let's split your document.\n\nStep 1: Open the Split PDF tool.\n\nTell me when it’s open, and I’ll guide you through selecting pages.";
+    if (/photo|image|jpg|png|फोटो|तस्वीर/.test(q) && /pdf|convert|बनाना/.test(q)) return "Let's turn your photos into a PDF.\n\nStep 1: Open the Photo to PDF tool.\n\nTell me when it’s open.";
+    if (/password|protect|lock|पासवर्ड|सुरक्षित/.test(q)) return "To add password protection, open the Protect PDF tool. Keep a secure copy of your password.";
+    if (/not open|cannot open|can't open|won't open|error|failed|issue|problem|upload|नहीं खुल|एरर|समस्या/.test(q)) return "First, check whether the file opens on your device outside PDFMaster. Also confirm it is a PDF and the upload has finished.\n\nWhat exact error message do you see?";
+    if (/word|docx/.test(q)) return "PDF and Word documents can have different layouts after conversion. Do you want to convert Word to PDF, convert PDF to Word, or fix formatting?";
+    if (/hello|hi|hey|namaste|नमस्ते|नमस्कार/.test(q)) return "Hello! Ask me about PDFMaster tools, document issues, or basic calculations. Turn on Web Research for questions that need current web sources.";
+    return "I can guide common PDFMaster tasks and calculate basic arithmetic. For general knowledge, detailed study questions, or current facts, turn on Web Research. That feature is ready in the interface but needs its secure backend connection before live answers work.";
   }
 
-  function send(text) {
+  async function send(text, forceResearch) {
     const value = String(text || "").trim();
     if (!value) return;
     addMessage(value, "user");
     input.value = "";
+    const shouldResearch = forceResearch || researchMode || isResearchQuestion(value);
+    if (shouldResearch) {
+      await askResearch(value);
+      return;
+    }
     window.setTimeout(() => addMessage(answer(value), "assistant"), 120);
   }
+
   form.addEventListener("submit", event => {
     event.preventDefault();
-    send(input.value);
+    send(input.value, false);
   });
   if (quick) {
     quick.addEventListener("click", event => {
       const button = event.target.closest("button[data-question]");
-      if (button) send(button.dataset.question);
+      if (button) send(button.dataset.question, button.dataset.research === "true");
     });
   }
 })();
