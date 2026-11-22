@@ -592,6 +592,19 @@
   });
   closeWorkspace.addEventListener("click", closeActiveTool);
 
+  // Popular-tool shortcuts open the same dedicated workspace as directory cards.
+  document.querySelectorAll(".popular-tool-card[href^='#']").forEach(function (link) {
+    link.addEventListener("click", function (event) {
+      const id = decodeURIComponent(link.getAttribute("href").slice(1));
+      const target = document.getElementById(id);
+      if (target && target.classList.contains("tool-card")) {
+        event.preventDefault();
+        openTool(target);
+        history.replaceState(null, "", "#" + id);
+      }
+    });
+  });
+
   document.querySelectorAll(".sidebar-nav a[href^='#']").forEach(function (link) {
     link.addEventListener("click", function () {
       const target = document.getElementById(decodeURIComponent(link.getAttribute("href").slice(1)));
