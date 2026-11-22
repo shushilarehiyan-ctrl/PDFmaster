@@ -189,8 +189,70 @@
     return null;
   }
 
+
+  // Offline mini-toolkit: percentages, common unit conversions and text helpers.
+  function utilityAnswer(question) {
+    const q = question.toLowerCase().trim();
+    let m;
+    m=q.match(/(\d+(?:\.\d+)?)\s*%\s*of\s*(\d+(?:\.\d+)?)/);
+    if(m) return m[1]+"% of "+m[2]+" = "+(Number(m[1])*Number(m[2])/100);
+    m=q.match(/(?:percentage|percent)\s+(?:of\s+)?(\d+(?:\.\d+)?)\s+(?:out of|from)\s+(\d+(?:\.\d+)?)/);
+    if(m && Number(m[2])!==0) return "Percentage = "+(Number(m[1])/Number(m[2])*100).toFixed(2)+"%";
+    m=q.match(/(\d+(?:\.\d+)?)\s*(km|kilometers?)\s*(?:to|in)\s*(miles?|mi)\b/);
+    if(m) return m[1]+" km = "+(Number(m[1])*.621371).toFixed(4)+" miles.";
+    m=q.match(/(\d+(?:\.\d+)?)\s*(miles?|mi)\s*(?:to|in)\s*(km|kilometers?)\b/);
+    if(m) return m[1]+" miles = "+(Number(m[1])/.621371).toFixed(4)+" km.";
+    m=q.match(/(-?\d+(?:\.\d+)?)\s*(?:°\s*)?c(?:elsius)?\s*(?:to|in)\s*(?:°\s*)?f(?:ahrenheit)?/);
+    if(m) return m[1]+"°C = "+(Number(m[1])*9/5+32).toFixed(2)+"°F.";
+    m=q.match(/(-?\d+(?:\.\d+)?)\s*(?:°\s*)?f(?:ahrenheit)?\s*(?:to|in)\s*(?:°\s*)?c(?:elsius)?/);
+    if(m) return m[1]+"°F = "+((Number(m[1])-32)*5/9).toFixed(2)+"°C.";
+    m=q.match(/(\d+(?:\.\d+)?)\s*(cm|centimeters?)\s*(?:to|in)\s*(inches?|in)\b/);
+    if(m) return m[1]+" cm = "+(Number(m[1])/2.54).toFixed(3)+" inches.";
+    m=q.match(/(\d+(?:\.\d+)?)\s*(inches?|in)\s*(?:to|in)\s*(cm|centimeters?)\b/);
+    if(m) return m[1]+" inches = "+(Number(m[1])*2.54).toFixed(3)+" cm.";
+    m=q.match(/(\d+(?:\.\d+)?)\s*(kg|kilograms?)\s*(?:to|in)\s*(grams?|g)\b/);
+    if(m) return m[1]+" kg = "+(Number(m[1])*1000)+" g.";
+    m=q.match(/(\d+(?:\.\d+)?)\s*(grams?|g)\s*(?:to|in)\s*(kg|kilograms?)\b/);
+    if(m) return m[1]+" g = "+(Number(m[1])/1000)+" kg.";
+    if(/^(word count|count words|character count|count characters|text stats|analyze text)\s*[:\-]?\s*/i.test(question)){
+      const t=question.replace(/^(word count|count words|character count|count characters|text stats|analyze text)\s*[:\-]?\s*/i,"");
+      return "Text statistics:\nWords: "+(t.trim()?t.trim().split(/\s+/).length:0)+"\nCharacters with spaces: "+t.length+"\nCharacters without spaces: "+t.replace(/\s/g,"").length+"\nLines: "+(t?t.split(/\r\n|\r|\n/).length:0);
+    }
+    if(/^(uppercase|to uppercase)\s*[:\-]\s*/i.test(question)) return question.replace(/^(uppercase|to uppercase)\s*[:\-]\s*/i,"").toUpperCase();
+    if(/^(lowercase|to lowercase)\s*[:\-]\s*/i.test(question)) return question.replace(/^(lowercase|to lowercase)\s*[:\-]\s*/i,"").toLowerCase();
+    if(/^(title case|capitalize)\s*[:\-]\s*/i.test(question)) return question.replace(/^(title case|capitalize)\s*[:\-]\s*/i,"").toLowerCase().replace(/\b[a-z]/g,x=>x.toUpperCase());
+    if(/^(reverse text)\s*[:\-]\s*/i.test(question)) return Array.from(question.replace(/^(reverse text)\s*[:\-]\s*/i,"")).reverse().join("");
+    m=q.match(/(?:random number|pick a number)\s+(?:between\s+)?(-?\d+)\s+(?:and|to)\s+(-?\d+)/);
+    if(m){const a=Math.min(+m[1],+m[2]),b=Math.max(+m[1],+m[2]);return "Random number: "+(Math.floor(Math.random()*(b-a+1))+a);}
+    return null;
+  }
+
+  function basicInfoAnswer(question) {
+    const q=question.toLowerCase().trim();
+    const facts=[
+      [/^(what is )?(html|hypertext markup language)\??$/,"HTML webpage ka structure banata hai: headings, paragraphs, links, images aur forms."],
+      [/^(what is )?(css|cascading style sheets?)\??$/,"CSS webpage ka design control karta hai: colors, spacing, layout, fonts aur responsive styling."],
+      [/^(what is )?(javascript|js)\??$/,"JavaScript webpage ko interactive banata hai—buttons, forms, calculations aur dynamic content."],
+      [/^(what is )?python\??$/,"Python ek general-purpose programming language hai. Iska use automation, data analysis, web development aur AI mein hota hai."],
+      [/^(what is )?cpu\??$/,"CPU (Central Processing Unit) computer instructions execute karta hai."],
+      [/^(what is )?ram\??$/,"RAM temporary working memory hai jahan running apps ka active data rakha jata hai."],
+      [/^(what is )?url\??$/,"URL internet par kisi webpage ya resource ka address hota hai."],
+      [/^(what is )?(http|https)\??$/,"HTTP browser aur server ke beech data transfer protocol hai. HTTPS encryption ke saath secure connection deta hai."],
+      [/^(what is )?pdf\??$/,"PDF (Portable Document Format) ek document format hai jo devices par page layout consistent rakhne mein madad karta hai."],
+      [/^(what is )?algorithm\??$/,"Algorithm kisi problem ko solve karne ke liye ordered steps ka set hota hai."],
+      [/^(what is )?database\??$/,"Database organized data ka collection hai jise store, search, update aur manage kiya ja sakta hai."],
+      [/^(what is )?(ai|artificial intelligence)\??$/,"AI computer systems ki capability hai jisme language, pattern recognition, prediction aur decision jaise tasks hote hain."],
+      [/^(what is )?internet\??$/,"Internet duniya bhar ke connected computer networks ka network hai."],
+      [/^(what is )?(operating system|os)\??$/,"Operating System hardware aur applications manage karta hai. Examples: Windows, Linux, Android, macOS."]
+    ];
+    for(const [re,answer] of facts) if(re.test(q)) return answer;
+    if(/help|what can you do|commands|features|kya kar sakte/.test(q)) return "Offline features:\n• Calculator: 25*(8+2)\n• Percentage: 15% of 240\n• Conversion: 5 km to miles, 25 C to F, 10 kg to grams\n• Text: word count: paste text; uppercase: hello; reverse text: abc\n• Date/time: today's date, current time, tomorrow's date\n• Computer basics: HTML, CSS, JavaScript, Python, CPU, RAM, PDF, URL, AI\n• PDF help: merge, split, compress, convert, protect\n\nLive/current information and detailed open-ended answers need a connected AI/search backend.";
+    return null;
+  }
+
   function isResearchQuestion(question) {
-    return /\b(search the web|web research|research|sources?|references?|latest|today|current|currently|recent|news|price|2026|2027|who is|what happened|look up|google it)\b|आज|अभी|ताज़ा|ताजा|वर्तमान|स्रोत|रिसर्च|खोजो/.test(question.toLowerCase());
+    if (dateTimeAnswer(question)) return false;
+    return /\b(search the web|web research|research|sources?|references?|latest|current|currently|recent|news|price|2026|2027|who is|what happened|look up|google it)\b|ताज़ा|ताजा|वर्तमान|स्रोत|रिसर्च|खोजो/.test(question.toLowerCase());
   }
 
   async function askResearch(question) {
@@ -222,8 +284,12 @@
     const q = question.toLowerCase();
     const dateTime = dateTimeAnswer(question);
     if (dateTime) return dateTime;
+    const utility = utilityAnswer(question);
+    if (utility) return utility;
     const math = mathAnswer(question);
     if (math) return math;
+    const info = basicInfoAnswer(question);
+    if (info) return info;
     if (/merge|combine|join|जोड़कर|मिलाना|एक pdf/.test(q)) return "Let's merge your PDFs step by step.\n\nStep 1: Open the Merge PDF tool on this page.\n\nTell me when it’s open, and I’ll give you the next step.";
     if (/compress|reduce.*size|file size|size.*(big|large)|large.*file|आकार कम|साइज कम/.test(q)) return "We can try to reduce the PDF size.\n\nStep 1: Open the Compress PDF tool. Keep your original file as a backup.\n\nTell me when it’s open.";
     if (/split|extract.*page|remove.*page|पेज अलग|पेज निकाल/.test(q)) return "Let's split your document.\n\nStep 1: Open the Split PDF tool.\n\nTell me when it’s open, and I’ll guide you through selecting pages.";
