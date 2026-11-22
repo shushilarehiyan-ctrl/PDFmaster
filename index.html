@@ -428,7 +428,7 @@
                         <span id="memoryPageCount">PAGE — / —</span>
                         <button type="button" id="memoryNext" disabled>Next →</button>
                     </div>
-                    <button type="button" id="memoryAsh" class="memory-ash-button" disabled>Simulate Digital Ash</button>
+                    <button type="button" id="memoryAsh" class="memory-ash-button" disabled>Burn This Page</button>
                     <button type="button" id="memoryReset" class="memory-reset-button" disabled>Reset Preview</button>
                     <p id="memoryStatus" class="memory-status" role="status" aria-live="polite">Choose a PDF to begin the experiment.</p>
                 </div>
@@ -436,6 +436,7 @@
                     <div id="memoryStage" class="memory-stage">
                         <div class="memory-empty"><span>✧</span><strong>THE PASSAGE OF TIME</strong><small>Your document will appear here</small></div>
                         <canvas id="memoryCanvas" hidden></canvas>
+                        <div class="memory-aging-texture" aria-hidden="true"></div>
                         <div id="memoryAshOverlay" class="memory-ash-overlay" aria-hidden="true"></div>
                     </div>
                     <p class="memory-note">This is a visual preview only. It does not alter or delete the original PDF. Downloaded copies remain unaffected; closing or refreshing this page clears the preview.</p>
