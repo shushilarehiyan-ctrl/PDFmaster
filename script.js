@@ -1653,7 +1653,7 @@ async function protectPDF() {
         if (!term) { status.textContent = "Enter a word to search this page."; return; }
         status.textContent = pageText.toLowerCase().includes(term.toLowerCase())
             ? '"' + term + '" was found at coordinate ' + locationText + "."
-            : '"' + term + '" was not found on this page.";
+            : '"' + term + '" was not found on this page.';
     }
     visit.addEventListener("click", generate);
     random.addEventListener("click", () => {
