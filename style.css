@@ -5315,3 +5315,20 @@ a:hover,
     scroll-behavior: auto !important;
   }
 }
+
+
+/* Ensure legacy gradient cards also use the new burgundy surfaces. */
+.tool-card:not(:hover),
+.popular-tool-card:not(:hover) {
+  background: linear-gradient(145deg, #3b0715, #260610) !important;
+}
+.stat-card,
+.contact-card,
+.privacy-card,
+.terms-card,
+.disclaimer-card,
+.feature-steps article,
+.feature-benefits article,
+#faq details {
+  background: #3b0715 !important;
+}
