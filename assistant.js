@@ -360,151 +360,11 @@
     if (/not open|cannot open|can't open|won't open|error|failed|issue|problem|upload|नहीं खुल|एरर|समस्या/.test(q)) return "First, check whether the file opens on your device outside PDFMaster. Also confirm it is a PDF and the upload has finished.\n\nWhat exact error message do you see?";
     if (/word|docx/.test(q)) return "PDF and Word documents can have different layouts after conversion. Do you want to convert Word to PDF, convert PDF to Word, or fix formatting?";
     if (/hello|hi|hey|namaste|नमस्ते|नमस्कार/.test(q)) return "Hello! Ask me about PDFMaster tools, document issues, or basic calculations. Turn on Web Research for questions that need current web sources.";
-    return "I don't have a reliable offline answer for that yet. I can currently help with common PDFMaster workflows, basic calculations, selected computer-science terms and text utilities. For open-ended study or general-knowledge questions, load the optional Browser AI or configure the Web Research backend. I won't invent an answer.";
+    const knowledge = window.PDFMASTER_KNOWLEDGE && window.PDFMASTER_KNOWLEDGE.answer(question);
+    if (knowledge) return knowledge;
+    return "I don't have a reliable offline answer for that yet. I can help with PDFMaster workflows, calculations, computer basics and the built-in general-knowledge library. Try a short topic question such as photosynthesis, capital of India or fundamental rights. I won't invent an answer.";
   }
 
-
-  // Optional in-browser AI. Nothing downloads until the visitor explicitly starts it.
-  const browserAIToggle = document.getElementById("pmAssistantBrowserToggle");
-  const browserAIStatus = document.getElementById("pmAssistantBrowserStatus");
-  let browserAIWorker = null;
-  let browserAIReady = false;
-  let browserAILoading = false;
-  let browserAIRequestId = 0;
-  let pendingBrowserAI = null;
-
-  function setBrowserAIStatus(message) {
-    if (browserAIStatus) browserAIStatus.textContent = message;
-  }
-
-  function stopBrowserAI(showMessage) {
-    if (pendingBrowserAI && pendingBrowserAI.loading) pendingBrowserAI.loading.remove();
-    if (browserAIWorker) {
-      browserAIWorker.terminate();
-      browserAIWorker = null;
-    }
-    browserAIReady = false;
-    browserAILoading = false;
-    pendingBrowserAI = null;
-    if (browserAIToggle) {
-      browserAIToggle.disabled = false;
-      browserAIToggle.textContent = "Load Browser AI";
-      browserAIToggle.classList.remove("is-active");
-    }
-    setBrowserAIStatus("Browser AI stopped. Your device's GPU memory can be released by the browser.");
-    if (showMessage) addMessage("Browser AI stopped. Your existing offline tools are still available.", "assistant");
-  }
-
-  function loadBrowserAI() {
-    if (!("gpu" in navigator)) {
-      setBrowserAIStatus("This browser does not support WebGPU. Offline tools are still available.");
-      addMessage("Browser AI needs WebGPU, which this browser does not currently provide. You can still use the offline tools.", "assistant");
-      return;
-    }
-    if (!window.isSecureContext) {
-      setBrowserAIStatus("Open PDFMaster over HTTPS to check WebGPU support.");
-      addMessage("Browser AI requires a secure page (HTTPS or localhost).", "assistant");
-      return;
-    }
-    const accepted = window.confirm(
-      "Load optional Browser AI? It will download model files (a large download) and may use about 945 MB of GPU memory. It can make this device slower or warmer. Continue only on a capable device and Wi-Fi. Nothing will load if you choose Cancel."
-    );
-    if (!accepted) return;
-
-    browserAILoading = true;
-    if (browserAIToggle) {
-      browserAIToggle.disabled = false;
-      browserAIToggle.textContent = "Cancel AI load";
-    }
-    setBrowserAIStatus("Starting Browser AI… The first download may take time. Keep this tab open.");
-    try {
-      browserAIWorker = new Worker(new URL("browser-ai-worker.js", document.baseURI), { type: "module" });
-      browserAIWorker.onmessage = event => {
-        const data = event.data || {};
-        if (data.type === "progress") {
-          const percent = Number.isFinite(data.progress) ? " " + Math.round(data.progress * 100) + "%" : "";
-          setBrowserAIStatus((data.text || "Preparing model…") + percent);
-        } else if (data.type === "ready") {
-          browserAILoading = false;
-          browserAIReady = true;
-          if (browserAIToggle) {
-            browserAIToggle.disabled = false;
-            browserAIToggle.textContent = "Stop Browser AI";
-            browserAIToggle.classList.add("is-active");
-          }
-          setBrowserAIStatus("Browser AI ready. Your questions are processed on this device.");
-          addMessage("Browser AI is ready. Ask a question. The first response may take a little time.", "assistant");
-        } else if (data.type === "reply") {
-          if (pendingBrowserAI && pendingBrowserAI.id === data.id) {
-            pendingBrowserAI.loading.remove();
-            addMessage(data.text || "No response was generated.", "assistant");
-            pendingBrowserAI = null;
-          }
-        } else if (data.type === "request-error") {
-          if (pendingBrowserAI && pendingBrowserAI.id === data.id) {
-            pendingBrowserAI.loading.remove();
-            addMessage("Browser AI couldn't answer this request: " + (data.message || "Unknown error."), "assistant");
-            pendingBrowserAI = null;
-          }
-        } else if (data.type === "error") {
-          browserAILoading = false;
-          browserAIReady = false;
-          if (browserAIToggle) {
-            browserAIToggle.disabled = false;
-            browserAIToggle.textContent = "Load Browser AI";
-            browserAIToggle.classList.remove("is-active");
-          }
-          setBrowserAIStatus("Browser AI could not start. Check device support and try again.");
-          addMessage("Browser AI could not start. " + (data.message || "Please check WebGPU support and available device memory."), "assistant");
-          if (browserAIWorker) {
-            browserAIWorker.terminate();
-            browserAIWorker = null;
-          }
-        }
-      };
-      browserAIWorker.onerror = event => {
-        browserAILoading = false;
-        browserAIReady = false;
-        if (browserAIToggle) {
-          browserAIToggle.disabled = false;
-          browserAIToggle.textContent = "Load Browser AI";
-        }
-        setBrowserAIStatus("Browser AI worker error. Offline tools remain available.");
-        addMessage("Browser AI stopped because of a browser worker error. " + (event.message || ""), "assistant");
-        if (browserAIWorker) browserAIWorker.terminate();
-        browserAIWorker = null;
-      };
-      browserAIWorker.postMessage({ type: "init" });
-    } catch (error) {
-      browserAILoading = false;
-      if (browserAIToggle) {
-        browserAIToggle.disabled = false;
-        browserAIToggle.textContent = "Load Browser AI";
-      }
-      setBrowserAIStatus("Could not create the Browser AI worker.");
-      addMessage("Browser AI could not start: " + (error.message || "Unknown error."), "assistant");
-    }
-  }
-
-  function askBrowserAI(question) {
-    if (!browserAIReady || !browserAIWorker) return false;
-    if (pendingBrowserAI) {
-      addMessage("Please wait for the current Browser AI response before sending another question.", "assistant");
-      return true;
-    }
-    const id = ++browserAIRequestId;
-    const loading = addMessage("Thinking on this device…", "assistant");
-    pendingBrowserAI = { id, loading };
-    browserAIWorker.postMessage({ type: "chat", id, question });
-    return true;
-  }
-
-  if (browserAIToggle) {
-    browserAIToggle.addEventListener("click", () => {
-      if (browserAIReady || browserAILoading) stopBrowserAI(true);
-      else loadBrowserAI();
-    });
-  }
 
   async function send(text, forceResearch) {
     const value = String(text || "").trim();
@@ -530,7 +390,6 @@
       await askResearch(value);
       return;
     }
-    if (askBrowserAI(value)) return;
     window.setTimeout(() => addMessage(localReply, "assistant"), 120);
   }
 
