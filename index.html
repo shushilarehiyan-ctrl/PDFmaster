@@ -350,6 +350,59 @@
         </section>
 
 
+
+        <!-- PDF X-RAY — LOCAL DOCUMENT FORENSICS -->
+        <section id="pdf-xray" class="xray-section">
+            <div class="xray-heading">
+                <span class="xray-kicker">PDFMASTER · DIGITAL FORENSICS</span>
+                <h2>PDF X-RAY</h2>
+                <p>Look beneath the surface of a PDF. Review document metadata and common structural warning signals — locally in your browser.</p>
+            </div>
+            <div class="xray-panel">
+                <div class="xray-panel-top">
+                    <span class="xray-indicator" aria-hidden="true"></span>
+                    <span>LOCAL INSPECTION MODULE</span>
+                    <span class="xray-local">NO FILE UPLOAD</span>
+                </div>
+                <label class="xray-file-label" for="xrayPDFInput">SELECT A PDF FOR INSPECTION</label>
+                <input id="xrayPDFInput" class="xray-file-input" type="file" accept="application/pdf,.pdf">
+                <p id="xrayFileInfo" class="xray-file-info">Choose a PDF file to begin. Maximum file size: 50 MB.</p>
+                <button type="button" id="xrayAnalyzeButton" class="xray-button" disabled>Run X-Ray Inspection <span>↗</span></button>
+                <p id="xrayStatus" class="xray-status" role="status" aria-live="polite"></p>
+                <div id="xrayResult" class="xray-result" hidden>
+                    <div class="xray-verdict-row">
+                        <div><span class="xray-label">INSPECTION SUMMARY</span><h3 id="xrayVerdict">—</h3></div>
+                        <span id="xrayVerdictTag" class="xray-verdict-tag">REVIEW</span>
+                    </div>
+                    <p id="xrayDisclaimer" class="xray-disclaimer"></p>
+                    <div class="xray-grid">
+                        <div class="xray-metric"><span>FILE SIZE</span><strong id="xraySize">—</strong></div>
+                        <div class="xray-metric"><span>PAGE COUNT</span><strong id="xrayPages">—</strong></div>
+                        <div class="xray-metric"><span>PDF VERSION</span><strong id="xrayVersion">—</strong></div>
+                        <div class="xray-metric"><span>EOF MARKERS</span><strong id="xrayEof">—</strong></div>
+                    </div>
+                    <div class="xray-details">
+                        <h4>DOCUMENT METADATA</h4>
+                        <dl>
+                            <div><dt>Title</dt><dd id="xrayTitle">—</dd></div>
+                            <div><dt>Author</dt><dd id="xrayAuthor">—</dd></div>
+                            <div><dt>Creator</dt><dd id="xrayCreator">—</dd></div>
+                            <div><dt>Producer</dt><dd id="xrayProducer">—</dd></div>
+                            <div><dt>Created</dt><dd id="xrayCreated">—</dd></div>
+                            <div><dt>Modified</dt><dd id="xrayModified">—</dd></div>
+                        </dl>
+                    </div>
+                    <div class="xray-details">
+                        <h4>STRUCTURAL SIGNALS</h4>
+                        <ul id="xraySignals" class="xray-signals"></ul>
+                    </div>
+                    <div class="xray-fingerprint"><span>SHA-256 FILE FINGERPRINT</span><code id="xrayHash">—</code></div>
+                    <p class="xray-disclaimer">Important: This is a basic local document inspection, not antivirus, malware detection, a digital-signature validator, or proof that a file is safe or authentic. Metadata can be edited. A clean result does not guarantee safety.</p>
+                    <button type="button" id="xrayClearButton" class="xray-clear">Clear inspection</button>
+                </div>
+            </div>
+        </section>
+
         <!-- QUICK STATS -->
 
         <section class="stats-grid">
