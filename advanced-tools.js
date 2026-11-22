@@ -441,10 +441,10 @@
 
   // Arrange all 25 tools into six category columns without changing tool behavior.
   const categoryGroups = [
-    { title: "Edit & Compress", ids: ["edit-pdf", "compress-pdf", "image-compressor"] },
+    { title: "Edit & Compress", ids: ["edit-pdf", "compress-pdf"] },
     { title: "Split & Merge", ids: ["split-pdf", "merge-pdf"] },
     { title: "Conversion from PDF", ids: ["pdf-to-word", "pdf-to-png", "pdf-to-epub", "pdf-to-jpg", "pdf-to-pptx", "pdf-to-excel"] },
-    { title: "Conversion to PDF", ids: ["word-to-pdf", "png-to-pdf", "epub-to-pdf", "jpg-to-pdf", "pptx-to-pdf", "excel-to-pdf", "photo-to-pdf"] },
+    { title: "Conversion to PDF", ids: ["word-to-pdf", "png-to-pdf", "epub-to-pdf", "jpg-to-pdf", "pptx-to-pdf", "excel-to-pdf"] },
     { title: "Sign & Security", ids: ["protect-pdf", "sign-pdf"] },
     { title: "Forms", ids: ["form-w-9", "form-ds-11", "form-1099", "form-941", "form-w-2"] }
   ];
@@ -465,17 +465,20 @@
     });
     return column;
   });
-  // Keep any future/unclassified cards visible instead of silently dropping them.
-  const unclassifiedCards = Array.from(toolCardMap.values()).filter(function (card) {
+  // Keep the two existing image utilities available separately; the six-column PDF menu
+  // contains exactly the 23 tools listed in the supplied reference.
+  const extraCards = Array.from(toolCardMap.values()).filter(function (card) {
     return !categorizedCards.has(card);
   });
-  if (unclassifiedCards.length) {
-    const otherColumn = make("section", "tool-category-column");
-    otherColumn.appendChild(make("h3", "tool-category-heading", "Other Tools"));
-    unclassifiedCards.forEach(function (card) { otherColumn.appendChild(card); });
-    categoryColumns.push(otherColumn);
-  }
   container.replaceChildren.apply(container, categoryColumns);
+  if (extraCards.length) {
+    const extras = make("section", "tool-extra-tools");
+    extras.appendChild(make("h3", "tool-category-heading", "Additional Image Tools"));
+    const extraGrid = make("div", "tool-extra-grid");
+    extraCards.forEach(function (card) { extraGrid.appendChild(card); });
+    extras.appendChild(extraGrid);
+    container.appendChild(extras);
+  }
 
   // Stable tool launcher: cards remain in place; processing opens in one fixed workspace below.
   const allToolCards = Array.from(container.querySelectorAll(".tool-card"));
@@ -501,7 +504,7 @@
   const workspaceBody = make("div", "tool-workspace-body");
   workspace.appendChild(workspaceHead);
   workspace.appendChild(workspaceBody);
-  container.insertAdjacentElement("afterend", workspace);
+  const featuredMount = document.getElementById("featuredToolMount");\n  if (featuredMount) featuredMount.appendChild(workspace);\n  else container.insertAdjacentElement("afterend", workspace);
 
   let activeToolCard = null;
   const movedNodes = new Map();
@@ -532,7 +535,7 @@
     workspaceBody.replaceChildren();
   }
 
-  function openTool(card) {
+  function openTool(card, shouldScroll) {
     if (!card || card === activeToolCard) {
       if (card && card === activeToolCard) closeActiveTool();
       return;
@@ -547,7 +550,7 @@
     movedNodes.set(card, nodes);
     nodes.forEach(function (node) { workspaceBody.appendChild(node); });
     workspace.hidden = false;
-    workspace.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (shouldScroll !== false) workspace.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   allToolCards.forEach(function (card) {
@@ -570,6 +573,10 @@
     if (event.target.closest(".tool-card-top, h3, .tool-card > p")) openTool(card);
   });
   closeWorkspace.addEventListener("click", closeActiveTool);
+
+  // Present the featured Split PDF workspace at the top of the page on first load.
+  const featuredSplitCard = document.getElementById("split-pdf");
+  if (featuredSplitCard) openTool(featuredSplitCard, false);
 
   document.querySelectorAll(".sidebar-nav a[href^='#']").forEach(function (link) {
     link.addEventListener("click", function () {
