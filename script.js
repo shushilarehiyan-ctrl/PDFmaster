@@ -1947,6 +1947,7 @@ async function protectPDF() {
         ageValue.textContent = years + (years === 1 ? " year" : " years");
         stage.style.setProperty("--memory-age", String(years / 500));
         stage.classList.toggle("is-aged", years > 0);
+        stage.style.setProperty("--aging-texture-opacity", String(Math.min(0.72, (years / 500) * 0.72)));
     }
     async function renderPage() {
         if (!pdfDocument) return;
@@ -1984,7 +1985,7 @@ async function protectPDF() {
     input.addEventListener("change", async function() {
         if (pdfDocument) { try { await pdfDocument.destroy(); } catch (error) {} pdfDocument = null; }
         canvas.hidden = true;
-        stage.classList.remove("is-ash");
+        stage.classList.remove("is-ash", "is-burning");
         overlay.classList.remove("is-active");
         age.disabled = true; prev.disabled = true; next.disabled = true; ash.disabled = true; reset.disabled = true;
         const file = input.files && input.files[0];
@@ -2015,22 +2016,27 @@ async function protectPDF() {
     ash.addEventListener("click", function() {
         if (!pdfDocument) return;
         window.clearTimeout(ashTimer);
-        stage.classList.remove("is-ash");
+        stage.classList.remove("is-ash", "is-burning");
         overlay.classList.remove("is-active");
         void stage.offsetWidth;
-        stage.classList.add("is-ash");
+        stage.classList.add("is-burning");
         overlay.classList.add("is-active");
-        setStatus("Digital Ash simulation: visual particles are fading from this preview only. Your PDF is untouched.", false);
+        ash.disabled = true;
+        setStatus("Burn simulation: a glowing edge travels across this preview. Your original PDF is untouched.", false);
         ashTimer = window.setTimeout(function() {
-            stage.classList.remove("is-ash");
+            stage.classList.remove("is-burning");
             overlay.classList.remove("is-active");
-        }, 2600);
+            ash.disabled = false;
+            setStatus("Burn preview complete. Reset or choose another page to try again.", false);
+        }, 4200);
     });
     reset.addEventListener("click", function() {
         age.value = "0";
         updateAge();
-        stage.classList.remove("is-ash");
+        stage.classList.remove("is-ash", "is-burning");
         overlay.classList.remove("is-active");
+        ash.disabled = !pdfDocument;
+        window.clearTimeout(ashTimer);
         setStatus("Preview restored. The original PDF was never changed.", false);
     });
     window.addEventListener("beforeunload", function() {
