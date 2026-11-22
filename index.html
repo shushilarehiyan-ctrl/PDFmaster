@@ -311,37 +311,22 @@
         </section>
 
 
-        <!-- FEATURED TOOL + INTRODUCTORY CONTENT -->
-        <section class="featured-tool-section" aria-labelledby="featuredToolTitle">
-            <div class="section-heading">
-                <div>
-                    <span class="section-label">START HERE</span>
-                    <h2 id="featuredToolTitle">Split PDF</h2>
-                    <p id="featuredToolDescription">Extract the pages you need or remove pages you no longer want.</p>
-                </div>
+        <!-- ONE SHARED UPLOAD BOX -->
+        <section class="shared-upload-section" aria-labelledby="sharedUploadTitle">
+            <div class="shared-upload-heading">
+                <span class="section-label">ONE UPLOAD · MANY TOOLS</span>
+                <h2 id="sharedUploadTitle">Upload your file once</h2>
+                <p>Choose a tool below. Your selected file will be ready in that tool's workspace.</p>
             </div>
-            <div id="featuredToolMount"></div>
-        </section>
-
-        <section class="info-section how-it-works-section" aria-labelledby="howItWorksTitle">
-            <span class="section-label">SIMPLE PROCESS</span>
-            <h2 id="howItWorksTitle">How to split a PDF file</h2>
-            <div class="feature-steps">
-                <article><span class="feature-step-number">01</span><h3>Upload your PDF</h3><p>Choose a PDF file from your device in the Split PDF workspace above.</p></article>
-                <article><span class="feature-step-number">02</span><h3>Choose your pages</h3><p>Select whether to extract pages or remove selected pages, then enter the page numbers or ranges.</p></article>
-                <article><span class="feature-step-number">03</span><h3>Download the result</h3><p>Run the tool and download the new PDF containing the pages you selected.</p></article>
-            </div>
-        </section>
-
-        <section class="info-section why-pdfmaster-section" aria-labelledby="whyPdfMasterTitle">
-            <span class="section-label">WHY PDFMASTER</span>
-            <h2 id="whyPdfMasterTitle">Your documents, in one workspace</h2>
-            <div class="feature-benefits">
-                <article><h3>All-in-One PDF Tools</h3><p>Merge, split, convert, edit, compress and protect documents from one website.</p></article>
-                <article><h3>Browser-Based Convenience</h3><p>Use supported tools from a desktop, laptop, tablet or phone without installing a separate app.</p></article>
-                <article><h3>Simple Workflow</h3><p>Choose a tool, add your file, adjust the available options and download the result.</p></article>
-                <article><h3>Clear Tool Guidance</h3><p>Each tool explains its purpose and provides controls for the task it performs.</p></article>
-            </div>
+            <label class="shared-upload-box" for="sharedFileInput" id="sharedUploadBox">
+                <span class="shared-upload-icon" aria-hidden="true">↑</span>
+                <strong>Choose files or drag them here</strong>
+                <span>PDF, DOCX, PPTX, XLSX, EPUB, JPG and PNG</span>
+                <small>Maximum total size: 50 MB</small>
+                <input type="file" id="sharedFileInput" multiple
+                    accept=".pdf,.docx,.pptx,.xlsx,.xls,.epub,.jpg,.jpeg,.png,.webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/epub+zip,image/jpeg,image/png,image/webp">
+            </label>
+            <p id="sharedUploadStatus" class="shared-upload-status" aria-live="polite">No files selected yet.</p>
         </section>
 
         <!-- TOOLS SECTION -->
@@ -370,6 +355,7 @@
 
                     <div class="tool-card-top">
                         <div class="tool-icon purple">▤</div>
+            <div id="toolWorkspaceMount"></div>
                         <span class="tool-category">CONVERT</span>
                     </div>
 
