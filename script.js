@@ -642,58 +642,62 @@ async function compressPDF() {
                 });
 
                 const canvas = document.createElement("canvas");
-                canvas.width = Math.ceil(viewport.width);
-                canvas.height = Math.ceil(viewport.height);
 
-                const context = canvas.getContext("2d", {
-                    alpha: false
-                });
+                try {
+                    canvas.width = Math.ceil(viewport.width);
+                    canvas.height = Math.ceil(viewport.height);
 
-                if (!context) {
-                    throw new Error("Unable to create canvas!");
-                }
-
-                context.fillStyle = "#ffffff";
-                context.fillRect(0, 0, canvas.width, canvas.height);
-
-                await page.render({
-                    canvasContext: context,
-                    viewport: viewport
-                }).promise;
-
-                const imageData = canvas.toDataURL(
-                    "image/jpeg",
-                    selectedSettings.quality
-                );
-
-                const pageWidth = originalViewport.width * 25.4 / 96;
-                const pageHeight = originalViewport.height * 25.4 / 96;
-
-                if (pageNumber === 1) {
-                    outputPDF = new jsPDF({
-                        orientation: pageWidth > pageHeight ? "landscape" : "portrait",
-                        unit: "mm",
-                        format: [pageWidth, pageHeight],
-                        compress: true
+                    const context = canvas.getContext("2d", {
+                        alpha: false
                     });
-                } else {
-                    outputPDF.addPage([pageWidth, pageHeight]);
+
+                    if (!context) {
+                        throw new Error("Unable to create canvas!");
+                    }
+
+                    context.fillStyle = "#ffffff";
+                    context.fillRect(0, 0, canvas.width, canvas.height);
+
+                    await page.render({
+                        canvasContext: context,
+                        viewport: viewport
+                    }).promise;
+
+                    const imageData = canvas.toDataURL(
+                        "image/jpeg",
+                        selectedSettings.quality
+                    );
+
+                    const pageWidth = originalViewport.width * 25.4 / 96;
+                    const pageHeight = originalViewport.height * 25.4 / 96;
+
+                    if (pageNumber === 1) {
+                        outputPDF = new jsPDF({
+                            orientation: pageWidth > pageHeight ? "landscape" : "portrait",
+                            unit: "mm",
+                            format: [pageWidth, pageHeight],
+                            compress: true
+                        });
+                    } else {
+                        outputPDF.addPage([pageWidth, pageHeight]);
+                    }
+
+                    outputPDF.addImage(
+                        imageData,
+                        "JPEG",
+                        0,
+                        0,
+                        pageWidth,
+                        pageHeight,
+                        undefined,
+                        "FAST"
+                    );
+                } finally {
+                    // Free canvas memory even if rendering or encoding fails.
+                    canvas.width = 0;
+                    canvas.height = 0;
+                    page.cleanup();
                 }
-
-                outputPDF.addImage(
-                    imageData,
-                    "JPEG",
-                    0,
-                    0,
-                    pageWidth,
-                    pageHeight,
-                    undefined,
-                    "FAST"
-                );
-
-                canvas.width = 0;
-                canvas.height = 0;
-                page.cleanup();
             }
 
             outputBlob = outputPDF.output("blob");
@@ -974,14 +978,19 @@ async function compressOneImage(file, quality, selectedFormat) {
 
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-    const blob = await canvasToImageBlob(
-        canvas,
-        outputMimeType,
-        quality
-    );
+    let blob;
 
-    canvas.width = 0;
-    canvas.height = 0;
+    try {
+        blob = await canvasToImageBlob(
+            canvas,
+            outputMimeType,
+            quality
+        );
+    } finally {
+        // Release potentially large canvas memory even if encoding fails.
+        canvas.width = 0;
+        canvas.height = 0;
+    }
 
     const extensions = {
         "image/jpeg": "jpg",
@@ -1335,9 +1344,13 @@ async function protectPDF() {
 
         // Generate random owner password
 
+        if (!window.crypto || typeof window.crypto.getRandomValues !== "function") {
+            throw new Error("Secure password generation is unavailable in this browser. Please use the HTTPS website in an updated browser.");
+        }
+
         const ownerPasswordBytes = new Uint8Array(32);
 
-        crypto.getRandomValues(ownerPasswordBytes);
+        window.crypto.getRandomValues(ownerPasswordBytes);
 
         const ownerPassword = Array.from(
             ownerPasswordBytes,
@@ -1348,7 +1361,7 @@ async function protectPDF() {
 
         // Apply AES-256 encryption
 
-        qpdfModule.callMain([
+        const encryptionExitCode = qpdfModule.callMain([
             "--encrypt",
             password,
             ownerPassword,
@@ -1358,16 +1371,32 @@ async function protectPDF() {
             "/protected.pdf"
         ]);
 
-        // Read encrypted output
+        if (typeof encryptionExitCode === "number" && encryptionExitCode !== 0) {
+            throw new Error(
+                errorMessages.join(" ") ||
+                "PDF encryption failed. Please check that the selected PDF is valid and not damaged."
+            );
+        }
+
+        // Read and validate the encrypted output before offering it for download.
 
         const outputBytes = qpdfModule.FS.readFile(
             "/protected.pdf"
         );
 
-        if (!outputBytes || outputBytes.length === 0) {
+        const hasPDFHeader =
+            outputBytes &&
+            outputBytes.length > 5 &&
+            outputBytes[0] === 0x25 &&
+            outputBytes[1] === 0x50 &&
+            outputBytes[2] === 0x44 &&
+            outputBytes[3] === 0x46 &&
+            outputBytes[4] === 0x2D;
+
+        if (!hasPDFHeader) {
             throw new Error(
                 errorMessages.join(" ") ||
-                "PDF encryption failed."
+                "Encryption did not produce a valid PDF file. Please try another PDF."
             );
         }
 
