@@ -194,9 +194,15 @@
         <header class="topbar">
 
             <div class="topbar-left">
-                <div class="breadcrumb">
-                    Workspace <span>/</span> Dashboard
-                </div>
+                <a href="#" class="logo topbar-logo" aria-label="PDFMaster home">
+                    <span class="logo-icon">P</span>
+                    <span>PDF<span class="logo-accent">Master</span></span>
+                </a>
+                <nav class="home-nav" aria-label="Main navigation">
+                    <a href="#tools">All Tools</a>
+                    <a href="#popular-tools">Popular</a>
+                    <a href="#about">About</a>
+                </nav>
             </div>
 
 
@@ -206,10 +212,11 @@
                     <span class="search-icon">⌕</span>
 
                     <input
-                        type="text"
+                        type="search"
                         id="toolSearch"
                         placeholder="Search tools..."
                         aria-label="Search PDF and image tools"
+                        oninput="searchTools()"
                     >
 
                     <button type="button" onclick="searchTools()">
@@ -217,10 +224,10 @@
                     </button>
                 </div>
 
-                <div class="topbar-badge">
+                <a class="topbar-badge" href="contact.html">
                     <span class="status-dot"></span>
-                    Free Workspace
-                </div>
+                    Need Help?
+                </a>
 
             </div>
 
@@ -277,6 +284,26 @@
 
             </div>
 
+        </section>
+
+        <!-- POPULAR TOOLS -->
+        <section id="popular-tools" class="popular-tools-section" aria-labelledby="popularToolsTitle">
+            <div class="section-heading">
+                <div>
+                    <span class="section-label">GET STARTED QUICKLY</span>
+                    <h2 id="popularToolsTitle">Popular PDF Tools</h2>
+                    <p>Choose a tool to open its dedicated workspace.</p>
+                </div>
+                <a class="popular-view-all" href="#tools">View all tools →</a>
+            </div>
+            <div class="popular-tools-grid">
+                <a class="popular-tool-card" href="#merge-pdf"><span class="popular-tool-icon">⇄</span><span><strong>Merge PDF</strong><small>Combine multiple PDF files.</small></span><b>→</b></a>
+                <a class="popular-tool-card" href="#split-pdf"><span class="popular-tool-icon">✂</span><span><strong>Split PDF</strong><small>Extract or remove pages.</small></span><b>→</b></a>
+                <a class="popular-tool-card" href="#compress-pdf"><span class="popular-tool-icon">⇩</span><span><strong>Compress PDF</strong><small>Reduce your PDF file size.</small></span><b>→</b></a>
+                <a class="popular-tool-card" href="#pdf-to-word"><span class="popular-tool-icon">DOC</span><span><strong>PDF to Word</strong><small>Extract text into DOCX.</small></span><b>→</b></a>
+                <a class="popular-tool-card" href="#word-to-pdf"><span class="popular-tool-icon">PDF</span><span><strong>Word to PDF</strong><small>Convert a DOCX document.</small></span><b>→</b></a>
+                <a class="popular-tool-card" href="#photo-to-pdf"><span class="popular-tool-icon">▧</span><span><strong>Image to PDF</strong><small>Turn photos into a PDF.</small></span><b>→</b></a>
+            </div>
         </section>
 
 
@@ -730,8 +757,8 @@
             <span class="section-label">SIMPLE PROCESS</span>
             <h2 id="howItWorksTitle">How to use PDFMaster</h2>
             <div class="feature-steps">
-                <article><span class="feature-step-number">01</span><h3>Upload your file</h3><p>Add your document once in the shared upload box above.</p></article>
-                <article><span class="feature-step-number">02</span><h3>Choose a tool</h3><p>Select any available tool below. Your uploaded file will be passed to its workspace.</p></article>
+                <article><span class="feature-step-number">01</span><h3>Upload your file</h3><p>Open a tool and add your document in its workspace.</p></article>
+                <article><span class="feature-step-number">02</span><h3>Choose a tool</h3><p>Choose the tool that matches the task you want to complete.</p></article>
                 <article><span class="feature-step-number">03</span><h3>Process and download</h3><p>Adjust the available options, run the tool and download your new file.</p></article>
             </div>
         </section>
@@ -741,7 +768,7 @@
             <h2 id="whyPdfMasterTitle">Your documents, in one workspace</h2>
             <div class="feature-benefits">
                 <article><h3>All-in-One Tools</h3><p>Find PDF editing, conversion, organization, signing and security tools in one place.</p></article>
-                <article><h3>One Shared Upload</h3><p>Choose your file once, then select the tool you need.</p></article>
+                <article><h3>Dedicated Workspaces</h3><p>Each tool has its own clear upload area and relevant options.</p></article>
                 <article><h3>Browser-Based Workflow</h3><p>Use supported tools in your browser without installing a separate desktop app.</p></article>
                 <article><h3>Simple Processing</h3><p>Choose a tool, review its options and download the processed result.</p></article>
             </div>
