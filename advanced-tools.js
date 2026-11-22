@@ -220,8 +220,8 @@
         XLSX.utils.book_append_sheet(book, XLSX.utils.aoa_to_sheet(rows), "PDF Text");
         download(new Blob([XLSX.write(book, { bookType: "xlsx", type: "array" })], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), "PDFMaster_Extracted.xlsx");
       } else if (type === "pdf-pptx") {
-        requireLibrary("PptxGenJS", window.pptxgen);
-        const pptx = new pptxgen();
+        requireLibrary("PptxGenJS", window.PptxGenJS);
+        const pptx = new PptxGenJS();
         pptx.layout = "LAYOUT_WIDE";
         pages.forEach(function (page, i) {
           const slide = pptx.addSlide();
