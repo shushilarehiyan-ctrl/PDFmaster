@@ -4472,3 +4472,134 @@ body:not(.tool-page-active)>.main-content{margin-left:0;width:min(100%,1680px);p
   .tools-container .tool-category-column > .tool-card,
   .tools-container .tool-extra-grid > .tool-card { transition: none !important; }
 }
+
+
+/* ---------- POPULAR-CARD MATCH: ICON + TITLE + DESCRIPTION + ARROW ---------- */
+/* Apply the Popular PDF Tools composition to every directory card.
+   The existing tool DOM and workspace behavior remain unchanged. */
+.tools-container .tool-category-column > .tool-card,
+.tools-container .tool-extra-grid > .tool-card {
+  display: grid !important;
+  grid-template-columns: 42px minmax(0, 1fr) 18px;
+  grid-template-rows: minmax(0, auto) minmax(0, auto);
+  grid-template-areas: "icon title arrow" "icon description arrow";
+  align-content: center;
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 5px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 78px;
+  min-height: 78px;
+  padding: 12px 17px !important;
+  border: 1px solid rgba(176,141,80,.22);
+  border-radius: 15px;
+  background: linear-gradient(145deg, rgba(38,6,21,.82), rgba(26,18,22,.9));
+  box-shadow: 0 8px 24px rgba(0,0,0,.14);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.tools-container .tool-category-column > .tool-card .tool-card-top,
+.tools-container .tool-extra-grid > .tool-card .tool-card-top {
+  grid-area: icon;
+  display: grid !important;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  margin: 0;
+  padding: 0;
+}
+.tools-container .tool-category-column > .tool-card .tool-icon,
+.tools-container .tool-extra-grid > .tool-card .tool-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  margin: 0;
+  border-radius: 12px;
+  background: rgba(176,141,80,.14) !important;
+  color: #d9b77e !important;
+  font-size: 13px;
+  font-weight: 900;
+}
+.tools-container .tool-category-column > .tool-card .tool-category,
+.tools-container .tool-extra-grid > .tool-card .tool-category {
+  display: none !important;
+}
+.tools-container .tool-category-column > .tool-card h3,
+.tools-container .tool-extra-grid > .tool-card h3 {
+  grid-area: title;
+  display: block !important;
+  min-width: 0;
+  margin: 0 !important;
+  color: #f1e8dc;
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.tools-container .tool-category-column > .tool-card > p,
+.tools-container .tool-extra-grid > .tool-card > p {
+  grid-area: description;
+  display: block !important;
+  min-width: 0;
+  margin: 0 !important;
+  color: #b8aaa5;
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tools-container .tool-category-column > .tool-card::after,
+.tools-container .tool-extra-grid > .tool-card::after {
+  grid-area: arrow;
+  content: "→";
+  display: block;
+  justify-self: end;
+  color: #d9b77e;
+  font-size: 18px;
+  font-weight: 800;
+}
+.tools-container .tool-category-column > .tool-card > :nth-child(n+4),
+.tools-container .tool-extra-grid > .tool-card > :nth-child(n+4) {
+  display: none !important;
+}
+.tools-container .tool-category-column > .tool-card:hover,
+.tools-container .tool-extra-grid > .tool-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(217,183,126,.62);
+  box-shadow: 0 14px 30px rgba(0,0,0,.25);
+}
+.tools-container .tool-category-column > .tool-card.tool-card-active,
+.tools-container .tool-extra-grid > .tool-card.tool-card-active {
+  border-color: rgba(217,183,126,.75);
+  box-shadow: 0 0 0 2px rgba(176,141,80,.12);
+}
+@media (max-width: 760px) {
+  .tools-container .tool-category-column > .tool-card,
+  .tools-container .tool-extra-grid > .tool-card {
+    grid-template-columns: 38px minmax(0, 1fr) 16px;
+    height: 70px;
+    min-height: 70px;
+    column-gap: 11px;
+    row-gap: 4px;
+    padding: 10px 12px !important;
+  }
+  .tools-container .tool-category-column > .tool-card .tool-card-top,
+  .tools-container .tool-extra-grid > .tool-card .tool-card-top,
+  .tools-container .tool-category-column > .tool-card .tool-icon,
+  .tools-container .tool-extra-grid > .tool-card .tool-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tools-container .tool-category-column > .tool-card,
+  .tools-container .tool-extra-grid > .tool-card {
+    transition: none !important;
+  }
+}
