@@ -1479,3 +1479,448 @@ async function protectPDF() {
         protectPDFButton.textContent = "Protect PDF →";
     }
 }
+
+
+// =================================
+// DUAL-REALITY PDF
+// =================================
+
+(function initDualRealityPDF() {
+    "use strict";
+
+    const MAX_PDF_BYTES = 50 * 1024 * 1024;
+    const MAX_CONTAINER_BYTES = 110 * 1024 * 1024;
+    const PBKDF2_ITERATIONS = 250000;
+    const MAGIC = "PDFMASTER-DUALREALITY-V1\\n";
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+
+    let openedContainer = null;
+
+    const fileAInput = document.getElementById("dualRealityFileA");
+    const fileBInput = document.getElementById("dualRealityFileB");
+    const createButton = document.getElementById("dualRealityCreateButton");
+    const createResult = document.getElementById("dualRealityCreateResult");
+    const containerInput = document.getElementById("dualRealityContainerInput");
+    const openStatus = document.getElementById("dualRealityOpenStatus");
+
+    if (!fileAInput || !fileBInput || !createButton || !containerInput) return;
+
+    function setText(element, message) {
+        if (element) element.textContent = message;
+    }
+
+    function bytesToBase64(bytes) {
+        let binary = "";
+        const chunkSize = 0x8000;
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+            binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+        }
+        return btoa(binary);
+    }
+
+    function base64ToBytes(value) {
+        if (typeof value !== "string" || !/^[A-Za-z0-9+/]*={0,2}$/.test(value)) {
+            throw new Error("The container has invalid encryption metadata.");
+        }
+        const binary = atob(value);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        return bytes;
+    }
+
+    function safeFileName(name) {
+        const cleaned = String(name || "document.pdf")
+            .split(/[\\/]/).pop()
+            .replace(/[<>:"|?*\\x00-\\x1F]/g, "_")
+            .trim();
+        return (/\\.pdf$/i.test(cleaned) ? cleaned : cleaned + ".pdf") || "document.pdf";
+    }
+
+    function checkPDFHeader(bytes) {
+        return bytes && bytes.length >= 5 &&
+            bytes[0] === 0x25 && bytes[1] === 0x50 &&
+            bytes[2] === 0x44 && bytes[3] === 0x46 &&
+            bytes[4] === 0x2D;
+    }
+
+    async function readValidPDF(file, label) {
+        if (!file) throw new Error("Please choose " + label + ".");
+        if (file.size > MAX_PDF_BYTES) {
+            throw new Error(label + " is larger than 50 MB. Choose a smaller PDF.");
+        }
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        if (!checkPDFHeader(bytes)) {
+            throw new Error(label + " does not appear to be a valid PDF.");
+        }
+        return bytes;
+    }
+
+    async function deriveEncryptionKey(password, salt) {
+        if (!window.crypto || !window.crypto.subtle ||
+            typeof window.crypto.getRandomValues !== "function") {
+            throw new Error("Secure encryption is unavailable. Open PDFMaster over HTTPS in an updated browser.");
+        }
+
+        const material = await window.crypto.subtle.importKey(
+            "raw",
+            encoder.encode(password),
+            "PBKDF2",
+            false,
+            ["deriveKey"]
+        );
+
+        return window.crypto.subtle.deriveKey(
+            {
+                name: "PBKDF2",
+                salt: salt,
+                iterations: PBKDF2_ITERATIONS,
+                hash: "SHA-256"
+            },
+            material,
+            { name: "AES-GCM", length: 256 },
+            false,
+            ["encrypt", "decrypt"]
+        );
+    }
+
+    function buildEncryptedPayload(file, pdfBytes) {
+        const nameBytes = encoder.encode(safeFileName(file.name));
+        if (nameBytes.length > 65535) {
+            throw new Error("The PDF filename is too long.");
+        }
+
+        const payload = new Uint8Array(2 + nameBytes.length + pdfBytes.length);
+        new DataView(payload.buffer).setUint16(0, nameBytes.length, false);
+        payload.set(nameBytes, 2);
+        payload.set(pdfBytes, 2 + nameBytes.length);
+        return payload;
+    }
+
+    async function encryptDocument(file, pdfBytes, password, slot) {
+        const salt = new Uint8Array(16);
+        const iv = new Uint8Array(12);
+        window.crypto.getRandomValues(salt);
+        window.crypto.getRandomValues(iv);
+
+        const key = await deriveEncryptionKey(password, salt);
+        const payload = buildEncryptedPayload(file, pdfBytes);
+
+        const encrypted = new Uint8Array(await window.crypto.subtle.encrypt(
+            { name: "AES-GCM", iv: iv, tagLength: 128 },
+            key,
+            payload
+        ));
+
+        return {
+            slot: slot,
+            salt: bytesToBase64(salt),
+            iv: bytesToBase64(iv),
+            length: encrypted.length,
+            bytes: encrypted
+        };
+    }
+
+    function createContainerBlob(encryptedEntries) {
+        const manifest = {
+            format: "PDFMaster Dual-Reality",
+            version: 1,
+            kdf: "PBKDF2-SHA-256",
+            cipher: "AES-256-GCM",
+            iterations: PBKDF2_ITERATIONS,
+            entries: encryptedEntries.map(function(entry) {
+                return {
+                    slot: entry.slot,
+                    salt: entry.salt,
+                    iv: entry.iv,
+                    length: entry.length
+                };
+            })
+        };
+
+        const manifestBytes = encoder.encode(JSON.stringify(manifest));
+        const headerBytes = encoder.encode(MAGIC);
+        const prefix = new Uint8Array(headerBytes.length + 4 + manifestBytes.length);
+        prefix.set(headerBytes, 0);
+        new DataView(prefix.buffer).setUint32(headerBytes.length, manifestBytes.length, false);
+        prefix.set(manifestBytes, headerBytes.length + 4);
+
+        return new Blob(
+            [prefix, encryptedEntries[0].bytes, encryptedEntries[1].bytes],
+            { type: "application/octet-stream" }
+        );
+    }
+
+    window.createDualRealityContainer = async function() {
+        if (createButton.disabled) return;
+
+        const passwordA = document.getElementById("dualRealityPasswordA").value;
+        const confirmA = document.getElementById("dualRealityConfirmA").value;
+        const passwordB = document.getElementById("dualRealityPasswordB").value;
+        const confirmB = document.getElementById("dualRealityConfirmB").value;
+
+        if (passwordA.length < 12 || passwordB.length < 12) {
+            setText(createResult, "Each password must be at least 12 characters long.");
+            return;
+        }
+        if (passwordA !== confirmA || passwordB !== confirmB) {
+            setText(createResult, "The password and confirmation fields must match for both documents.");
+            return;
+        }
+        if (passwordA === passwordB) {
+            setText(createResult, "For two independent unlocks, choose two different passwords.");
+            return;
+        }
+
+        createButton.disabled = true;
+        createButton.textContent = "Encrypting Documents...";
+        setText(createResult, "Reading PDFs and preparing secure encryption...");
+
+        try {
+            const fileA = fileAInput.files[0];
+            const fileB = fileBInput.files[0];
+            const [bytesA, bytesB] = await Promise.all([
+                readValidPDF(fileA, "Document A"),
+                readValidPDF(fileB, "Document B")
+            ]);
+
+            if (bytesA.length + bytesB.length > 100 * 1024 * 1024) {
+                throw new Error("The combined PDF size must not exceed 100 MB.");
+            }
+
+            setText(createResult, "Encrypting Document A with AES-256-GCM...");
+            const encryptedA = await encryptDocument(fileA, bytesA, passwordA, "A");
+
+            setText(createResult, "Encrypting Document B with its separate password...");
+            const encryptedB = await encryptDocument(fileB, bytesB, passwordB, "B");
+
+            const blob = createContainerBlob([encryptedA, encryptedB]);
+            if (blob.size > MAX_CONTAINER_BYTES) {
+                throw new Error("The encrypted container is larger than the supported size limit.");
+            }
+
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "PDFMaster-Dual-Reality.drpdf";
+            link.textContent = "Download encrypted .drpdf container ↓";
+            link.className = "dual-reality-download";
+
+            createResult.innerHTML = "";
+            const success = document.createElement("strong");
+            success.textContent = "Encrypted container created successfully.";
+            const detail = document.createElement("p");
+            detail.textContent = "Both PDFs are encrypted independently. Save the container and keep both passwords safe.";
+            createResult.appendChild(success);
+            createResult.appendChild(detail);
+            createResult.appendChild(link);
+
+            document.getElementById("dualRealityPasswordA").value = "";
+            document.getElementById("dualRealityConfirmA").value = "";
+            document.getElementById("dualRealityPasswordB").value = "";
+            document.getElementById("dualRealityConfirmB").value = "";
+        } catch (error) {
+            console.error("Dual-Reality PDF create error:", error);
+            setText(createResult, error.message || "Unable to create the encrypted container.");
+        } finally {
+            createButton.disabled = false;
+            createButton.textContent = "Create Encrypted Container →";
+        }
+    };
+
+    containerInput.addEventListener("change", async function() {
+        openedContainer = null;
+        document.getElementById("dualRealityUnlockButtonA").disabled = true;
+        document.getElementById("dualRealityUnlockButtonB").disabled = true;
+        setText(document.getElementById("dualRealityUnlockResultA"), "");
+        setText(document.getElementById("dualRealityUnlockResultB"), "");
+
+        const file = containerInput.files && containerInput.files[0];
+        if (!file) return;
+
+        if (file.size > MAX_CONTAINER_BYTES) {
+            setText(openStatus, "This container exceeds the 110 MB size limit.");
+            containerInput.value = "";
+            return;
+        }
+
+        setText(openStatus, "Checking encrypted container...");
+        try {
+            const bytes = new Uint8Array(await file.arrayBuffer());
+            const magicBytes = encoder.encode(MAGIC);
+
+            if (bytes.length < magicBytes.length + 4) {
+                throw new Error("This file is not a valid Dual-Reality container.");
+            }
+
+            for (let i = 0; i < magicBytes.length; i++) {
+                if (bytes[i] !== magicBytes[i]) {
+                    throw new Error("This file is not a PDFMaster Dual-Reality container.");
+                }
+            }
+
+            const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+            const manifestLength = view.getUint32(magicBytes.length, false);
+            const manifestStart = magicBytes.length + 4;
+            const dataStart = manifestStart + manifestLength;
+
+            if (manifestLength < 2 || manifestLength > 65536 || dataStart > bytes.length) {
+                throw new Error("The container manifest is damaged or invalid.");
+            }
+
+            const manifest = JSON.parse(decoder.decode(bytes.subarray(manifestStart, dataStart)));
+            if (manifest.format !== "PDFMaster Dual-Reality" ||
+                manifest.version !== 1 ||
+                manifest.kdf !== "PBKDF2-SHA-256" ||
+                manifest.cipher !== "AES-256-GCM" ||
+                manifest.iterations !== PBKDF2_ITERATIONS ||
+                !Array.isArray(manifest.entries) ||
+                manifest.entries.length !== 2) {
+                throw new Error("Unsupported or invalid Dual-Reality container.");
+            }
+
+            const slots = manifest.entries.map(function(entry) { return entry.slot; }).sort().join("");
+            if (slots !== "AB") throw new Error("The container must contain both document slots.");
+
+            let offset = dataStart;
+            const entries = {};
+
+            for (const entry of manifest.entries) {
+                if (!Number.isSafeInteger(entry.length) || entry.length < 17 ||
+                    entry.length > bytes.length - offset) {
+                    throw new Error("The encrypted document data is incomplete.");
+                }
+                const salt = base64ToBytes(entry.salt);
+                const iv = base64ToBytes(entry.iv);
+                if (salt.length !== 16 || iv.length !== 12) {
+                    throw new Error("The encryption parameters are invalid.");
+                }
+                entries[entry.slot] = {
+                    salt: salt,
+                    iv: iv,
+                    start: offset,
+                    length: entry.length
+                };
+                offset += entry.length;
+            }
+
+            if (offset !== bytes.length) {
+                throw new Error("The container contains unexpected or damaged data.");
+            }
+
+            openedContainer = { bytes: bytes, entries: entries };
+            document.getElementById("dualRealityUnlockButtonA").disabled = false;
+            document.getElementById("dualRealityUnlockButtonB").disabled = false;
+            setText(openStatus, "Container verified. Choose a document and enter its separate password to unlock it.");
+        } catch (error) {
+            openedContainer = null;
+            console.error("Dual-Reality PDF open error:", error);
+            setText(openStatus, error.message || "Unable to read this container.");
+        }
+    });
+
+    window.unlockDualRealityDocument = async function(slot) {
+        if (!openedContainer || !["A", "B"].includes(slot)) {
+            setText(openStatus, "Choose a valid .drpdf container first.");
+            return;
+        }
+
+        const passwordInput = document.getElementById("dualRealityUnlockPassword" + slot);
+        const result = document.getElementById("dualRealityUnlockResult" + slot);
+        const button = document.getElementById("dualRealityUnlockButton" + slot);
+        const password = passwordInput.value;
+
+        if (!password) {
+            setText(result, "Enter the password for Document " + slot + ".");
+            return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Unlocking...";
+        setText(result, "Deriving the decryption key...");
+
+        try {
+            const entry = openedContainer.entries[slot];
+            const key = await deriveEncryptionKey(password, entry.salt);
+            const ciphertext = openedContainer.bytes.slice(
+                entry.start,
+                entry.start + entry.length
+            );
+
+            const plaintext = new Uint8Array(await window.crypto.subtle.decrypt(
+                { name: "AES-GCM", iv: entry.iv, tagLength: 128 },
+                key,
+                ciphertext
+            ));
+
+            if (plaintext.length < 7) {
+                throw new Error("The decrypted document is incomplete.");
+            }
+
+            const nameLength = new DataView(
+                plaintext.buffer,
+                plaintext.byteOffset,
+                plaintext.byteLength
+            ).getUint16(0, false);
+
+            if (nameLength < 1 || 2 + nameLength + 5 > plaintext.length) {
+                throw new Error("The decrypted document data is invalid.");
+            }
+
+            const fileName = safeFileName(decoder.decode(plaintext.subarray(2, 2 + nameLength)));
+            const pdfBytes = plaintext.subarray(2 + nameLength);
+
+            if (!checkPDFHeader(pdfBytes)) {
+                throw new Error("The decrypted content is not a valid PDF.");
+            }
+
+            const blob = new Blob([pdfBytes], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = fileName;
+            link.textContent = "Download " + fileName + " ↓";
+            link.className = "dual-reality-download";
+
+            result.innerHTML = "";
+            const success = document.createElement("strong");
+            success.textContent = "Document " + slot + " unlocked successfully.";
+            result.appendChild(success);
+            result.appendChild(document.createElement("br"));
+            result.appendChild(link);
+            passwordInput.value = "";
+        } catch (error) {
+            console.error("Dual-Reality PDF unlock error:", error);
+            setText(result, "Unable to unlock Document " + slot + ". Check the password or container file.");
+            passwordInput.value = "";
+        } finally {
+            button.disabled = false;
+            button.textContent = "Unlock " + slot;
+        }
+    };
+
+    window.clearDualRealityWorkspace = function() {
+        openedContainer = null;
+        containerInput.value = "";
+        fileAInput.value = "";
+        fileBInput.value = "";
+
+        [
+            "dualRealityPasswordA",
+            "dualRealityConfirmA",
+            "dualRealityPasswordB",
+            "dualRealityConfirmB",
+            "dualRealityUnlockPasswordA",
+            "dualRealityUnlockPasswordB"
+        ].forEach(function(id) {
+            document.getElementById(id).value = "";
+        });
+
+        document.getElementById("dualRealityUnlockButtonA").disabled = true;
+        document.getElementById("dualRealityUnlockButtonB").disabled = true;
+        setText(createResult, "");
+        setText(openStatus, "Workspace cleared.");
+        setText(document.getElementById("dualRealityUnlockResultA"), "");
+        setText(document.getElementById("dualRealityUnlockResultB"), "");
+    };
+})();
