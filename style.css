@@ -5452,3 +5452,82 @@ a:hover,
 @media (prefers-reduced-motion: reduce) {
   .hero::before { animation: none !important; }
 }
+
+
+/* ---------- HELP CENTER + FOOTER: LAYOUT POLISH ONLY ---------- */
+/* Keep the existing FAQ accordion, colors, backgrounds and hover behavior unchanged. */
+#faq {
+  max-width: 100%;
+  scroll-margin-top: 28px;
+}
+#faq > .section-label {
+  display: inline-block;
+  margin-bottom: 10px;
+}
+#faq > h2 {
+  margin: 0 0 22px;
+  line-height: 1.25;
+}
+#faq details {
+  margin: 0 0 12px;
+  padding: 16px 18px;
+}
+#faq details:last-child {
+  margin-bottom: 0;
+}
+#faq summary {
+  cursor: pointer;
+  line-height: 1.5;
+  font-weight: 600;
+}
+#faq details p {
+  margin: 12px 0 2px;
+  line-height: 1.75;
+  max-width: 900px;
+}
+
+/* Keep the footer simple; improve spacing and link wrapping without recoloring it. */
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding-top: 30px;
+  padding-bottom: 24px;
+  text-align: center;
+}
+.footer > .logo {
+  margin-bottom: 0;
+}
+.footer > p {
+  margin: 0;
+  line-height: 1.6;
+}
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px 22px;
+  max-width: 900px;
+  margin: 4px auto;
+}
+.footer-links a {
+  line-height: 1.6;
+  text-decoration: none;
+}
+.footer .copyright {
+  margin-top: 6px;
+  font-size: .9rem;
+}
+@media (max-width: 640px) {
+  #faq details {
+    padding: 14px 15px;
+  }
+  #faq details p {
+    line-height: 1.65;
+  }
+  .footer-links {
+    gap: 10px 16px;
+  }
+}
