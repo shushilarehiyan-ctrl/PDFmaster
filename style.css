@@ -5561,7 +5561,9 @@ a:hover,
 
 /* ---------- TOOLKIT: DARK OXBLOOD IDLE CARD SURFACES ---------- */
 /* Change only the resting state; preserve the existing hover treatment. */
-.stats-grid .stat-card:not(:hover),
+.stats-grid .stat-card:not(:hover) {
+  background: #100D10 !important;
+}
 #tools .tools-container .tool-card:not(:hover) {
   background: #3B0715 !important;
 }
