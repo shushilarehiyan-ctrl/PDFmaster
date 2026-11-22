@@ -2113,7 +2113,7 @@ async function protectPDF() {
                 ectx.clearRect(0, 0, width, height);
                 stage.classList.remove("is-burning");
                 overlay.classList.remove("is-active");
-                ash.disabled = false;
+                ash.disabled = true;
                 setStatus("Burn simulation complete. Reset preview to restore the page.", false);
             }
         }
