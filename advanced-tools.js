@@ -517,7 +517,7 @@
 
   function applySharedFiles(card) {
     if (!card || !sharedFiles.length) return;
-    const target = card.querySelector('input[type="file"]');
+    const target = card.querySelector('input[type="file"]') || (card === activeToolCard ? workspaceBody.querySelector('input[type="file"]') : null);
     if (!target) {
       if (sharedStatus) sharedStatus.textContent = "This is an official form link; no upload is needed.";
       return;
