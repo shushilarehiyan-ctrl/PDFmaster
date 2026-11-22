@@ -4009,3 +4009,213 @@ summary:focus-visible {
 #toolWorkspaceMount {
     width: 100%;
 }
+
+
+/* ---------- TOOL DIRECTORY: compact launch cards ---------- */
+.tools-container .tool-category-column {
+    gap: 10px;
+}
+.tools-container .tool-category-column > .tool-card {
+    min-height: 66px;
+    padding: 11px 12px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    border-radius: 12px;
+    cursor: pointer;
+    background: linear-gradient(145deg, #241019, #160d12);
+    transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+.tools-container .tool-category-column > .tool-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary-light);
+    box-shadow: 0 10px 24px rgba(0,0,0,.22);
+}
+.tools-container .tool-card .tool-card-top {
+    flex: 0 0 auto;
+    margin: 0;
+}
+.tools-container .tool-card .tool-icon {
+    width: 37px;
+    height: 37px;
+    border-radius: 10px;
+    font-size: 17px;
+}
+.tools-container .tool-card .tool-category,
+.tools-container .tool-card > p,
+.tools-container .tool-card > :nth-child(n+4) {
+    display: none !important;
+}
+.tools-container .tool-card h3 {
+    min-width: 0;
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+.tools-container .tool-card-active {
+    border-color: var(--primary-light);
+}
+
+/* ---------- DEDICATED TOOL WORKSPACE VIEW ---------- */
+.tool-page-active .sidebar {
+    display: none !important;
+}
+.tool-page-active .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+}
+.tool-page-active .main-content > :not(.topbar):not(#tools) {
+    display: none !important;
+}
+.tool-page-active #tools > :not(#toolWorkspaceMount) {
+    display: none !important;
+}
+.tool-page-active #toolWorkspaceMount {
+    display: block;
+    width: min(100%, 1120px);
+    margin: 24px auto 60px;
+    padding: 0 24px;
+}
+.tool-page-active .tool-workspace {
+    display: block;
+    width: 100%;
+    min-height: 65vh;
+    padding: clamp(20px, 4vw, 42px);
+    overflow: hidden;
+    border: 1px solid rgba(176,141,80,.38);
+    border-radius: 22px;
+    background:
+      radial-gradient(ellipse at 12% 0%, rgba(176,141,80,.13), transparent 42%),
+      linear-gradient(145deg, #260610, #100d10 72%);
+    box-shadow: 0 24px 70px rgba(0,0,0,.34);
+    animation: pdfWorkspaceEnter .48s cubic-bezier(.2,.8,.2,1) both;
+}
+.tool-page-active .tool-workspace-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding-bottom: 22px;
+    margin-bottom: 26px;
+    border-bottom: 1px solid rgba(176,141,80,.25);
+}
+.tool-page-active .tool-workspace-title,
+.tool-page-active .tool-workspace-titles h3 {
+    color: #f1e8dc;
+}
+.tool-page-active .tool-workspace-titles h3 {
+    margin: 5px 0 0;
+    font-size: clamp(23px, 3vw, 34px);
+    letter-spacing: -.7px;
+}
+.tool-page-active .tool-workspace-eyebrow {
+    color: #d9b77e;
+    letter-spacing: 2px;
+    font-size: 10px;
+    font-weight: 800;
+}
+.tool-page-active .tool-workspace-icon {
+    width: 54px;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(217,183,126,.3);
+    border-radius: 15px;
+    background: rgba(176,141,80,.12);
+    color: #d9b77e;
+    font-size: 13px;
+    font-weight: 900;
+}
+.tool-page-active .tool-workspace-close {
+    flex: 0 0 auto;
+    padding: 11px 16px;
+    border: 1px solid rgba(217,183,126,.4);
+    border-radius: 10px;
+    background: rgba(176,141,80,.1);
+    color: #f1e8dc;
+    cursor: pointer;
+    transition: background .2s ease, transform .2s ease;
+}
+.tool-page-active .tool-workspace-close:hover {
+    background: rgba(176,141,80,.22);
+    transform: translateX(-2px);
+}
+.tool-page-active .tool-workspace-body {
+    max-width: 900px;
+    margin: 0 auto;
+}
+.tool-page-active .tool-workspace-body > input[type="file"] {
+    display: block !important;
+    width: 100%;
+    min-height: 145px;
+    padding: 42px 20px;
+    margin: 0 0 22px;
+    border: 1.5px dashed rgba(217,183,126,.65);
+    border-radius: 16px;
+    background: rgba(176,141,80,.07);
+    color: #f1e8dc;
+    cursor: pointer;
+}
+.tool-page-active .tool-workspace-body label {
+    display: block;
+    margin: 18px 0 8px;
+    color: #d9b77e;
+    font-weight: 700;
+}
+.tool-page-active .tool-workspace-body input:not([type="file"]),
+.tool-page-active .tool-workspace-body select,
+.tool-page-active .tool-workspace-body textarea {
+    max-width: 100%;
+    min-height: 43px;
+    padding: 10px 12px;
+    border: 1px solid rgba(217,183,126,.28);
+    border-radius: 9px;
+    background: #160d12;
+    color: #f1e8dc;
+}
+.tool-page-active .tool-workspace-body .tool-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 24px 0;
+}
+.tool-page-active .tool-workspace-body .tool-actions button,
+.tool-page-active .tool-workspace-body button:not(.tool-workspace-close) {
+    min-height: 44px;
+    padding: 11px 19px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.tool-page-active .tool-workspace-body button:disabled {
+    opacity: .8;
+    cursor: progress;
+}
+.tool-page-active .tool-workspace-body button:disabled::after {
+    content: "";
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    margin-left: 10px;
+    vertical-align: -2px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: pdfToolSpin .7s linear infinite;
+}
+.tool-page-active .tool-workspace-body [aria-live="polite"] {
+    line-height: 1.7;
+}
+@keyframes pdfWorkspaceEnter {
+    from { opacity: 0; transform: translateY(18px) scale(.99); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes pdfToolSpin {
+    to { transform: rotate(360deg); }
+}
+@media (max-width: 760px) {
+    .tool-page-active #toolWorkspaceMount { padding: 0 12px; }
+    .tool-page-active .tool-workspace-head { align-items: flex-start; flex-wrap: wrap; }
+    .tool-page-active .tool-workspace-close { width: 100%; }
+    .tools-container .tool-category-column > .tool-card { min-height: 62px; }
+}
