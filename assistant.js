@@ -152,33 +152,33 @@
       hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true
     }).format(now);
 
-    if (/\\b(time and date|date and time|current date and time|what is the time and date)\\b|अभी कितने बजे और तारीख|समय और तारीख/.test(q)) {
-      return "Current date: " + dateText(now) + "\\nCurrent time: " + timeText + "\\nTime zone: " + zone + "\\n\\nThis uses your device's clock.";
+    if (/\b(time and date|date and time|current date and time|what is the time and date)\b|अभी कितने बजे और तारीख|समय और तारीख/.test(q)) {
+      return "Current date: " + dateText(now) + "\nCurrent time: " + timeText + "\nTime zone: " + zone + "\n\nThis uses your device's clock.";
     }
-    if (/\\b(what time|current time|time now|tell me the time|time is it)\\b|कितने बजे|अभी का समय|समय बताओ/.test(q)) {
-      return "Current time: " + timeText + "\\nTime zone: " + zone + "\\n\\nThis uses your device's clock.";
+    if (/\b(what time|current time|time now|tell me the time|time is it)\b|कितने बजे|अभी का समय|समय बताओ/.test(q)) {
+      return "Current time: " + timeText + "\nTime zone: " + zone + "\n\nThis uses your device's clock.";
     }
-    if (/\\b(today'?s date|what is the date|current date|date today|today date)\\b|आज की तारीख|आज कौन सी तारीख|आज की डेट/.test(q)) {
-      return "Today is " + dateText(now) + ".\\nTime zone: " + zone + "\\n\\nThis uses your device's clock.";
+    if (/\b(today'?s date|what is the date|current date|date today|today date)\b|आज की तारीख|आज कौन सी तारीख|आज की डेट/.test(q)) {
+      return "Today is " + dateText(now) + ".\nTime zone: " + zone + "\n\nThis uses your device's clock.";
     }
-    if (/\\b(tomorrow'?s date|what date is tomorrow|tomorrow date)\\b|कल की तारीख/.test(q)) {
+    if (/\b(tomorrow'?s date|what date is tomorrow|tomorrow date)\b|कल की तारीख/.test(q)) {
       const d = new Date(now); d.setDate(d.getDate() + 1);
       return "Tomorrow will be " + dateText(d) + ".";
     }
-    if (/\\b(yesterday'?s date|what date was yesterday|yesterday date)\\b|कल कौन सी तारीख थी/.test(q)) {
+    if (/\b(yesterday'?s date|what date was yesterday|yesterday date)\b|कल कौन सी तारीख थी/.test(q)) {
       const d = new Date(now); d.setDate(d.getDate() - 1);
       return "Yesterday was " + dateText(d) + ".";
     }
-    if (/\\b(what day is it|which day is it|day today|what day today)\\b|आज कौन सा दिन|आज क्या दिन है/.test(q)) {
+    if (/\b(what day is it|which day is it|day today|what day today)\b|आज कौन सा दिन|आज क्या दिन है/.test(q)) {
       return "Today is " + new Intl.DateTimeFormat("en-IN", { weekday: "long" }).format(now) + ".";
     }
 
-    const match = q.match(/(?:what day is|which day is|day of the week for|weekday of)\\s+(\\d{1,2})[\\s/-]+(\\d{1,2})[\\s/-]+(\\d{4})/)
-      || q.match(/(?:what day is|which day is|day of the week for|weekday of)\\s+(\\d{1,2})\\s+(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\s+(\\d{4})/);
+    const match = q.match(/(?:what day is|which day is|day of the week for|weekday of)\s+(\d{1,2})[\s/-]+(\d{1,2})[\s/-]+(\d{4})/)
+      || q.match(/(?:what day is|which day is|day of the week for|weekday of)\s+(\d{1,2})\s+(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+(\d{4})/);
     if (match) {
       const months = ["january","february","march","april","may","june","july","august","september","october","november","december"];
       const day = Number(match[1]);
-      const month = /^\\d+$/.test(match[2]) ? Number(match[2]) - 1 : months.findIndex(m => m.startsWith(match[2].slice(0,3)));
+      const month = /^\d+$/.test(match[2]) ? Number(match[2]) - 1 : months.findIndex(m => m.startsWith(match[2].slice(0,3)));
       const year = Number(match[3]);
       const d = new Date(year, month, day);
       if (month >= 0 && month < 12 && d.getFullYear() === year && d.getMonth() === month && d.getDate() === day) {
@@ -360,7 +360,7 @@
     if (/not open|cannot open|can't open|won't open|error|failed|issue|problem|upload|नहीं खुल|एरर|समस्या/.test(q)) return "First, check whether the file opens on your device outside PDFMaster. Also confirm it is a PDF and the upload has finished.\n\nWhat exact error message do you see?";
     if (/word|docx/.test(q)) return "PDF and Word documents can have different layouts after conversion. Do you want to convert Word to PDF, convert PDF to Word, or fix formatting?";
     if (/hello|hi|hey|namaste|नमस्ते|नमस्कार/.test(q)) return "Hello! Ask me about PDFMaster tools, document issues, or basic calculations. Turn on Web Research for questions that need current web sources.";
-    return "I can guide common PDFMaster tasks and calculate basic arithmetic. For general knowledge, detailed study questions, or current facts, turn on Web Research. That feature is ready in the interface but needs its secure backend connection before live answers work.";
+    return "I don't have a reliable offline answer for that yet. I can currently help with common PDFMaster workflows, basic calculations, selected computer-science terms and text utilities. For open-ended study or general-knowledge questions, connect a local AI model or configure the optional Web Research backend. I won't invent an answer.";
   }
 
   async function send(text, forceResearch) {
@@ -368,12 +368,26 @@
     if (!value) return;
     addMessage(value, "user");
     input.value = "";
-    const shouldResearch = forceResearch || researchMode || isResearchQuestion(value);
-    if (shouldResearch) {
+
+    // Explicit Web Research always takes priority. Otherwise try the offline
+    // knowledge/tools first so local answers never get blocked by an unconfigured backend.
+    if (forceResearch || researchMode) {
       await askResearch(value);
       return;
     }
-    window.setTimeout(() => addMessage(answer(value), "assistant"), 120);
+
+    const localReply = answer(value);
+    const isFallback = localReply.startsWith("I can guide common PDFMaster tasks");
+    if (!isFallback) {
+      window.setTimeout(() => addMessage(localReply, "assistant"), 120);
+      return;
+    }
+
+    if (isResearchQuestion(value)) {
+      await askResearch(value);
+      return;
+    }
+    window.setTimeout(() => addMessage(localReply, "assistant"), 120);
   }
 
   form.addEventListener("submit", event => {
