@@ -246,7 +246,7 @@
       [/^(what is )?(operating system|os)\??$/,"Operating System hardware aur applications manage karta hai. Examples: Windows, Linux, Android, macOS."]
     ];
     for(const [re,answer] of facts) if(re.test(q)) return answer;
-    if(/help|what can you do|commands|features|kya kar sakte/.test(q)) return "Offline features:\n• Calculator: 25*(8+2)\n• Percentage: 15% of 240\n• Conversion: 5 km to miles, 25 C to F, 10 kg to grams\n• Text: word count: paste text; uppercase: hello; reverse text: abc\n• Date/time: today's date, current time, tomorrow's date\n• Computer basics: HTML, CSS, JavaScript, Python, CPU, RAM, PDF, URL, AI\n• General knowledge: science, maths, India, geography, history, environment, economics\n• PDF help: merge, split, compress, convert, protect\n\nLive/current information and detailed open-ended answers need a connected AI/search backend.";
+    if(/help|what can you do|commands|features|kya kar sakte/.test(q)) return "Offline features:\n• Calculator: 25*(8+2)\n• Percentage: 15% of 240\n• Conversion: 5 km to miles, 25 C to F, 10 kg to grams\n• Text: word count: paste text; uppercase: hello; reverse text: abc\n• Date/time: today's date, current time, tomorrow's date\n• Computer basics: HTML, CSS, JavaScript, Python, CPU, RAM, PDF, URL, AI\n• General knowledge: science, maths, India, geography, history, environment, economics, Class 11–12 PCM and Biology\n• PDF help: merge, split, compress, convert, protect\n\nLive/current information and detailed open-ended answers need a connected AI/search backend.";
     return null;
   }
 
