@@ -504,11 +504,79 @@
   const workspaceBody = make("div", "tool-workspace-body");
   workspace.appendChild(workspaceHead);
   workspace.appendChild(workspaceBody);
-  const featuredMount = document.getElementById("featuredToolMount");
-  if (featuredMount) featuredMount.appendChild(workspace);
+  const workspaceMount = document.getElementById("toolWorkspaceMount");
+  if (workspaceMount) workspaceMount.appendChild(workspace);
   else container.insertAdjacentElement("afterend", workspace);
 
   let activeToolCard = null;
+  let sharedFiles = [];
+
+  const sharedInput = document.getElementById("sharedFileInput");
+  const sharedStatus = document.getElementById("sharedUploadStatus");
+  const sharedBox = document.getElementById("sharedUploadBox");
+
+  function applySharedFiles(card) {
+    if (!card || !sharedFiles.length) return;
+    const target = card.querySelector('input[type="file"]');
+    if (!target) {
+      if (sharedStatus) sharedStatus.textContent = "This is an official form link; no upload is needed.";
+      return;
+    }
+    try {
+      const transfer = new DataTransfer();
+      const chosen = target.multiple ? sharedFiles : sharedFiles.slice(0, 1);
+      chosen.forEach(function (file) { transfer.items.add(file); });
+      target.files = transfer.files;
+      target.dispatchEvent(new Event("change", { bubbles: true }));
+      if (sharedStatus) {
+        sharedStatus.textContent = chosen.length + " file(s) ready for " +
+          (card.querySelector("h3")?.textContent || "the selected tool") + ".";
+      }
+    } catch (error) {
+      console.error("Shared upload transfer failed:", error);
+      if (sharedStatus) sharedStatus.textContent = "Your browser could not pass the selected files to this tool. Please try a recent browser.";
+    }
+  }
+
+  function acceptSharedFiles(fileList) {
+    const incoming = Array.from(fileList || []);
+    if (!incoming.length) return;
+    const totalSize = incoming.reduce(function (sum, file) { return sum + file.size; }, 0);
+    if (totalSize > 50 * 1024 * 1024) {
+      sharedFiles = [];
+      sharedInput.value = "";
+      if (sharedStatus) sharedStatus.textContent = "The combined file size exceeds the 50 MB limit. Please choose smaller files.";
+      if (activeToolCard) applySharedFiles(activeToolCard);
+      return;
+    }
+    sharedFiles = incoming;
+    if (sharedStatus) {
+      sharedStatus.textContent = incoming.length + " file(s) selected · " +
+        (totalSize / (1024 * 1024)).toFixed(2) + " MB total. Now choose a tool below.";
+    }
+    if (activeToolCard) applySharedFiles(activeToolCard);
+  }
+
+  if (sharedInput) {
+    sharedInput.addEventListener("change", function () { acceptSharedFiles(sharedInput.files); });
+  }
+  if (sharedBox) {
+    ["dragenter", "dragover"].forEach(function (name) {
+      sharedBox.addEventListener(name, function (event) {
+        event.preventDefault();
+        sharedBox.classList.add("is-dragging");
+      });
+    });
+    ["dragleave", "drop"].forEach(function (name) {
+      sharedBox.addEventListener(name, function (event) {
+        event.preventDefault();
+        sharedBox.classList.remove("is-dragging");
+      });
+    });
+    sharedBox.addEventListener("drop", function (event) {
+      acceptSharedFiles(event.dataTransfer && event.dataTransfer.files);
+    });
+  }
   const movedNodes = new Map();
 
   function cardIconText(card) {
@@ -552,6 +620,7 @@
     if (featuredTitle) featuredTitle.textContent = card.querySelector("h3")?.textContent || "PDF Tool";
     if (featuredDescription) featuredDescription.textContent = card.querySelector(":scope > p")?.textContent.trim() || "Use the selected tool in the workspace below.";
     workspaceIcon.textContent = cardIconText(card);
+    applySharedFiles(card);
     const nodes = Array.from(card.children).slice(3);
     movedNodes.set(card, nodes);
     nodes.forEach(function (node) { workspaceBody.appendChild(node); });
@@ -579,10 +648,6 @@
     if (event.target.closest(".tool-card-top, h3, .tool-card > p")) openTool(card);
   });
   closeWorkspace.addEventListener("click", closeActiveTool);
-
-  // Present the featured Split PDF workspace at the top of the page on first load.
-  const featuredSplitCard = document.getElementById("split-pdf");
-  if (featuredSplitCard) openTool(featuredSplitCard, false);
 
   document.querySelectorAll(".sidebar-nav a[href^='#']").forEach(function (link) {
     link.addEventListener("click", function () {
