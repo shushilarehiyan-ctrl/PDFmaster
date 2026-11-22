@@ -5112,3 +5112,206 @@ select:focus-visible {
     transition: none !important;
   }
 }
+
+/* ---------- PDFMASTER JET BLACK + BURGUNDY + ANTIQUE GOLD THEME ---------- */
+/* Site-wide palette: Jet Black canvas, burgundy surfaces, antique-gold accents. */
+:root {
+  --bg: #100d10;
+  --sidebar: #100d10;
+  --surface: #260610;
+  --surface-light: #3b0715;
+  --surface-hover: #4a1020;
+  --border: rgba(176,141,80,.28);
+  --text: #f1e8dc;
+  --muted: rgba(241,232,220,.72);
+  --primary: #b08d50;
+  --primary-light: #d9b77e;
+  --orange: #d9b77e;
+  --green: #b08d50;
+  --blue: #b08d50;
+  --pink: #d9b77e;
+  --red: #d9b77e;
+  --shadow: 0 12px 35px rgba(0,0,0,.32);
+}
+
+/* Main canvas and shared page structure */
+html,
+body {
+  background: #100d10 !important;
+  color: #f1e8dc !important;
+}
+body {
+  background-image: radial-gradient(circle at 78% 0%, rgba(176,141,80,.07), transparent 30%) !important;
+}
+.sidebar,
+.main-content,
+.topbar,
+.footer,
+.contact-page,
+.privacy-page,
+.terms-page,
+.disclaimer-page {
+  background-color: #100d10 !important;
+  color: #f1e8dc !important;
+}
+.sidebar {
+  border-color: rgba(176,141,80,.24) !important;
+}
+.topbar,
+.footer {
+  border-color: rgba(176,141,80,.25) !important;
+}
+
+/* Sections share one Jet Black background */
+.hero,
+.popular-tools-section,
+.tools-section,
+.stats-grid,
+.info-section,
+.how-it-works-section,
+.why-pdfmaster-section,
+#about,
+#faq,
+.contact-hero,
+.privacy-hero,
+.terms-hero,
+.disclaimer-hero {
+  background-color: #100d10 !important;
+  color: #f1e8dc !important;
+}
+.hero {
+  background-image: radial-gradient(circle at 84% 45%, rgba(176,141,80,.13), transparent 34%), linear-gradient(115deg, #100d10, #1a0b10 58%, #100d10) !important;
+  border-color: rgba(176,141,80,.42) !important;
+}
+
+/* Burgundy cards and nested content surfaces */
+.stat-card,
+.tool-card:not(:hover),
+.popular-tool-card:not(:hover),
+.contact-card,
+.privacy-card,
+.terms-card,
+.disclaimer-card,
+.feature-steps article,
+.feature-benefits article,
+#faq details {
+  background-color: #3b0715 !important;
+  color: #f1e8dc !important;
+  border-color: rgba(176,141,80,.3) !important;
+}
+.info-section {
+  border-color: rgba(176,141,80,.28) !important;
+}
+.tools-count,
+.topbar-badge,
+.search-box,
+.menu-toggle,
+.tool-card input[type="text"],
+.tool-card input[type="password"],
+.tool-card select,
+.tool-card input[type="file"],
+#faq details {
+  background-color: #260610 !important;
+  color: #f1e8dc !important;
+  border-color: rgba(176,141,80,.3) !important;
+}
+
+/* Ivory typography and antique-gold accents */
+h1, h2, h3, h4, strong,
+.section-heading h2,
+.info-section h2,
+.tool-card h3,
+.popular-tool-card strong,
+#faq summary {
+  color: #f1e8dc !important;
+}
+p,
+small,
+.section-heading p,
+.info-section > p,
+.tool-card > p,
+.popular-tool-card small,
+.breadcrumb,
+.footer > p,
+.footer-links a,
+.contact-card p,
+.privacy-card p,
+.terms-card p,
+.disclaimer-card p {
+  color: rgba(241,232,220,.76) !important;
+}
+.section-label,
+.logo-accent,
+.breadcrumb span,
+.nav-icon,
+.tool-category,
+.contact-label,
+.privacy-label,
+.terms-label,
+.disclaimer-label {
+  color: #d9b77e !important;
+}
+.logo-icon,
+.document-icon,
+.popular-tool-icon,
+.tool-icon {
+  background: rgba(176,141,80,.16) !important;
+  color: #d9b77e !important;
+  border-color: rgba(176,141,80,.32) !important;
+}
+
+/* Buttons and form controls */
+button,
+.button,
+.hero-button,
+.tool-card button,
+.search-box button {
+  background: linear-gradient(135deg, #d9b77e, #b08d50) !important;
+  color: #100d10 !important;
+  border-color: rgba(241,232,220,.38) !important;
+}
+button:hover,
+.button:hover,
+.hero-button:hover,
+.tool-card button:hover,
+.search-box button:hover {
+  box-shadow: 0 0 12px rgba(217,183,126,.36), 0 0 26px rgba(176,141,80,.2) !important;
+}
+input,
+textarea,
+select {
+  background-color: #260610 !important;
+  color: #f1e8dc !important;
+  border-color: rgba(176,141,80,.35) !important;
+}
+input::placeholder,
+textarea::placeholder {
+  color: rgba(241,232,220,.52) !important;
+}
+a:hover,
+.footer-links a:hover,
+.nav-link:hover {
+  color: #d9b77e !important;
+}
+.nav-link.active,
+.nav-link:hover {
+  background: rgba(176,141,80,.12) !important;
+  border-color: rgba(176,141,80,.3) !important;
+}
+.status-dot {
+  background: #b08d50 !important;
+  box-shadow: 0 0 10px rgba(176,141,80,.7) !important;
+}
+::selection {
+  background: #b08d50 !important;
+  color: #100d10 !important;
+}
+
+/* Keep the existing bright-gold hover treatment on Popular Tools and All Tools. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}
