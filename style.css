@@ -4298,3 +4298,32 @@ summary:focus-visible {
     .memory-ash-overlay.is-active::before,
     .memory-ash-overlay.is-active::after { animation-duration: .01ms !important; }
 }
+
+
+/* Dedicated high-DPI ember canvas — above the PDF, below controls */
+.memory-stage canvas.memory-ember-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    filter: none;
+    pointer-events: none;
+}
+.memory-stage.is-aged canvas.memory-ember-canvas,
+.memory-stage.is-burning canvas.memory-ember-canvas {
+    filter: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    animation: none !important;
+    opacity: 1;
+}
+.memory-stage.is-burning canvas.memory-ember-canvas {
+    clip-path: none !important;
+}
