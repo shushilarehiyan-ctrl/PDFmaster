@@ -10,7 +10,7 @@
 
     <title>Free Online PDF Tools – Merge, Split & Compress | PDFMaster</title>
 
-    <meta name="description" content="Free online PDF tools to merge, split, compress and protect PDFs, convert images and compress files with PDFMaster.">
+    <meta name="description" content="Free online PDF and image tools with experimental eye-gaze, procedural document exploration and acoustic text transfer demos.">
 
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#101116">
@@ -19,7 +19,7 @@
 
     <meta property="og:type" content="website">
     <meta property="og:title" content="Free Online PDF Tools – PDFMaster">
-    <meta property="og:description" content="Merge, split, compress and protect PDFs, convert photos to PDF and compress images with PDFMaster's free browser-based tools.">
+    <meta property="og:description" content="Merge, split, compress and protect PDFs, convert photos to PDF, compress images and explore experimental browser demos with PDFMaster.">
     <meta property="og:url" content="https://shushilarehiyan-ctrl.github.io/PDFmaster/">
     <meta property="og:site_name" content="PDFMaster">
     <meta property="og:image" content="https://shushilarehiyan-ctrl.github.io/PDFmaster/og-image.png">
@@ -40,7 +40,7 @@
         "url": "https://shushilarehiyan-ctrl.github.io/PDFmaster/",
         "applicationCategory": "UtilitiesApplication",
         "operatingSystem": "Any",
-        "description": "Free browser-based PDF and image tools to convert photos to PDF, merge and split PDF files, compress PDFs and images, and protect PDFs with a password.",
+        "description": "Free browser-based PDF and image tools plus experimental eye-gaze, procedural document and acoustic transfer demos.",
         "offers": {
             "@type": "Offer",
             "price": "0"
@@ -134,6 +134,13 @@
 
         </nav>
 
+
+        <div class="sidebar-label">EXPERIMENTAL LAB</div>
+        <nav class="sidebar-nav">
+            <a href="#eye-gaze-control" class="nav-link"><span class="nav-icon">◎</span> Eye-Gaze Control</a>
+            <a href="#vault-of-babel" class="nav-link"><span class="nav-icon">✧</span> Vault of Babel</a>
+            <a href="#acoustic-transfer" class="nav-link"><span class="nav-icon">♫</span> Acoustic Transfer</a>
+        </nav>
 
         <div class="sidebar-label">IMAGE TOOLS</div>
 
@@ -287,7 +294,7 @@
             <div class="stat-card">
                 <div class="stat-icon purple">▦</div>
                 <div>
-                    <h3>06</h3>
+                    <h3>09</h3>
                     <p>Available Tools</p>
                 </div>
             </div>
@@ -323,7 +330,7 @@
                     <p>Choose a tool and get your work done.</p>
                 </div>
 
-                <span class="tools-count">06 TOOLS</span>
+                <span class="tools-count">09 TOOLS</span>
 
             </div>
 
@@ -716,6 +723,68 @@
                 </div>
 
 
+
+
+                <!-- EYE-GAZE CONTROL -->
+                <div class="tool-card experimental-card" id="eye-gaze-control">
+                    <div class="tool-card-top"><div class="tool-icon gold">◎</div><span class="tool-category">ACCESSIBILITY LAB</span></div>
+                    <h3>Eye-Gaze Control</h3>
+                    <p>Use your webcam to move a pointer around the page and highlight what you are looking at. Camera permission is required; gaze estimation runs in this browser.</p>
+                    <div class="experiment-panel">
+                        <div class="experiment-actions">
+                            <button type="button" id="startEyeGazeButton">Enable camera &amp; start</button>
+                            <button type="button" class="secondary-btn" id="stopEyeGazeButton" disabled>Stop camera</button>
+                        </div>
+                        <div id="eyeGazeStatus" class="experiment-status" aria-live="polite">Camera is off. Start only when comfortable granting camera access.</div>
+                        <div class="gaze-preview" id="gazePreview"><span class="gaze-crosshair">＋</span><span>Gaze pointer preview appears here while active.</span></div>
+                        <label class="experiment-check"><input type="checkbox" id="gazeHighlightToggle" checked> Highlight the element under my gaze</label>
+                        <p class="experiment-note">Experimental pointer only. It does not click or submit anything automatically. Stop the camera to end the session.</p>
+                    </div>
+                </div>
+
+                <!-- VAULT OF BABEL -->
+                <div class="tool-card experimental-card" id="vault-of-babel">
+                    <div class="tool-card-top"><div class="tool-icon gold">✧</div><span class="tool-category">PROCEDURAL LIBRARY</span></div>
+                    <h3>Vault of Babel</h3>
+                    <p>Explore a mathematically generated universe of document-like pages. The same coordinates always lead to the same generated page.</p>
+                    <div class="experiment-panel">
+                        <div class="vault-coordinate-grid">
+                            <label>Universe seed<input id="babelSeed" type="text" maxlength="32" value="PDFMASTER-01"></label>
+                            <label>Coordinate X<input id="babelX" type="number" min="0" max="999999" value="12"></label>
+                            <label>Coordinate Y<input id="babelY" type="number" min="0" max="999999" value="34"></label>
+                            <label>Coordinate Z<input id="babelZ" type="number" min="0" max="999999" value="56"></label>
+                        </div>
+                        <div class="experiment-actions">
+                            <button type="button" id="generateBabelPageButton">Visit this coordinate</button>
+                            <button type="button" class="secondary-btn" id="randomBabelPageButton">Random coordinate</button>
+                        </div>
+                        <label for="babelSearch">Search this generated page</label>
+                        <div class="vault-search-row"><input id="babelSearch" type="search" placeholder="Search a word in this page..."><button type="button" class="secondary-btn" id="searchBabelButton">Find</button></div>
+                        <canvas id="babelMap" class="babel-map" width="720" height="190" aria-label="Procedural coordinate star map"></canvas>
+                        <div id="babelPageOutput" class="babel-page-output" aria-live="polite"><p>Choose a coordinate and visit it to generate a page.</p></div>
+                        <div id="babelStatus" class="experiment-status" aria-live="polite">Simulation: pages are generated when visited, not stored as every possible PDF.</div>
+                    </div>
+                </div>
+
+                <!-- ACOUSTIC TRANSFER -->
+                <div class="tool-card experimental-card" id="acoustic-transfer">
+                    <div class="tool-card-top"><div class="tool-icon gold">♫</div><span class="tool-category">AUDIO EXPERIMENT</span></div>
+                    <h3>Acoustic Transfer</h3>
+                    <p>Send a short text message as audible tones from one device and decode it with another device's microphone.</p>
+                    <div class="experiment-panel">
+                        <label for="acousticMessage">Message (up to 120 characters)</label>
+                        <textarea id="acousticMessage" rows="3" maxlength="120" placeholder="Type a short message to transmit..."></textarea>
+                        <div class="experiment-actions">
+                            <button type="button" id="sendAcousticButton">Play transfer tones</button>
+                            <button type="button" class="secondary-btn" id="listenAcousticButton">Start microphone receiver</button>
+                            <button type="button" class="secondary-btn" id="stopAcousticButton" disabled>Stop receiver</button>
+                        </div>
+                        <div id="acousticStatus" class="experiment-status" aria-live="polite">Ready. Use a second nearby device to receive the tones.</div>
+                        <label for="acousticReceived">Received message</label>
+                        <textarea id="acousticReceived" rows="3" readonly placeholder="Decoded message will appear here..."></textarea>
+                        <p class="experiment-note">Uses low-volume audible tones, not ultrasound. Keep volume comfortable. Performance depends on speakers, microphones, room noise and distance. This demo is not encrypted or suitable for private data.</p>
+                    </div>
+                </div>
 
             </div>
 
