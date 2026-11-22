@@ -10,7 +10,7 @@
 
     <title>Free Online PDF Tools – Merge, Split & Compress | PDFMaster</title>
 
-    <meta name="description" content="Free online PDF tools to merge, split, compress and protect PDFs, create encrypted dual-document containers, convert images and compress files with PDFMaster.">
+    <meta name="description" content="Free online PDF tools to merge, split, compress and protect PDFs, convert images and compress files with PDFMaster.">
 
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#101116">
@@ -19,7 +19,7 @@
 
     <meta property="og:type" content="website">
     <meta property="og:title" content="Free Online PDF Tools – PDFMaster">
-    <meta property="og:description" content="Merge, split, compress and protect PDFs, create password-separated Dual-Reality containers, convert photos to PDF and compress images with PDFMaster's free browser-based tools.">
+    <meta property="og:description" content="Merge, split, compress and protect PDFs, convert photos to PDF and compress images with PDFMaster's free browser-based tools.">
     <meta property="og:url" content="https://shushilarehiyan-ctrl.github.io/PDFmaster/">
     <meta property="og:site_name" content="PDFMaster">
     <meta property="og:image" content="https://shushilarehiyan-ctrl.github.io/PDFmaster/og-image.png">
@@ -51,7 +51,6 @@
             "Split PDF pages",
             "Compress PDF files",
             "Protect PDF files with a password",
-            "Create encrypted Dual-Reality containers with two independent passwords",
             "Compress JPG, PNG and WebP images"
         ]
     }
@@ -131,10 +130,7 @@
                 Protect PDF
             </a>
 
-            <a href="#dual-reality-pdf" class="nav-link">
-                <span class="nav-icon">◈</span>
-                Dual-Reality PDF
-            </a>
+
 
         </nav>
 
@@ -291,7 +287,7 @@
             <div class="stat-card">
                 <div class="stat-icon purple">▦</div>
                 <div>
-                    <h3>07</h3>
+                    <h3>06</h3>
                     <p>Available Tools</p>
                 </div>
             </div>
@@ -327,7 +323,7 @@
                     <p>Choose a tool and get your work done.</p>
                 </div>
 
-                <span class="tools-count">07 TOOLS</span>
+                <span class="tools-count">06 TOOLS</span>
 
             </div>
 
@@ -720,97 +716,6 @@
                 </div>
 
 
-                <!-- DUAL-REALITY PDF -->
-
-                <div class="tool-card dual-reality-card" id="dual-reality-pdf">
-
-                    <div class="tool-card-top">
-                        <div class="tool-icon gold">◈</div>
-                        <span class="tool-category">ENCRYPTION LAB</span>
-                    </div>
-
-                    <h3>Dual-Reality PDF</h3>
-
-                    <p>
-                        Pack two separate PDF documents into one encrypted
-                        <strong>.drpdf</strong> container. Each document has its own password.
-                    </p>
-
-                    <div class="dual-reality-notice">
-                        <strong>Private by design</strong>
-                        <span>Encryption and unlocking run locally in your browser. PDFMaster does not receive your passwords or document contents.</span>
-                    </div>
-
-                    <div class="dual-reality-grid">
-
-                        <div class="dual-reality-panel">
-                            <h4><span class="dual-slot">A</span> Create a dual container</h4>
-
-                            <label for="dualRealityFileA">Document A (PDF)</label>
-                            <input type="file" id="dualRealityFileA" accept=".pdf,application/pdf">
-
-                            <label for="dualRealityPasswordA">Password for Document A</label>
-                            <input type="password" id="dualRealityPasswordA" autocomplete="new-password" placeholder="At least 3 characters">
-
-                            <label for="dualRealityConfirmA">Confirm password A</label>
-                            <input type="password" id="dualRealityConfirmA" autocomplete="new-password" placeholder="Re-enter password A">
-
-                            <label for="dualRealityFileB">Document B (PDF)</label>
-                            <input type="file" id="dualRealityFileB" accept=".pdf,application/pdf">
-
-                            <label for="dualRealityPasswordB">Password for Document B</label>
-                            <input type="password" id="dualRealityPasswordB" autocomplete="new-password" placeholder="At least 3 characters">
-
-                            <label for="dualRealityConfirmB">Confirm password B</label>
-                            <input type="password" id="dualRealityConfirmB" autocomplete="new-password" placeholder="Re-enter password B">
-
-                            <button type="button" id="dualRealityCreateButton" onclick="createDualRealityContainer()">
-                                Create Encrypted Container →
-                            </button>
-                            <div id="dualRealityCreateResult" class="dual-reality-result" aria-live="polite"></div>
-                        </div>
-
-                        <div class="dual-reality-panel">
-                            <h4><span class="dual-slot">↗</span> Open a dual container</h4>
-
-                            <label for="dualRealityContainerInput">Choose a .drpdf container</label>
-                            <input type="file" id="dualRealityContainerInput" accept=".drpdf,application/octet-stream">
-
-                            <p class="dual-reality-hint">Choose the container, then unlock either document using its own password.</p>
-
-                            <div class="dual-unlock-card">
-                                <label for="dualRealityUnlockPasswordA">Unlock Document A</label>
-                                <input type="password" id="dualRealityUnlockPasswordA" autocomplete="off" placeholder="Document A password">
-                                <button type="button" id="dualRealityUnlockButtonA" onclick="unlockDualRealityDocument('A')" disabled>
-                                    Unlock A
-                                </button>
-                                <div id="dualRealityUnlockResultA" class="dual-reality-result" aria-live="polite"></div>
-                            </div>
-
-                            <div class="dual-unlock-card">
-                                <label for="dualRealityUnlockPasswordB">Unlock Document B</label>
-                                <input type="password" id="dualRealityUnlockPasswordB" autocomplete="off" placeholder="Document B password">
-                                <button type="button" id="dualRealityUnlockButtonB" onclick="unlockDualRealityDocument('B')" disabled>
-                                    Unlock B
-                                </button>
-                                <div id="dualRealityUnlockResultB" class="dual-reality-result" aria-live="polite"></div>
-                            </div>
-
-                            <button type="button" class="secondary-btn" onclick="clearDualRealityWorkspace()">
-                                Clear Workspace
-                            </button>
-                            <div id="dualRealityOpenStatus" class="dual-reality-result" aria-live="polite"></div>
-                        </div>
-
-                    </div>
-
-                    <p class="dual-reality-footnote">
-                        Important: this is PDFMaster's own encrypted container format, not a standard PDF file.
-                        Keep both passwords and a backup of the original PDFs. A forgotten password cannot be recovered.
-                        Maximum input size: 50 MB per PDF.
-                    </p>
-
-                </div>
 
             </div>
 
@@ -830,8 +735,7 @@
                 Use the Photo to PDF tool to turn JPG and PNG images into a PDF,
                 combine documents with Merge PDF, or extract and remove pages with
                 Split PDF. You can also reduce PDF and image file sizes, add
-                password protection, and create a Dual-Reality container with two
-                separately encrypted PDF documents. The tools run in your web browser,
+                password protection. The tools run in your web browser,
                 so there is no desktop software to install.
             </p>
 
@@ -927,22 +831,11 @@
                 </p>
             </details>
 
-            <!-- FAQ 8 -->
-
-            <details>
-                <summary>8. What is Dual-Reality PDF?</summary>
-                <p>
-                    Dual-Reality PDF creates a PDFMaster .drpdf container holding
-                    two separately encrypted PDF documents. Each document has its
-                    own password. The container is not a standard PDF file, and
-                    forgotten passwords cannot be recovered.
-                </p>
-            </details>
 
             <!-- FAQ 9 -->
 
             <details>
-                <summary>9. Do I need to install any software?</summary>
+                <summary>8. Do I need to install any software?</summary>
                 <p>
                     No installation is required. You can open
                     PDFMaster in a supported web browser and
