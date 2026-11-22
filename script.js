@@ -1496,6 +1496,8 @@ async function protectPDF() {
     const decoder = new TextDecoder();
 
     let openedContainer = null;
+    let generatedContainerURL = null;
+    const unlockedDocumentURLs = { A: null, B: null };
 
     const fileAInput = document.getElementById("dualRealityFileA");
     const fileBInput = document.getElementById("dualRealityFileB");
@@ -1699,9 +1701,10 @@ async function protectPDF() {
                 throw new Error("The encrypted container is larger than the supported size limit.");
             }
 
-            const url = URL.createObjectURL(blob);
+            if (generatedContainerURL) URL.revokeObjectURL(generatedContainerURL);
+            generatedContainerURL = URL.createObjectURL(blob);
             const link = document.createElement("a");
-            link.href = url;
+            link.href = generatedContainerURL;
             link.download = "PDFMaster-Dual-Reality.drpdf";
             link.textContent = "Download encrypted .drpdf container ↓";
             link.className = "dual-reality-download";
@@ -1723,6 +1726,9 @@ async function protectPDF() {
             console.error("Dual-Reality PDF create error:", error);
             setText(createResult, error.message || "Unable to create the encrypted container.");
         } finally {
+            ["dualRealityPasswordA", "dualRealityConfirmA", "dualRealityPasswordB", "dualRealityConfirmB"].forEach(function(id) {
+                document.getElementById(id).value = "";
+            });
             createButton.disabled = false;
             createButton.textContent = "Create Encrypted Container →";
         }
@@ -1730,6 +1736,12 @@ async function protectPDF() {
 
     containerInput.addEventListener("change", async function() {
         openedContainer = null;
+        ["A", "B"].forEach(function(slot) {
+            if (unlockedDocumentURLs[slot]) {
+                URL.revokeObjectURL(unlockedDocumentURLs[slot]);
+                unlockedDocumentURLs[slot] = null;
+            }
+        });
         document.getElementById("dualRealityUnlockButtonA").disabled = true;
         document.getElementById("dualRealityUnlockButtonB").disabled = true;
         setText(document.getElementById("dualRealityUnlockResultA"), "");
@@ -1875,9 +1887,10 @@ async function protectPDF() {
             }
 
             const blob = new Blob([pdfBytes], { type: "application/pdf" });
-            const url = URL.createObjectURL(blob);
+            if (unlockedDocumentURLs[slot]) URL.revokeObjectURL(unlockedDocumentURLs[slot]);
+            unlockedDocumentURLs[slot] = URL.createObjectURL(blob);
             const link = document.createElement("a");
-            link.href = url;
+            link.href = unlockedDocumentURLs[slot];
             link.download = fileName;
             link.textContent = "Download " + fileName + " ↓";
             link.className = "dual-reality-download";
@@ -1901,6 +1914,16 @@ async function protectPDF() {
 
     window.clearDualRealityWorkspace = function() {
         openedContainer = null;
+        if (generatedContainerURL) {
+            URL.revokeObjectURL(generatedContainerURL);
+            generatedContainerURL = null;
+        }
+        ["A", "B"].forEach(function(slot) {
+            if (unlockedDocumentURLs[slot]) {
+                URL.revokeObjectURL(unlockedDocumentURLs[slot]);
+                unlockedDocumentURLs[slot] = null;
+            }
+        });
         containerInput.value = "";
         fileAInput.value = "";
         fileBInput.value = "";
