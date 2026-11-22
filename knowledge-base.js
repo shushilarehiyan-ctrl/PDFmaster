@@ -1,5 +1,5 @@
 /* PDFMaster offline general-knowledge library.
-   220 curated facts. Static reference data, not a trained AI model.
+   224 curated facts. Static reference data, not a trained AI model.
    Add entries as [category, "alias1|alias2", "answer"].
 */
 (function () {
