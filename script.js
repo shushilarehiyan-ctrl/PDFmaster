@@ -1766,3 +1766,145 @@ async function protectPDF() {
         setStatus("Archive cleared. Choose another PDF when you're ready.", false);
     });
 })();
+
+
+// =================================
+// PDFMASTER — PDF X-RAY
+// Local metadata + structural signal inspection (heuristic only)
+// =================================
+(function initPDFXray() {
+    const input = document.getElementById("xrayPDFInput");
+    const info = document.getElementById("xrayFileInfo");
+    const analyze = document.getElementById("xrayAnalyzeButton");
+    const status = document.getElementById("xrayStatus");
+    const result = document.getElementById("xrayResult");
+    const clear = document.getElementById("xrayClearButton");
+    if (!input || !info || !analyze || !status || !result || !clear) return;
+
+    const maxBytes = 50 * 1024 * 1024;
+    let selectedFile = null;
+
+    const byId = function(id) { return document.getElementById(id); };
+    const safeText = function(value) {
+        if (value === undefined || value === null || value === "") return "Not provided";
+        if (value instanceof Date) return Number.isNaN(value.getTime()) ? "Not provided" : value.toISOString();
+        return String(value).replace(/[\u0000-\u001f\u007f]/g, " ").slice(0, 240);
+    };
+    const setStatus = function(message, error) {
+        status.textContent = message;
+        status.classList.toggle("is-error", Boolean(error));
+    };
+    const formatSize = function(bytes) {
+        if (bytes < 1024) return bytes + " B";
+        const units = ["KB", "MB", "GB"];
+        let value = bytes / 1024, unit = 0;
+        while (value >= 1024 && unit < units.length - 1) { value /= 1024; unit++; }
+        return value.toFixed(2) + " " + units[unit];
+    };
+    const countMatches = function(text, regex) {
+        const matches = text.match(regex);
+        return matches ? matches.length : 0;
+    };
+    const setField = function(id, value) { byId(id).textContent = safeText(value); };
+
+    input.addEventListener("change", function() {
+        selectedFile = input.files && input.files[0] ? input.files[0] : null;
+        result.hidden = true;
+        analyze.disabled = true;
+        if (!selectedFile) { info.textContent = "Choose a PDF file to begin. Maximum file size: 50 MB."; setStatus("", false); return; }
+        if (selectedFile.type !== "application/pdf" && !/\.pdf$/i.test(selectedFile.name)) {
+            input.value = ""; selectedFile = null; info.textContent = "Choose a PDF file to begin. Maximum file size: 50 MB.";
+            setStatus("That file does not appear to be a PDF.", true); return;
+        }
+        if (selectedFile.size > maxBytes) {
+            selectedFile = null; input.value = "";
+            info.textContent = "File exceeds the 50 MB inspection limit.";
+            setStatus("For stability, PDF X-RAY accepts files up to 50 MB.", true); return;
+        }
+        info.textContent = selectedFile.name + " · " + formatSize(selectedFile.size);
+        analyze.disabled = false;
+        setStatus("File selected. Inspection will run locally in this browser.", false);
+    });
+
+    analyze.addEventListener("click", async function() {
+        if (!selectedFile) return;
+        if (!window.PDFLib || !window.PDFLib.PDFDocument) {
+            setStatus("The PDF inspection library did not load. Refresh and try again.", true); return;
+        }
+        const file = selectedFile;
+        analyze.disabled = true;
+        analyze.textContent = "Scanning document…";
+        result.hidden = true;
+        setStatus("Reading PDF structure locally…", false);
+        try {
+            const bytes = await file.arrayBuffer();
+            const digest = await window.crypto.subtle.digest("SHA-256", bytes);
+            const hash = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("");
+            const raw = new Uint8Array(bytes);
+            let binary = "";
+            const chunkSize = 0x8000;
+            for (let offset = 0; offset < raw.length; offset += chunkSize) {
+                binary += String.fromCharCode.apply(null, raw.subarray(offset, Math.min(offset + chunkSize, raw.length)));
+            }
+            const eofCount = countMatches(binary, /%%EOF/g);
+            const prevCount = countMatches(binary, /\/Prev\s+\d+/g);
+            const jsCount = countMatches(binary, /\/JavaScript\b|\/JS\b/g);
+            const launchCount = countMatches(binary, /\/Launch\b/g);
+            const embeddedCount = countMatches(binary, /\/EmbeddedFiles\b|\/Filespec\b/g);
+            const formCount = countMatches(binary, /\/AcroForm\b|\/XFA\b/g);
+            const header = binary.match(/^%PDF-(\d\.\d)/);
+            const pdf = await window.PDFLib.PDFDocument.load(bytes, { updateMetadata: false });
+            const meta = {
+                title: pdf.getTitle(), author: pdf.getAuthor(),
+                creator: pdf.getCreator(), producer: pdf.getProducer(),
+                created: pdf.getCreationDate(), modified: pdf.getModificationDate()
+            };
+            const signals = [];
+            let attention = false;
+            if (jsCount) { signals.push("JavaScript-related PDF name token(s) found (" + jsCount + "). This does not prove the code is malicious."); attention = true; }
+            if (launchCount) { signals.push("Launch action token(s) found (" + launchCount + "). Review this file before opening it in a full PDF reader."); attention = true; }
+            if (embeddedCount) signals.push("Embedded-file or file-specification token(s) found (" + embeddedCount + "). Check attachments if you were not expecting them.");
+            if (prevCount) signals.push("Incremental-update /Prev reference(s) found (" + prevCount + "). This can be normal in edited or signed PDFs and is not proof of tampering.");
+            if (eofCount > 1) signals.push("Multiple end-of-file markers found (" + eofCount + "). This can occur with incremental saves; it is not proof of tampering.");
+            if (formCount) signals.push("Interactive form-related token(s) found (" + formCount + "). Forms can be legitimate.");
+            if (!signals.length) signals.push("No common structural warning tokens were found by this basic scan. This does not establish that the PDF is safe.");
+            setField("xraySize", formatSize(file.size));
+            setField("xrayPages", pdf.getPageCount());
+            setField("xrayVersion", header ? header[1] : "Not identified");
+            setField("xrayEof", eofCount);
+            setField("xrayTitle", meta.title); setField("xrayAuthor", meta.author);
+            setField("xrayCreator", meta.creator); setField("xrayProducer", meta.producer);
+            setField("xrayCreated", meta.created); setField("xrayModified", meta.modified);
+            setField("xrayHash", hash);
+            const list = byId("xraySignals");
+            list.replaceChildren();
+            signals.forEach(function(message) {
+                const item = document.createElement("li");
+                item.textContent = message;
+                list.appendChild(item);
+            });
+            byId("xrayVerdict").textContent = attention ? "Review recommended" : "No common warning tokens found";
+            byId("xrayVerdictTag").textContent = attention ? "REVIEW" : "LIMITED SCAN";
+            byId("xrayVerdictTag").classList.toggle("is-review", attention);
+            byId("xrayDisclaimer").textContent = "Heuristic result only. The scan checks a small set of PDF name tokens and metadata fields.";
+            result.hidden = false;
+            setStatus("Inspection complete. Your original file was not modified.", false);
+            result.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        } catch (error) {
+            console.error("PDF X-RAY inspection error:", error);
+            setStatus("Could not inspect this PDF. It may be damaged, encrypted, unsupported, or missing required browser features.", true);
+        } finally {
+            analyze.disabled = !selectedFile;
+            analyze.innerHTML = 'Run X-Ray Inspection <span>↗</span>';
+        }
+    });
+
+    clear.addEventListener("click", function() {
+        selectedFile = null;
+        input.value = "";
+        result.hidden = true;
+        analyze.disabled = true;
+        info.textContent = "Choose a PDF file to begin. Maximum file size: 50 MB.";
+        setStatus("Inspection cleared.", false);
+    });
+})();
