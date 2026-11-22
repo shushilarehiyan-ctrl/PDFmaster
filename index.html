@@ -362,7 +362,7 @@
                             Clear All
                         </button>
 
-                        <button type="button" onclick="convertImagesToPDF()">
+                        <button type="button" onclick="runToolWithAnimation(this, convertImagesToPDF)">
                             Convert to PDF →
                         </button>
 
@@ -402,7 +402,7 @@
                             Clear All
                         </button>
 
-                        <button type="button" onclick="mergePDFs()">
+                        <button type="button" onclick="runToolWithAnimation(this, mergePDFs)">
                             Merge PDF →
                         </button>
 
@@ -468,7 +468,7 @@
                             Clear All
                         </button>
 
-                        <button type="button" onclick="splitPDF()">
+                        <button type="button" onclick="runToolWithAnimation(this, splitPDF)">
                             Split PDF →
                         </button>
 
@@ -538,7 +538,7 @@
 
                         <button
                             type="button"
-                            onclick="compressPDF()"
+                            onclick="runToolWithAnimation(this, compressPDF)"
                             id="compressPDFButton"
                         >
                             Compress PDF →
@@ -615,7 +615,7 @@
 
                         <button
                             type="button"
-                            onclick="protectPDF()"
+                            onclick="runToolWithAnimation(this, protectPDF)"
                             id="protectPDFButton"
                         >
                             Protect PDF →
@@ -703,7 +703,7 @@
 
                         <button
                             type="button"
-                            onclick="compressImages()"
+                            onclick="runToolWithAnimation(this, compressImages)"
                             id="compressImagesButton"
                         >
                             Compress Images →
