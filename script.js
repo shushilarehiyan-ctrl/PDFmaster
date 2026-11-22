@@ -2073,18 +2073,83 @@ async function protectPDF() {
                 for (let i = 0; i < count; i++) {
                     addEmber(Math.random() * width, lineY + (Math.random() - 0.5) * 13);
                 }
-                const glow = ectx.createLinearGradient(0, lineY - 19, 0, lineY + 13);
-                glow.addColorStop(0, "rgba(255,120,35,0)");
-                glow.addColorStop(0.42, "rgba(255,119,36,0.28)");
-                glow.addColorStop(0.72, "rgba(255,190,82,0.95)");
-                glow.addColorStop(1, "rgba(255,220,145,0)");
-                ectx.fillStyle = glow;
-                ectx.fillRect(0, lineY - 19, width, 32);
+                // Layered flame front: a soft heat haze, irregular flame tongues,
+                // a bright molten edge, and short-lived sparks.
+                const heat = ectx.createLinearGradient(0, lineY - 58, 0, lineY + 20);
+                heat.addColorStop(0, "rgba(255,70,12,0)");
+                heat.addColorStop(0.48, "rgba(255,83,18,0.12)");
+                heat.addColorStop(0.78, "rgba(255,126,28,0.55)");
+                heat.addColorStop(1, "rgba(255,214,126,0)");
+                ectx.fillStyle = heat;
+                ectx.fillRect(0, lineY - 58, width, 78);
+
+                const tongueCount = Math.max(18, Math.round(width / 13));
+                for (let flame = 0; flame < tongueCount; flame++) {
+                    const fx = (flame / tongueCount) * width + Math.sin(timestamp * 0.006 + flame * 2.1) * 8;
+                    const flicker = 0.55 + (Math.sin(timestamp * 0.012 + flame * 1.73) + 1) * 0.42;
+                    const flameHeight = (18 + Math.random() * 34) * flicker;
+                    const flameWidth = 5 + Math.random() * 9;
+                    const baseY = lineY + 5 + Math.random() * 4;
+                    const tipY = lineY - flameHeight;
+                    const flameGradient = ectx.createLinearGradient(0, tipY, 0, baseY);
+                    flameGradient.addColorStop(0, "rgba(255,71,12,0)");
+                    flameGradient.addColorStop(0.38, "rgba(255,91,18,0.72)");
+                    flameGradient.addColorStop(0.78, "rgba(255,164,45,0.96)");
+                    flameGradient.addColorStop(1, "rgba(255,235,168,0.98)");
+                    ectx.save();
+                    ectx.globalAlpha = 0.62 + Math.random() * 0.35;
+                    ectx.fillStyle = flameGradient;
+                    ectx.shadowBlur = 12;
+                    ectx.shadowColor = "#FF6A1A";
+                    ectx.beginPath();
+                    ectx.moveTo(fx - flameWidth, baseY);
+                    ectx.bezierCurveTo(
+                        fx - flameWidth * 1.25, lineY - flameHeight * 0.32,
+                        fx + flameWidth * 1.5, lineY - flameHeight * 0.62,
+                        fx + Math.sin(timestamp * 0.01 + flame) * 2, tipY
+                    );
+                    ectx.bezierCurveTo(
+                        fx + flameWidth * 0.45, lineY - flameHeight * 0.48,
+                        fx + flameWidth * 1.15, lineY - flameHeight * 0.2,
+                        fx + flameWidth, baseY
+                    );
+                    ectx.closePath();
+                    ectx.fill();
+                    ectx.restore();
+                }
+
+                const moltenEdge = ectx.createLinearGradient(0, lineY - 5, 0, lineY + 8);
+                moltenEdge.addColorStop(0, "rgba(255,91,20,0)");
+                moltenEdge.addColorStop(0.48, "rgba(255,116,26,0.95)");
+                moltenEdge.addColorStop(0.72, "rgba(255,229,151,1)");
+                moltenEdge.addColorStop(1, "rgba(255,120,28,0)");
                 ectx.save();
-                ectx.shadowBlur = 18;
-                ectx.shadowColor = "#FF8A32";
-                ectx.fillStyle = "rgba(255,198,105,0.88)";
-                ectx.fillRect(0, lineY - 1.2, width, 2.4);
+                ectx.shadowBlur = 24;
+                ectx.shadowColor = "#FF6B1A";
+                ectx.fillStyle = moltenEdge;
+                ectx.fillRect(0, lineY - 6, width, 15);
+                ectx.restore();
+
+                // A few brighter tongues flare above the edge for a natural,
+                // uneven silhouette instead of a straight glowing line.
+                ectx.save();
+                ectx.globalCompositeOperation = "screen";
+                for (let flare = 0; flare < 7; flare++) {
+                    const fx = Math.random() * width;
+                    const fh = 22 + Math.random() * 42;
+                    const fw = 3 + Math.random() * 5;
+                    const flareGradient = ectx.createLinearGradient(0, lineY - fh, 0, lineY + 4);
+                    flareGradient.addColorStop(0, "rgba(255,84,15,0)");
+                    flareGradient.addColorStop(0.55, "rgba(255,107,24,0.72)");
+                    flareGradient.addColorStop(1, "rgba(255,238,171,0.95)");
+                    ectx.fillStyle = flareGradient;
+                    ectx.beginPath();
+                    ectx.moveTo(fx - fw, lineY + 4);
+                    ectx.quadraticCurveTo(fx - fw * 1.4, lineY - fh * 0.55, fx + Math.sin(timestamp * 0.009 + flare) * fw, lineY - fh);
+                    ectx.quadraticCurveTo(fx + fw * 1.6, lineY - fh * 0.42, fx + fw, lineY + 4);
+                    ectx.closePath();
+                    ectx.fill();
+                }
                 ectx.restore();
             }
 
