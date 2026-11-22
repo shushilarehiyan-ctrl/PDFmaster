@@ -16,7 +16,6 @@
   ];
 
   const definitions = [
-    { id: "edit-pdf", title: "Edit a PDF", category: "EDIT", description: "Add a text note to a selected page and save a new PDF.", type: "edit", accept: ".pdf,application/pdf" },
     { id: "pdf-to-word", title: "PDF to Word", category: "PDF CONVERSION", description: "Extract PDF text into an editable DOCX document. Complex layouts may change.", type: "pdf-word", accept: ".pdf,application/pdf" },
     { id: "pdf-to-png", title: "PDF to PNG", category: "PDF CONVERSION", description: "Render PDF pages as PNG images and download them together.", type: "pdf-image", format: "png", accept: ".pdf,application/pdf" },
     { id: "pdf-to-epub", title: "PDF to EPUB", category: "PDF CONVERSION", description: "Create a reflowable EPUB from extracted PDF text.", type: "pdf-epub", accept: ".pdf,application/pdf" },
@@ -34,7 +33,6 @@
 
   // Distinct, task-matched marks for the tool cards and sidebar.
   const toolIcons = {
-    "edit-pdf": "✎",
     "pdf-to-word": "W",
     "pdf-to-png": "▧",
     "pdf-to-epub": "E",
@@ -474,7 +472,7 @@
   // Put every tool in one continuous directory grid; keep the familiar category order
   // without rendering category headings or separate category columns.
   const categoryGroups = [
-    { ids: ["edit-pdf", "compress-pdf"] },
+    { ids: ["compress-pdf"] },
     { ids: ["split-pdf", "merge-pdf"] },
     { ids: ["pdf-to-word", "pdf-to-png", "pdf-to-epub", "pdf-to-jpg", "pdf-to-pptx", "pdf-to-excel"] },
     { ids: ["word-to-pdf", "png-to-pdf", "epub-to-pdf", "jpg-to-pdf", "pptx-to-pdf", "excel-to-pdf"] },
@@ -536,7 +534,6 @@
   const movedNodes = new Map();
   function cardIconText(card) {
     const icons = {
-      "edit-pdf": "✎",
       "compress-pdf": "⇩",
       "split-pdf": "✂",
       "merge-pdf": "⇄",
