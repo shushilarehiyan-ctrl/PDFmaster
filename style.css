@@ -6440,3 +6440,46 @@ body:not(.tool-page-active) .topbar-badge:hover {
   .pm-assistant-panel.is-open { animation:none; }
   .pm-assistant-launcher { transition:none; }
 }
+
+
+/* PDFMASTER SMART WEB RESEARCH */
+.pm-assistant-research-toggle {
+  padding: 7px 10px;
+  border: 1px solid rgba(217,183,126,.42);
+  border-radius: 20px;
+  color: #e2c995 !important;
+  background: rgba(176,141,80,.10) !important;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.pm-assistant-research-toggle.is-active {
+  color: #17120a !important;
+  border-color: #e8d09a !important;
+  background: linear-gradient(135deg,#e8d09a,#b08d50) !important;
+  box-shadow: 0 0 0 2px rgba(217,183,126,.12);
+}
+.pm-assistant-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(255,255,255,.12);
+}
+.pm-assistant-sources strong {
+  color: #e4c98f;
+  font-size: 10px;
+}
+.pm-assistant-sources a {
+  color: #a9c7ff;
+  font-size: 10px;
+  line-height: 1.45;
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
+.pm-assistant-sources small {
+  color: #9ca6bc;
+  font-size: 9px;
+  line-height: 1.45;
+}
