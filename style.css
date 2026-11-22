@@ -3498,3 +3498,75 @@ summary:focus-visible {
         transform: none !important;
     }
 }
+
+
+/* ---------- ADVANCED PDF TOOLS ---------- */
+.advanced-tool-card .advanced-note {
+    min-height: 0;
+    margin: 9px 0 12px;
+    padding: 10px 11px;
+    border-left: 2px solid var(--orange);
+    border-radius: 0 8px 8px 0;
+    background: rgba(255,173,92,0.06);
+    color: #b9b2a7;
+    font-size: 10px;
+    line-height: 1.65;
+}
+.advanced-tool-card .advanced-result {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+.advanced-tool-card .advanced-result.advanced-error {
+    color: #ff9a9a;
+}
+.advanced-tool-card .advanced-form-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 12px;
+    padding: 11px 14px;
+    border: 1px solid rgba(176,141,80,0.35);
+    border-radius: 9px;
+    background: rgba(176,141,80,0.12);
+    color: #d9b77e;
+    font-size: 11px;
+    font-weight: 800;
+    transition: 0.2s ease;
+}
+.advanced-tool-card .advanced-form-link:hover {
+    background: rgba(176,141,80,0.2);
+    border-color: rgba(176,141,80,0.6);
+    transform: translateY(-1px);
+}
+.advanced-tool-card .tool-icon.gold {
+    color: #d9b77e;
+    background: rgba(176,141,80,0.14);
+}
+.advanced-tool-card input[type="text"],
+.advanced-tool-card input[type="number"] {
+    width: 100%;
+    min-height: 43px;
+    padding: 11px 12px;
+    margin: 8px 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    outline: none;
+    background: #101521;
+    color: white;
+    font-size: 11px;
+}
+.advanced-tool-card input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(119,117,255,0.1);
+}
+.advanced-tool-card .tool-actions button {
+    flex: 1;
+}
+@media (max-width: 640px) {
+    .advanced-tool-card .tool-actions {
+        flex-wrap: wrap;
+    }
+}
