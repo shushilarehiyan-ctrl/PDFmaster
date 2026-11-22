@@ -140,6 +140,55 @@
     }
   }
 
+  // Offline date/time helper. Uses the visitor's device clock and timezone.
+  function dateTimeAnswer(question) {
+    const q = question.toLowerCase().trim();
+    const now = new Date();
+    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone || "device local time";
+    const dateText = date => new Intl.DateTimeFormat("en-IN", {
+      weekday: "long", day: "numeric", month: "long", year: "numeric"
+    }).format(date);
+    const timeText = new Intl.DateTimeFormat("en-IN", {
+      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true
+    }).format(now);
+
+    if (/\\b(time and date|date and time|current date and time|what is the time and date)\\b|अभी कितने बजे और तारीख|समय और तारीख/.test(q)) {
+      return "Current date: " + dateText(now) + "\\nCurrent time: " + timeText + "\\nTime zone: " + zone + "\\n\\nThis uses your device's clock.";
+    }
+    if (/\\b(what time|current time|time now|tell me the time|time is it)\\b|कितने बजे|अभी का समय|समय बताओ/.test(q)) {
+      return "Current time: " + timeText + "\\nTime zone: " + zone + "\\n\\nThis uses your device's clock.";
+    }
+    if (/\\b(today'?s date|what is the date|current date|date today|today date)\\b|आज की तारीख|आज कौन सी तारीख|आज की डेट/.test(q)) {
+      return "Today is " + dateText(now) + ".\\nTime zone: " + zone + "\\n\\nThis uses your device's clock.";
+    }
+    if (/\\b(tomorrow'?s date|what date is tomorrow|tomorrow date)\\b|कल की तारीख/.test(q)) {
+      const d = new Date(now); d.setDate(d.getDate() + 1);
+      return "Tomorrow will be " + dateText(d) + ".";
+    }
+    if (/\\b(yesterday'?s date|what date was yesterday|yesterday date)\\b|कल कौन सी तारीख थी/.test(q)) {
+      const d = new Date(now); d.setDate(d.getDate() - 1);
+      return "Yesterday was " + dateText(d) + ".";
+    }
+    if (/\\b(what day is it|which day is it|day today|what day today)\\b|आज कौन सा दिन|आज क्या दिन है/.test(q)) {
+      return "Today is " + new Intl.DateTimeFormat("en-IN", { weekday: "long" }).format(now) + ".";
+    }
+
+    const match = q.match(/(?:what day is|which day is|day of the week for|weekday of)\\s+(\\d{1,2})[\\s/-]+(\\d{1,2})[\\s/-]+(\\d{4})/)
+      || q.match(/(?:what day is|which day is|day of the week for|weekday of)\\s+(\\d{1,2})\\s+(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\s+(\\d{4})/);
+    if (match) {
+      const months = ["january","february","march","april","may","june","july","august","september","october","november","december"];
+      const day = Number(match[1]);
+      const month = /^\\d+$/.test(match[2]) ? Number(match[2]) - 1 : months.findIndex(m => m.startsWith(match[2].slice(0,3)));
+      const year = Number(match[3]);
+      const d = new Date(year, month, day);
+      if (month >= 0 && month < 12 && d.getFullYear() === year && d.getMonth() === month && d.getDate() === day) {
+        return dateText(d) + " is a " + new Intl.DateTimeFormat("en-IN", { weekday: "long" }).format(d) + ".";
+      }
+      return "That date doesn't look valid. Please check the day, month and year.";
+    }
+    return null;
+  }
+
   function isResearchQuestion(question) {
     return /\b(search the web|web research|research|sources?|references?|latest|today|current|currently|recent|news|price|2026|2027|who is|what happened|look up|google it)\b|आज|अभी|ताज़ा|ताजा|वर्तमान|स्रोत|रिसर्च|खोजो/.test(question.toLowerCase());
   }
@@ -171,6 +220,8 @@
 
   function answer(question) {
     const q = question.toLowerCase();
+    const dateTime = dateTimeAnswer(question);
+    if (dateTime) return dateTime;
     const math = mathAnswer(question);
     if (math) return math;
     if (/merge|combine|join|जोड़कर|मिलाना|एक pdf/.test(q)) return "Let's merge your PDFs step by step.\n\nStep 1: Open the Merge PDF tool on this page.\n\nTell me when it’s open, and I’ll give you the next step.";
