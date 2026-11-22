@@ -5829,3 +5829,288 @@ body:not(.tool-page-active) .topbar-badge:hover {
   content: none !important;
   animation: none !important;
 }
+
+
+/* =========================================================
+   PDFMASTER — MOBILE HERO DESIGN 6: CREATIVE DARK
+   Mobile-only presentation. Desktop/tablet styling is untouched.
+========================================================= */
+@media (max-width: 650px) {
+  .hero {
+    min-height: 545px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    padding: 30px 21px 205px !important;
+    margin-top: 18px !important;
+    border-radius: 22px !important;
+    border: 1px solid rgba(176, 141, 80, .38) !important;
+    background:
+      radial-gradient(ellipse at 82% 76%, rgba(104, 38, 176, .24), transparent 42%),
+      radial-gradient(ellipse at 12% 18%, rgba(82, 15, 44, .38), transparent 46%),
+      linear-gradient(155deg, #100d10 0%, #160b16 55%, #100d10 100%) !important;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, .34), inset 0 1px rgba(241, 232, 220, .035) !important;
+  }
+
+  .hero::before {
+    inset: -15% !important;
+    background:
+      radial-gradient(circle at 75% 75%, rgba(126, 58, 210, .19), transparent 35%),
+      radial-gradient(circle at 18% 20%, rgba(176, 141, 80, .08), transparent 30%) !important;
+    opacity: .9 !important;
+    animation: pdfmaster-mobile-dark-glow 12s ease-in-out infinite alternate !important;
+  }
+
+  .hero::after {
+    display: block !important;
+    content: "" !important;
+    position: absolute !important;
+    inset: auto -20% 4% 20% !important;
+    height: 210px !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    background: radial-gradient(ellipse, rgba(110, 48, 190, .24), transparent 68%) !important;
+    filter: blur(16px) !important;
+    animation: pdfmaster-mobile-purple-breathe 7s ease-in-out infinite alternate !important;
+  }
+
+  .hero-content {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    text-align: left !important;
+    z-index: 2 !important;
+  }
+
+  .hero-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 7px 10px !important;
+    margin-bottom: 18px !important;
+    border: 1px solid rgba(176, 141, 80, .34) !important;
+    border-radius: 999px !important;
+    background: rgba(176, 141, 80, .08) !important;
+    color: #d9b77e !important;
+    font-size: 9px !important;
+    letter-spacing: 1.15px !important;
+  }
+
+  .hero h1 {
+    max-width: 340px !important;
+    margin: 0 !important;
+    color: #f1e8dc !important;
+    font-size: clamp(30px, 8.5vw, 36px) !important;
+    line-height: 1.12 !important;
+    letter-spacing: -1.25px !important;
+    font-weight: 800 !important;
+  }
+
+  .hero h1 span {
+    display: block !important;
+    margin-top: 4px !important;
+    color: #c79aff !important;
+  }
+
+  .hero p {
+    max-width: 330px !important;
+    margin: 14px 0 0 !important;
+    color: rgba(241, 232, 220, .76) !important;
+    font-size: 12px !important;
+    line-height: 1.7 !important;
+  }
+
+  .hero-button {
+    min-height: 46px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    margin-top: 19px !important;
+    padding: 0 21px !important;
+    border: 1px solid rgba(217, 183, 126, .46) !important;
+    border-radius: 999px !important;
+    background: linear-gradient(115deg, #7d36d1, #5420a3) !important;
+    color: #fff !important;
+    box-shadow: 0 8px 25px rgba(91, 37, 163, .28) !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+  }
+
+  .hero-button span {
+    color: #f1e8dc !important;
+  }
+
+  .hero-decoration {
+    display: block !important;
+    position: absolute !important;
+    left: 50% !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: 15px !important;
+    width: 100% !important;
+    height: 190px !important;
+    opacity: 1 !important;
+    transform: translateX(-50%) !important;
+    transform-origin: center !important;
+    z-index: 1 !important;
+  }
+
+  .hero-decoration::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: 48% !important;
+    width: 210px !important;
+    height: 120px !important;
+    transform: translate(-50%, -50%) !important;
+    border-radius: 50% !important;
+    background: rgba(117, 54, 204, .35) !important;
+    filter: blur(32px) !important;
+    pointer-events: none !important;
+  }
+
+  .paper-orbit,
+  .hero-glow {
+    display: none !important;
+  }
+
+  .hero-document {
+    position: absolute !important;
+    left: 50% !important;
+    top: 48% !important;
+    width: 142px !important;
+    height: 104px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 18px 18px 15px !important;
+    box-sizing: border-box !important;
+    border: 1px solid rgba(218, 190, 255, .48) !important;
+    border-radius: 16px 16px 20px 20px !important;
+    background: linear-gradient(145deg, #6e35bd 0%, #35145f 58%, #1c102d 100%) !important;
+    box-shadow: 0 18px 34px rgba(0, 0, 0, .42), 0 0 28px rgba(131, 69, 218, .35), inset 0 1px rgba(255,255,255,.18) !important;
+    transform: translate(-50%, -50%) rotate(-7deg) !important;
+    animation: pdfmaster-mobile-folder-float 6s ease-in-out infinite !important;
+  }
+
+  .hero-document::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 13px !important;
+    top: -12px !important;
+    width: 54px !important;
+    height: 18px !important;
+    border: 1px solid rgba(218, 190, 255, .42) !important;
+    border-bottom: 0 !important;
+    border-radius: 9px 9px 0 0 !important;
+    background: linear-gradient(90deg, #8d50dc, #54248f) !important;
+  }
+
+  .document-icon {
+    position: absolute !important;
+    right: 13px !important;
+    top: 13px !important;
+    width: 43px !important;
+    height: 49px !important;
+    display: grid !important;
+    place-items: center !important;
+    border: 1px solid rgba(255,255,255,.24) !important;
+    border-radius: 8px !important;
+    background: linear-gradient(145deg, #e45b65, #a91f3c) !important;
+    color: #fff !important;
+    box-shadow: 0 7px 16px rgba(0,0,0,.24) !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+  }
+
+  .document-line {
+    width: 48px !important;
+    height: 4px !important;
+    margin: 0 !important;
+    border-radius: 99px !important;
+    background: rgba(245, 232, 255, .72) !important;
+  }
+
+  .document-line.short {
+    width: 32px !important;
+    opacity: .62 !important;
+  }
+
+  .hero-document::after {
+    content: "⚡ FAST     ◈ SECURE     ∞ FREE" !important;
+    position: absolute !important;
+    left: 50% !important;
+    bottom: -48px !important;
+    width: max-content !important;
+    max-width: 88vw !important;
+    padding: 10px 13px !important;
+    transform: translateX(-50%) rotate(7deg) !important;
+    border: 1px solid rgba(176, 141, 80, .3) !important;
+    border-radius: 999px !important;
+    background: rgba(38, 6, 16, .86) !important;
+    color: #e6d4b2 !important;
+    box-shadow: 0 8px 22px rgba(0,0,0,.24) !important;
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    letter-spacing: .35px !important;
+    white-space: nowrap !important;
+  }
+
+  .orbit-particle {
+    display: block !important;
+    width: 9px !important;
+    height: 9px !important;
+    border: 1px solid rgba(217, 183, 126, .7) !important;
+    border-radius: 3px !important;
+    background: rgba(217, 183, 126, .3) !important;
+    box-shadow: 0 0 14px rgba(217, 183, 126, .35) !important;
+  }
+
+  .orbit-particle-one {
+    left: 17% !important;
+    top: 28% !important;
+  }
+
+  .orbit-particle-two {
+    right: 17% !important;
+    bottom: 22% !important;
+  }
+}
+
+@keyframes pdfmaster-mobile-folder-float {
+  0%, 100% { transform: translate(-50%, -50%) rotate(-7deg) translateY(0); }
+  50% { transform: translate(-50%, -50%) rotate(-3deg) translateY(-8px); }
+}
+
+@keyframes pdfmaster-mobile-dark-glow {
+  from { opacity: .62; transform: translate3d(-1%, 0, 0); }
+  to { opacity: .95; transform: translate3d(1%, -1%, 0); }
+}
+
+@keyframes pdfmaster-mobile-purple-breathe {
+  from { opacity: .55; transform: scale(.94); }
+  to { opacity: .9; transform: scale(1.04); }
+}
+
+@media (max-width: 380px) {
+  .hero {
+    min-height: 565px !important;
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+  .hero h1 {
+    font-size: 29px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero::before,
+  .hero::after,
+  .hero-document {
+    animation: none !important;
+  }
+}
