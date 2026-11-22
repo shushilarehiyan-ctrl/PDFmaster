@@ -3570,3 +3570,34 @@ summary:focus-visible {
         flex-wrap: wrap;
     }
 }
+
+
+/* Collapsible tool cards: compact logo/title cards open into their full working interface. */
+.tools-container .tool-card.tool-card-collapsed > :nth-child(n+4) {
+  display: none !important;
+}
+.tools-container .tool-card.tool-card-collapsed {
+  cursor: pointer;
+}
+.tools-container .tool-card .tool-card-top,
+.tools-container .tool-card h3,
+.tools-container .tool-card > p {
+  cursor: pointer;
+}
+.tools-container .tool-card:not(.tool-card-collapsed) > :nth-child(n+4) {
+  cursor: default;
+}
+.tools-container .tool-card.tool-card-collapsed .tool-card-top::after {
+  content: "+";
+  margin-left: auto;
+  color: var(--gold, #b08d50);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.tools-container .tool-card:not(.tool-card-collapsed) .tool-card-top::after {
+  content: "−";
+  margin-left: auto;
+  color: var(--gold, #b08d50);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
