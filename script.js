@@ -1661,8 +1661,8 @@ async function protectPDF() {
         const passwordB = document.getElementById("dualRealityPasswordB").value;
         const confirmB = document.getElementById("dualRealityConfirmB").value;
 
-        if (passwordA.length < 12 || passwordB.length < 12) {
-            setText(createResult, "Each password must be at least 12 characters long.");
+        if (passwordA.length < 3 || passwordB.length < 3) {
+            setText(createResult, "Each password must be at least 3 characters long.");
             return;
         }
         if (passwordA !== confirmA || passwordB !== confirmB) {
