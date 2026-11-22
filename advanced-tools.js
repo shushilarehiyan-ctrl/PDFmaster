@@ -515,6 +515,11 @@
   allToolCards.forEach(function (card) {
     card.setAttribute("aria-expanded", "false");
     card.setAttribute("role", "group");
+    const icon = card.querySelector(".tool-icon");
+    if (icon) {
+      icon.textContent = cardIconText(card);
+      icon.setAttribute("aria-hidden", "true");
+    }
     card.querySelectorAll(".tool-card-top, h3, .tool-card > p").forEach(function (header) {
       header.setAttribute("title", "Open this tool");
     });
