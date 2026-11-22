@@ -3974,3 +3974,53 @@ summary:focus-visible {
         transition: none !important;
     }
 }
+
+
+/* =================================
+   PDF X-RAY — DIGITAL FORENSICS PANEL
+   ================================= */
+.xray-section { margin: 54px 0; padding: 30px; border: 1px solid rgba(176,141,80,.48); border-radius: 18px; background: #260610; color: #F1E8DC; }
+.xray-heading { max-width: 760px; margin: 0 auto 24px; text-align: center; }
+.xray-kicker, .xray-label, .xray-details h4, .xray-file-label { color: #D9B77E; font-size: 11px; font-weight: 800; letter-spacing: 1.7px; }
+.xray-heading h2 { margin: 9px 0; color: #F1E8DC; letter-spacing: 2px; }
+.xray-heading p, .xray-file-info { color: #C5B7AD; line-height: 1.65; }
+.xray-panel { max-width: 900px; margin: auto; padding: 24px; border: 1px solid rgba(176,141,80,.38); border-radius: 14px; background: #100D10; }
+.xray-panel-top { display:flex; align-items:center; gap:10px; padding-bottom:18px; border-bottom:1px solid rgba(176,141,80,.25); color:#D9B77E; font-size:10px; font-weight:800; letter-spacing:1.2px; }
+.xray-local { margin-left:auto; color:#B8B5B2; }
+.xray-indicator { width:8px; height:8px; border-radius:50%; background:#D4AF37; }
+.xray-file-label { display:block; margin:22px 0 10px; }
+.xray-file-input { display:block; width:100%; padding:12px; border:1px solid rgba(176,141,80,.45); border-radius:8px; background:#260610; color:#F1E8DC; }
+.xray-file-info, .xray-status { min-height:22px; font-size:13px; overflow-wrap:anywhere; }
+.xray-button { padding:13px 20px; border:0; border-radius:8px; background:#D4AF37; color:#1A1010; font-weight:800; cursor:pointer; }
+.xray-button:disabled { opacity:.45; cursor:not-allowed; }
+.xray-status { color:#D9B77E; }
+.xray-status.is-error { color:#ff9b9b; }
+.xray-result { margin-top:25px; padding-top:22px; border-top:1px solid rgba(176,141,80,.35); }
+.xray-verdict-row { display:flex; justify-content:space-between; align-items:center; gap:14px; }
+.xray-verdict-row h3 { margin:7px 0; color:#F1E8DC; }
+.xray-verdict-tag { padding:7px 10px; border:1px solid #B08D50; border-radius:4px; color:#D9B77E; font-size:10px; font-weight:800; letter-spacing:1px; }
+.xray-verdict-tag.is-review { border-color:#c87865; color:#ffad9d; }
+.xray-disclaimer { color:#C5B7AD; font-size:12px; line-height:1.6; }
+.xray-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:20px 0; }
+.xray-metric { padding:14px; border:1px solid rgba(176,141,80,.28); border-radius:8px; background:#260610; }
+.xray-metric span, .xray-fingerprint span { display:block; color:#D9B77E; font-size:9px; font-weight:800; letter-spacing:1px; }
+.xray-metric strong { display:block; margin-top:8px; color:#F1E8DC; font-size:19px; overflow-wrap:anywhere; }
+.xray-details { margin-top:18px; padding:17px; border:1px solid rgba(176,141,80,.25); border-radius:8px; }
+.xray-details h4 { margin:0 0 13px; }
+.xray-details dl { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:0; }
+.xray-details dl div { min-width:0; }
+.xray-details dt { color:#B8B5B2; font-size:11px; }
+.xray-details dd { margin:4px 0 0; color:#F1E8DC; overflow-wrap:anywhere; font-size:13px; }
+.xray-signals { margin:0; padding-left:20px; color:#E7D8C7; font-size:13px; line-height:1.7; }
+.xray-fingerprint { margin-top:18px; padding:15px; border:1px solid rgba(176,141,80,.3); border-radius:8px; }
+.xray-fingerprint code { display:block; margin-top:9px; color:#D9B77E; font-size:11px; overflow-wrap:anywhere; word-break:break-all; }
+.xray-clear { margin-top:17px; padding:9px 14px; border:1px solid rgba(176,141,80,.6); border-radius:7px; background:transparent; color:#D9B77E; cursor:pointer; }
+.xray-button:focus-visible, .xray-clear:focus-visible, .xray-file-input:focus-visible { outline:2px solid #D4AF37; outline-offset:3px; }
+@media (max-width:650px) {
+ .xray-section { margin:35px 0; padding:18px 12px; }
+ .xray-panel { padding:16px 12px; }
+ .xray-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .xray-details dl { grid-template-columns:1fr; }
+ .xray-verdict-row { align-items:flex-start; }
+}
+@media (prefers-reduced-motion:reduce) { .xray-section *, .xray-section *::before, .xray-section *::after { scroll-behavior:auto !important; transition:none !important; animation:none !important; } }
