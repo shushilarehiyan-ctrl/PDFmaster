@@ -547,6 +547,10 @@
     card.classList.add("tool-card-active");
     card.setAttribute("aria-expanded", "true");
     workspaceTitle.textContent = card.querySelector("h3")?.textContent || "PDF Tool";
+    const featuredTitle = document.getElementById("featuredToolTitle");
+    const featuredDescription = document.getElementById("featuredToolDescription");
+    if (featuredTitle) featuredTitle.textContent = card.querySelector("h3")?.textContent || "PDF Tool";
+    if (featuredDescription) featuredDescription.textContent = card.querySelector(":scope > p")?.textContent.trim() || "Use the selected tool in the workspace below.";
     workspaceIcon.textContent = cardIconText(card);
     const nodes = Array.from(card.children).slice(3);
     movedNodes.set(card, nodes);
