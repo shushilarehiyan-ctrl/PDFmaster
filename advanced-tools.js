@@ -32,6 +32,31 @@
     { id: "sign-pdf", title: "Sign PDF", category: "SIGN & SECURITY", description: "Place a typed signature label on the first page. This is not a certificate-based digital signature.", type: "sign", accept: ".pdf,application/pdf" }
   ];
 
+  // Distinct, task-matched marks for the tool cards and sidebar.
+  const toolIcons = {
+    "edit-pdf": "✎",
+    "pdf-to-word": "W",
+    "pdf-to-png": "▧",
+    "pdf-to-epub": "E",
+    "pdf-to-jpg": "J",
+    "pdf-to-pptx": "P",
+    "pdf-to-excel": "X",
+    "word-to-pdf": "W",
+    "png-to-pdf": "▧",
+    "epub-to-pdf": "E",
+    "jpg-to-pdf": "J",
+    "pptx-to-pdf": "P",
+    "excel-to-pdf": "X",
+    "sign-pdf": "✍"
+  };
+  const formIcons = {
+    "Form W-9": "W9",
+    "Form DS-11": "DS",
+    "Form 1099": "1099",
+    "Form 941": "941",
+    "Form W-2": "W2"
+  };
+
   function make(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -314,7 +339,7 @@
     const card = make("article", "tool-card advanced-tool-card");
     card.id = def.id;
     const top = make("div", "tool-card-top");
-    top.appendChild(make("div", "tool-icon purple", "✦"));
+    top.appendChild(make("div", "tool-icon purple", toolIcons[def.id] || "PDF"));
     top.appendChild(make("span", "tool-category", def.category));
     card.appendChild(top);
     card.appendChild(make("h3", "", def.title));
@@ -400,7 +425,7 @@
     const card = make("article", "tool-card advanced-tool-card");
     card.id = form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
     const top = make("div", "tool-card-top");
-    top.appendChild(make("div", "tool-icon gold", "▤"));
+    top.appendChild(make("div", "tool-icon gold", formIcons[form.title] || "IRS"));
     top.appendChild(make("span", "tool-category", "OFFICIAL FORM"));
     card.appendChild(top);
     card.appendChild(make("h3", "", form.title));
@@ -421,12 +446,12 @@
     const sidebarNav = make("nav", "sidebar-nav");
     sidebarNav.setAttribute("aria-label", "More PDF tools and forms");
     const navItems = definitions.map(function (def) {
-      return { id: def.id, title: def.title, icon: "✦" };
+      return { id: def.id, title: def.title, icon: toolIcons[def.id] || "PDF" };
     }).concat(officialForms.map(function (form) {
       return {
         id: form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
         title: form.title,
-        icon: "▤"
+        icon: formIcons[form.title] || "IRS"
       };
     }));
     navItems.forEach(function (item) {
