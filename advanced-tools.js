@@ -407,6 +407,38 @@
     container.appendChild(card);
   });
 
+  // Add quick sidebar navigation for every advanced tool and official form.
+  const sidebar = document.querySelector("#sidebar");
+  if (sidebar) {
+    const sidebarLabel = make("div", "sidebar-label", "MORE PDF TOOLS");
+    const sidebarNav = make("nav", "sidebar-nav");
+    sidebarNav.setAttribute("aria-label", "More PDF tools and forms");
+    const navItems = definitions.map(function (def) {
+      return { id: def.id, title: def.title, icon: "✦" };
+    }).concat(officialForms.map(function (form) {
+      return {
+        id: form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        title: form.title,
+        icon: "▤"
+      };
+    }));
+    navItems.forEach(function (item) {
+      const link = make("a", "nav-link");
+      link.href = "#" + item.id;
+      link.appendChild(make("span", "nav-icon", item.icon));
+      link.appendChild(document.createTextNode(item.title));
+      sidebarNav.appendChild(link);
+    });
+    const bottom = sidebar.querySelector(".sidebar-bottom");
+    if (bottom) {
+      sidebar.insertBefore(sidebarLabel, bottom);
+      sidebar.insertBefore(sidebarNav, bottom);
+    } else {
+      sidebar.appendChild(sidebarLabel);
+      sidebar.appendChild(sidebarNav);
+    }
+  }
+
   const count = container.querySelectorAll(".tool-card").length;
   const countLabel = document.querySelector(".tools-count");
   if (countLabel) countLabel.textContent = count + " TOOLS";
