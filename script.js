@@ -1491,11 +1491,19 @@ async function protectPDF() {
     const preview = document.getElementById("gazePreview");
     const highlight = document.getElementById("gazeHighlightToggle");
     if (!start || !stop || !status || !preview) return;
-    let loader = null, active = false, dot = null, marked = null;
+
+    let loader = null;
+    let gaze = null;
+    let active = false;
+    let starting = false;
+    let dot = null;
+    let marked = null;
+
     function clearMark() {
         if (marked) marked.classList.remove("gaze-element-highlight");
         marked = null;
     }
+
     function point(x, y) {
         if (!dot) {
             dot = document.createElement("div");
@@ -1508,6 +1516,7 @@ async function protectPDF() {
         const rect = preview.getBoundingClientRect();
         preview.style.setProperty("--gaze-x", Math.max(0, Math.min(rect.width, x - rect.left)) + "px");
         preview.style.setProperty("--gaze-y", Math.max(0, Math.min(rect.height, y - rect.top)) + "px");
+
         if (highlight && highlight.checked) {
             const target = document.elementFromPoint(x, y);
             const candidate = target && target.closest("p,h1,h2,h3,h4,label,button,a,li");
@@ -1520,56 +1529,102 @@ async function protectPDF() {
             } else clearMark();
         } else clearMark();
     }
+
     function loadLibrary() {
         if (window.webgazer) return Promise.resolve(window.webgazer);
         if (loader) return loader;
         loader = new Promise((resolve, reject) => {
             const script = document.createElement("script");
-            script.src = "https://webgazer.cs.brown.edu/webgazer.js";
+            /* Pinned official Brown HCI WebGazer release; avoids an unpinned hosted build. */
+            script.src = "https://cdn.jsdelivr.net/npm/webgazer@3.5.3/dist/webgazer.js";
             script.async = true;
-            script.onload = () => window.webgazer ? resolve(window.webgazer) : reject(new Error("Gaze library failed to initialize."));
-            script.onerror = () => reject(new Error("Could not load gaze library. Check your internet connection."));
+            script.onload = () => {
+                const api = window.webgazer;
+                if (api && typeof api.begin === "function" && typeof api.setGazeListener === "function") {
+                    resolve(api);
+                } else {
+                    reject(new Error("WebGazer loaded, but its tracking API was not available."));
+                }
+            };
+            script.onerror = () => reject(new Error("Could not load WebGazer 3.5.3. Check your internet connection."));
             document.head.appendChild(script);
         });
         return loader;
     }
+
     async function stopCamera() {
+        starting = false;
         active = false;
+        stop.disabled = true;
+        status.textContent = "Stopping camera…";
         try {
-            if (window.webgazer) {
-                window.webgazer.clearGazeListener();
-                await window.webgazer.end();
+            if (gaze) {
+                if (typeof gaze.clearGazeListener === "function") gaze.clearGazeListener();
+                if (typeof gaze.end === "function") await gaze.end();
             }
-        } catch (error) {}
+        } catch (error) {
+            status.textContent = "Camera stop requested. You can refresh the page if the browser still shows the camera as active.";
+        }
         if (dot) dot.remove();
         dot = null;
         clearMark();
         start.disabled = false;
         stop.disabled = true;
-        status.textContent = "Camera stopped.";
+        if (status.textContent === "Stopping camera…") status.textContent = "Camera stopped.";
     }
+
     start.addEventListener("click", async () => {
+        if (starting || active) return;
+        starting = true;
         start.disabled = true;
-        status.textContent = "Loading gaze estimation. Your browser will ask for camera permission.";
+        stop.disabled = false;
+        status.textContent = "Loading WebGazer and starting the camera…";
+
         try {
-            const gaze = await loadLibrary();
-            gaze.showVideoPreview(false).showPredictionPoints(false).showFaceOverlay(false);
+            gaze = await loadLibrary();
+            if (!starting) {
+                if (typeof gaze.end === "function") await gaze.end();
+                return;
+            }
+
+            /* Configure separately so one optional display method cannot break startup. */
+            if (typeof gaze.showVideoPreview === "function") gaze.showVideoPreview(false);
+            if (typeof gaze.showPredictionPoints === "function") gaze.showPredictionPoints(false);
+            if (typeof gaze.showFaceOverlay === "function") gaze.showFaceOverlay(false);
+
             gaze.setGazeListener((data) => {
-                if (active && data && Number.isFinite(data.x) && Number.isFinite(data.y)) point(data.x, data.y);
+                if (active && data && Number.isFinite(data.x) && Number.isFinite(data.y)) {
+                    point(data.x, data.y);
+                }
             });
+
             await gaze.begin();
+            if (!starting) {
+                if (typeof gaze.end === "function") await gaze.end();
+                return;
+            }
+
             active = true;
+            starting = false;
             stop.disabled = false;
-            status.textContent = "Gaze pointer active. Look around the page; stop the camera when finished.";
+            status.textContent = "Tracking started. Look around the page; the pointer may need a short calibration period.";
         } catch (error) {
+            starting = false;
+            active = false;
             start.disabled = false;
-            status.textContent = error.message || "Camera could not start. Check browser permission.";
-            try { if (window.webgazer) await window.webgazer.end(); } catch (cleanupError) {}
+            stop.disabled = true;
+            const message = error && error.message ? error.message : "Unknown startup error.";
+            status.textContent = "Eye tracking could not start: " + message;
+            try {
+                if (gaze && typeof gaze.clearGazeListener === "function") gaze.clearGazeListener();
+                if (gaze && typeof gaze.end === "function") await gaze.end();
+            } catch (cleanupError) {}
         }
     });
+
     stop.addEventListener("click", stopCamera);
     window.addEventListener("beforeunload", () => {
-        if (window.webgazer && active) window.webgazer.end();
+        if (gaze && (active || starting) && typeof gaze.end === "function") gaze.end();
     });
 })();
 
