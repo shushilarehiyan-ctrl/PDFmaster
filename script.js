@@ -1587,6 +1587,11 @@ async function protectPDF() {
                 return;
             }
 
+            /* WebGazer defaults to a local MediaPipe path; load its matching assets from the pinned CDN package. */
+            if (gaze.params) {
+                gaze.params.faceMeshSolutionPath = "https://cdn.jsdelivr.net/npm/webgazer@3.5.3/dist/mediapipe/face_mesh";
+            }
+
             /* Configure separately so one optional display method cannot break startup. */
             if (typeof gaze.showVideoPreview === "function") gaze.showVideoPreview(false);
             if (typeof gaze.showPredictionPoints === "function") gaze.showPredictionPoints(false);
