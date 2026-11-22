@@ -5073,3 +5073,42 @@ select:focus-visible {
     transition: none !important;
   }
 }
+
+/* ---------- POPULAR TOOLS: SUBTLE GOLD AT REST, FULL GOLD ON HOVER ---------- */
+/* Match the All Tools cards without removing their hover interaction. */
+.popular-tools-grid > .popular-tool-card {
+  background: linear-gradient(120deg, rgba(59,7,21,.96) 0%, rgba(38,6,16,.96) 100%) !important;
+  border: 1px solid rgba(176,141,80,.34) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.14), 0 0 10px rgba(217,183,126,.10), inset 0 1px 0 rgba(255,255,255,.045) !important;
+  transition: transform .2s ease, background .22s ease, border-color .22s ease, box-shadow .22s ease, color .22s ease !important;
+}
+.popular-tools-grid > .popular-tool-card:hover {
+  transform: translateY(-4px);
+  background: linear-gradient(120deg, #f1d69e 0%, #d9b77e 52%, #c6a05e 100%) !important;
+  border-color: #fff0c9 !important;
+  box-shadow: 0 0 0 1px rgba(255,239,190,.65), 0 0 18px rgba(217,183,126,.72), 0 0 34px rgba(176,141,80,.42), 0 12px 25px rgba(38,6,16,.2), inset 0 1px 0 rgba(255,255,255,.6) !important;
+}
+.popular-tools-grid > .popular-tool-card .popular-tool-icon {
+  transition: background .22s ease, color .22s ease, box-shadow .22s ease !important;
+}
+.popular-tools-grid > .popular-tool-card:hover .popular-tool-icon {
+  background: linear-gradient(145deg, #3b0715, #260610) !important;
+  color: #f1e8dc !important;
+  box-shadow: 0 0 12px rgba(59,7,21,.18);
+}
+.popular-tools-grid > .popular-tool-card:hover strong {
+  color: #260610 !important;
+}
+.popular-tools-grid > .popular-tool-card:hover small {
+  color: rgba(38,6,16,.82) !important;
+}
+.popular-tools-grid > .popular-tool-card:hover > b {
+  color: #3b0715 !important;
+  text-shadow: 0 0 8px rgba(255,255,255,.24);
+}
+@media (prefers-reduced-motion: reduce) {
+  .popular-tools-grid > .popular-tool-card,
+  .popular-tools-grid > .popular-tool-card .popular-tool-icon {
+    transition: none !important;
+  }
+}
