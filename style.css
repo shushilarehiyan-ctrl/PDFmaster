@@ -5557,3 +5557,11 @@ a:hover,
 #faq details[open] summary:hover {
   color: #E8D2A7 !important;
 }
+
+
+/* ---------- TOOLKIT: DARK OXBLOOD IDLE CARD SURFACES ---------- */
+/* Change only the resting state; preserve the existing hover treatment. */
+.stats-grid .stat-card:not(:hover),
+#tools .tools-container .tool-card:not(:hover) {
+  background: #3B0715 !important;
+}
