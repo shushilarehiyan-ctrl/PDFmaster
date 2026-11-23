@@ -343,7 +343,7 @@
 
   function toolCountAnswer(question) {
     const q = question.toLowerCase().trim();
-    if (!(/\b(how many|number of|count)\b.*\b(tools?|features)\b|\b(tools?|features)\b.*\b(how many|count)\b/.test(q))) return null;
+    if (!(/\b(how man?ny|how many|number of|count)\b.*\b(tools?|features)\b|\b(tools?|features)\b.*\b(how man?ny|how many|count)\b/.test(q))) return null;
     const count = document.querySelectorAll(".tools-container .tool-card").length;
     if (!count) return "I cannot count the tools until the tool list has loaded.";
     return "PDFMaster currently displays " + count + " tools. This count is read from the tool cards actually shown on this page.";
