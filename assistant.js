@@ -122,7 +122,8 @@
 
   function mathAnswer(question) {
     const q = question.toLowerCase().trim();
-    const hasMathCue = /\b(what is|calculate|solve|evaluate|answer|plus|minus|times|divided by)\b|कितना|जोड़|गुणा|भाग|हल करो/.test(q);
+    if (/\b(pdf|form|1099|w-2|w-9|tax|document)\b/.test(q)) return null;
+    const hasMathCue = /\b(calculate|solve|evaluate|compute|work out|plus|minus|times|multiplied by|divided by|add|subtract)\b|[0-9]\s*[+*/^]\s*[0-9]|[0-9]\s+-\s*[0-9]|कितना|जोड़|गुणा|भाग|हल करो/.test(q);
     const cleaned = q
       .replace(/what is|calculate|solve|evaluate|answer|please|find|the value of|equals|equal to|kitna hota hai|kitna|है|कितना|जोड़|गुणा|भाग|हल करो/gi, " ")
       .replace(/divided by/gi, "/").replace(/times/gi, "*").replace(/plus/gi, "+").replace(/minus/gi, "-")
@@ -340,8 +341,18 @@
     }
   }
 
+  function toolCountAnswer(question) {
+    const q = question.toLowerCase().trim();
+    if (!(/\b(how many|number of|count)\b.*\b(tools?|features)\b|\b(tools?|features)\b.*\b(how many|count)\b/.test(q))) return null;
+    const count = document.querySelectorAll(".tools-container .tool-card").length;
+    if (!count) return "I cannot count the tools until the tool list has loaded.";
+    return "PDFMaster currently displays " + count + " tools. This count is read from the tool cards actually shown on this page.";
+  }
+
   function answer(question) {
     const q = question.toLowerCase();
+    const toolCount = toolCountAnswer(question);
+    if (toolCount) return toolCount;
     const dateTime = dateTimeAnswer(question);
     if (dateTime) return dateTime;
     const utility = utilityAnswer(question);
