@@ -198,6 +198,46 @@
     ["Biology 11–12","ecological pyramid energy decreases|10 percent law","Energy is lost between trophic levels through respiration, heat and waste, so less energy is available to the next level. The approximate 10% transfer is a simplified ecological rule, not an exact universal constant."],
     ["Biology 11–12","biomagnification|why toxins increase up food chain","Persistent pollutants that are not easily broken down or excreted can accumulate in organisms. Predators consume many contaminated prey, so pollutant concentration can increase at higher trophic levels."],
     ["Biology 11–12","in situ and ex situ conservation difference","In situ conservation protects species in their natural habitats, such as national parks and biosphere reserves. Ex situ conservation protects them outside natural habitats, such as seed banks, botanical gardens and captive breeding programmes."]
+
+    ["US Tax Forms","form 1099|1099|what is form 1099|1099 tax form|information return 1099","Form 1099 अमेरिका (United States) का information return है. इसका उपयोग कुछ प्रकार की income या payments की जानकारी IRS को देने के लिए होता है. इसके कई प्रकार हैं; सही अर्थ 1099 के suffix जैसे NEC, MISC, INT या DIV पर निर्भर करता है. यह आम तौर पर tax return का विकल्प नहीं है."],
+    ["US Tax Forms","1099 nec|form 1099 nec|nonemployee compensation","Form 1099-NEC अमेरिका में nonemployee compensation यानी independent contractors या freelancers को किए गए कुछ payments report करने के लिए इस्तेमाल होता है. यह W-2 employee wages से अलग है."],
+    ["US Tax Forms","1099 misc|form 1099 misc|miscellaneous information","Form 1099-MISC कुछ miscellaneous payments, जैसे certain rents, prizes या other reportable payments की जानकारी देने के लिए इस्तेमाल होता है. कौन-सी payment report होगी, यह current IRS rules पर निर्भर करता है."],
+    ["US Tax Forms","w2 form|form w 2|what is w2|wage and tax statement","Form W-2 अमेरिकी employer द्वारा employee को दिया जाने वाला Wage and Tax Statement है. इसमें साल की wages और withheld taxes की जानकारी होती है."],
+    ["US Tax Forms","w4 form|form w 4|employee withholding certificate","Form W-4 कर्मचारी अपने employer को देता है ताकि federal income tax withholding calculate करने में मदद मिले."],
+    ["US Tax Forms","form 1040|irs 1040|us individual income tax return","Form 1040 अमेरिका का मुख्य individual federal income tax return form है. Eligible individuals अपनी annual income, deductions, credits और tax calculation report करने के लिए इसका उपयोग करते हैं."],
+    ["US Tax Forms","1098 form|form 1098|mortgage interest statement","Form 1098 और इसके variants कुछ payments या financial information report करते हैं. सामान्य Form 1098 mortgage interest received की जानकारी देता है."],
+    ["US Tax Forms","1095 a|form 1095 a|health insurance marketplace statement","Form 1095-A Health Insurance Marketplace से प्राप्त coverage और premium information दिखाता है. यह कुछ लोगों को premium tax credit reconcile करने में मदद करता है."],
+    ["India Documents","pan card|permanent account number|what is pan","PAN (Permanent Account Number) भारत में Income Tax Department द्वारा जारी 10-character alphanumeric identifier है. इसका उपयोग tax और कुछ financial transactions में पहचान के लिए होता है."],
+    ["India Documents","aadhaar|aadhaar card|uidai|what is aadhaar","Aadhaar भारत में UIDAI द्वारा जारी 12-digit identity number है, जो निर्धारित verification process के बाद identity authentication में मदद करता है. Aadhaar नागरिकता का प्रमाण नहीं है."],
+    ["India Documents","form 16|form sixteen|tds certificate salary","Form 16 भारत में employer द्वारा employee को दिया जाने वाला TDS certificate है. इसमें salary income और salary पर काटे गए tax की जानकारी होती है."],
+    ["India Documents","form 26as|26as|annual information statement|ais tax","Form 26AS भारत का tax credit statement है, जिसमें TDS/TCS और कुछ tax-related details दिखती हैं. AIS (Annual Information Statement) इससे अलग और अधिक विस्तृत information view है."],
+    ["India Documents","gst invoice|gst bill|tax invoice india","GST tax invoice भारत में registered supplier द्वारा taxable supply के लिए जारी document है. इसमें supplier details, GSTIN, invoice number, date, taxable value और applicable GST details शामिल हो सकती हैं."],
+    ["India Finance","upi|unified payments interface|what is upi","UPI (Unified Payments Interface) भारत का instant payment system है, जिससे supported bank accounts के बीच mobile app द्वारा payments और transfers किए जा सकते हैं."],
+    ["India Finance","ifsc code|indian financial system code|what is ifsc","IFSC (Indian Financial System Code) 11-character code है जो भारत में bank branch की पहचान करता है और electronic fund transfers जैसे NEFT, RTGS और IMPS में इस्तेमाल होता है."],
+    ["India Finance","micr code|magnetic ink character recognition","MICR code cheque processing में bank branch पहचानने के लिए इस्तेमाल होने वाला numeric code है. यह cheque के नीचे magnetic-ink characters में छपा होता है."],
+    ["PDF Tools","pdf merge|merge pdf|combine pdf files|join pdf","PDF Merge का अर्थ कई PDF files को एक single PDF document में जोड़ना है. इससे pages एक ही file में व्यवस्थित हो जाते हैं."],
+    ["PDF Tools","pdf split|split pdf|separate pdf pages|extract pages","PDF Split tool एक PDF को अलग-अलग files या selected page ranges में बाँटता है. यह original document को छोटे हिस्सों में व्यवस्थित करने में मदद करता है."],
+    ["PDF Tools","pdf compress|compress pdf|reduce pdf size|pdf size reducer","PDF Compression file size कम करने की प्रक्रिया है. इसमें images और document resources optimize किए जा सकते हैं; बहुत अधिक compression से image quality घट सकती है."],
+    ["PDF Tools","pdf to word|convert pdf to docx|pdf converter word","PDF to Word conversion PDF content को editable DOCX document में बदलने की कोशिश करता है. Complex layouts, tables और scanned pages में manual correction की जरूरत हो सकती है."],
+    ["PDF Tools","word to pdf|docx to pdf|convert document to pdf","Word to PDF conversion DOC/DOCX document को PDF format में बदलता है ताकि layout अलग-अलग devices पर अधिक consistent रहे."],
+    ["PDF Tools","ocr|optical character recognition|extract text from scanned pdf|image to text","OCR (Optical Character Recognition) scanned image या PDF में मौजूद printed text को machine-readable text में बदलता है. Accuracy image clarity और language पर निर्भर करती है."],
+    ["PDF Tools","pdf watermark|add watermark to pdf|remove watermark","PDF watermark document पर text या image stamp होता है, जैसे Draft या Confidential. केवल वही watermark हटाएँ जिसे बदलने का अधिकार आपके पास हो."],
+    ["PDF Tools","pdf password|password protect pdf|encrypt pdf","PDF password protection document को password-based access या permissions से सुरक्षित कर सकती है. Strong password रखें और उसे सुरक्षित तरीके से share करें."],
+    ["PDF Tools","pdf metadata|document properties|author title pdf","PDF metadata में title, author, subject, keywords और creation details जैसी जानकारी हो सकती है. Metadata को document properties में देखा या संपादित किया जा सकता है."],
+    ["Computer Basics","cpu|central processing unit|what is processor","CPU (Central Processing Unit) computer के instructions execute करता है और calculations तथा control operations संभालता है. इसे अक्सर computer का processor कहा जाता है."],
+    ["Computer Basics","ram|random access memory|what is ram","RAM (Random Access Memory) temporary working memory है. चल रहे apps और data इसमें रहते हैं; power off होने पर सामान्य RAM का data मिट जाता है."],
+    ["Computer Basics","ssd|solid state drive|hard drive ssd difference","SSD (Solid State Drive) data को flash memory में store करता है और सामान्यतः traditional hard disk से तेज होता है. यह non-volatile storage है."],
+    ["Computer Basics","operating system|os|windows linux android","Operating System (OS) वह system software है जो hardware और applications के बीच काम करता है. Examples: Windows, Linux, macOS, Android और iOS."],
+    ["Computer Basics","api|application programming interface|what is an api","API (Application Programming Interface) rules और endpoints का set है जिसके जरिए अलग-अलग software systems एक-दूसरे से data या services exchange कर सकते हैं."],
+    ["Technology","artificial intelligence|ai|what is ai","Artificial Intelligence (AI) computer systems की वह capability है जिसमें वे language understanding, pattern recognition, prediction या decision-support जैसे tasks करते हैं. हर AI system human-like thinking नहीं करता."],
+    ["Technology","machine learning|ml|what is machine learning","Machine Learning (ML), AI का एक हिस्सा है जिसमें computer examples या data से patterns सीखता है और उन patterns के आधार पर prediction या classification करता है."],
+    ["Technology","generative ai|gen ai|what is generative ai","Generative AI ऐसे AI models को कहते हैं जो prompt के आधार पर नया text, image, audio या code बना सकते हैं. Output गलत भी हो सकता है, इसलिए important facts verify करने चाहिए."],
+    ["File Formats","csv|comma separated values|what is csv","CSV (Comma-Separated Values) एक plain-text tabular format है जिसमें rows और columns का data separators से store होता है. इसे spreadsheets और databases में import किया जा सकता है."],
+    ["File Formats","xlsx|excel file|what is xlsx","XLSX Microsoft Excel workbook का common file format है. इसमें worksheets, cells, formulas, formatting और charts store हो सकते हैं."],
+    ["File Formats","docx|word document|what is docx","DOCX Microsoft Word का document format है. इसमें text, tables, images, styles और other document elements store हो सकते हैं."],
+    ["File Formats","pptx|powerpoint file|what is pptx","PPTX Microsoft PowerPoint presentation format है. इसमें slides, text, images, charts, audio और visual elements हो सकते हैं."],
+    ["Web Basics","url|uniform resource locator|what is url","URL (Uniform Resource Locator) internet पर किसी resource का address है. इसमें protocol, domain और optional path या query parameters हो सकते हैं."],
+    ["Web Basics","http https|hypertext transfer protocol|what is https","HTTP web communication protocol है. HTTPS, HTTP को TLS encryption के साथ इस्तेमाल करता है ताकि browser और server के बीच communication अधिक सुरक्षित रहे."]
   ];
   function normalize(value) {
     let text = String(value || "").toLowerCase().trim();
@@ -217,11 +257,25 @@
   function answer(question) {
     const query = normalize(question);
     if (!query) return null;
+    let best = null;
+    let bestScore = 0;
     for (const row of rows) {
-      const aliases = row[1].split("|");
-      if (aliases.some(alias => query === normalize(alias))) return "[" + row[0] + "] " + row[2];
+      const aliases = row[1].split("|").map(normalize);
+      for (const alias of aliases) {
+        if (!alias) continue;
+        let score = 0;
+        if (query === alias) score = 100;
+        else if (query.includes(alias) && alias.length >= 4) score = 85 + Math.min(alias.length / 100, 0.9);
+        else {
+          const words = alias.split(" ").filter(word => word.length > 1);
+          const queryWords = query.split(" ");
+          const matched = words.filter(word => queryWords.includes(word)).length;
+          if (words.length >= 2 && matched === words.length) score = 70 + words.length;
+        }
+        if (score > bestScore) { bestScore = score; best = row; }
+      }
     }
-    return null;
+    return best ? "[" + best[0] + "] " + best[2] : null;
   }
   window.PDFMASTER_KNOWLEDGE = {
     answer,
