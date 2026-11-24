@@ -92,8 +92,10 @@ export default {
       try {
         const result = await env.AI.run(POOKIE_MODEL, {
           reasoning_effort: reasoningEffort,
-          chat_template_kwargs: { enable_thinking: true },
-          max_completion_tokens: maxCompletionTokens,
+          // Keep hidden reasoning off for ordinary questions so the model can return a visible answer within its token budget.
+          // Enable it only for questions that genuinely need multi-step reasoning.
+          chat_template_kwargs: { enable_thinking: isComplexQuestion, clear_thinking: true },
+          max_completion_tokens: Math.max(maxCompletionTokens, isComplexQuestion ? 1800 : 700),
           messages: [
             {
               role: "system",
@@ -101,7 +103,6 @@ export default {
             },
             ...messages
           ],
-          max_tokens: 700,
           temperature: 0.4
         });
         const answer = typeof result?.response === "string"
