@@ -206,8 +206,32 @@
     .pm-assistant-history-item button{width:100%;padding:9px 10px;border:0;border-radius:8px;background:transparent;color:#d6d6d6;text-align:left;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
     .pm-assistant-history-item{display:flex;align-items:center;gap:4px;min-width:0;position:relative}
     .pm-assistant-history-item .pm-chat-open{flex:1;min-width:0}
-    .pm-assistant-history-item .pm-chat-menu-toggle{flex:0 0 30px;width:30px;padding:6px 0;text-align:center;font-size:18px;color:#aaa}
-    .pm-assistant-history-item .pm-chat-menu-toggle:hover{color:#fff}
+    .pm-assistant-history-item .pm-chat-menu-toggle{flex:0 0 30px;width:30px;padding:6px 0;text-align:center;font-size:20px;color:#aaa;opacity:0;pointer-events:none;transition:opacity .15s ease,background .15s ease}
+    .pm-assistant-history-item:hover .pm-chat-menu-toggle,.pm-assistant-history-item:focus-within .pm-chat-menu-toggle,.pm-assistant-history-item .pm-chat-menu-toggle[aria-expanded="true"]{opacity:1;pointer-events:auto}
+    .pm-assistant-history-item .pm-chat-menu-toggle:hover{color:#fff;background:#303030!important}
+    .pm-chat-actions{position:absolute;right:4px;top:34px;z-index:20;min-width:158px;padding:5px;background:#252525;border:1px solid #3d3d3d;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+    .pm-chat-actions button{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border:0;border-radius:7px;background:transparent;color:#e5e5e5;text-align:left;font-size:12px;cursor:pointer}
+    .pm-chat-actions button:hover{background:#353535}
+    .pm-chat-actions .pm-chat-delete{color:#f08b8b}
+    @media(max-width:760px){.pm-assistant-history-item .pm-chat-menu-toggle{opacity:1;pointer-events:auto}}
+    .pm-chat-dialog-backdrop{position:fixed;inset:0;z-index:100020;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.62);backdrop-filter:blur(5px)}
+    .pm-chat-dialog-backdrop[hidden]{display:none}
+    .pm-chat-dialog{width:min(420px,100%);padding:24px;border:1px solid #414141;border-radius:18px;background:#202020;color:#eee;box-shadow:0 24px 80px rgba(0,0,0,.55);animation:pmDialogIn .16s ease-out}
+    @keyframes pmDialogIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .pm-chat-dialog-mark{display:grid;place-items:center;width:34px;height:34px;margin-bottom:15px;border:1px solid #414141;border-radius:11px;color:#d0d0d0;background:#2b2b2b}
+    .pm-chat-dialog h2{margin:0 0 8px;font-size:18px;font-weight:650;color:#f5f5f5}
+    .pm-chat-dialog-message{margin:0 0 18px;color:#aaa;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+    .pm-chat-dialog-field:empty{display:none}
+    .pm-chat-rename-input,.pm-chat-share-text{display:block;width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid #505050;border-radius:10px;outline:none;background:#171717;color:#eee;font:inherit;font-size:13px}
+    .pm-chat-rename-input:focus,.pm-chat-share-text:focus{border-color:#888}
+    .pm-chat-share-text{min-height:150px;resize:vertical;line-height:1.5}
+    .pm-chat-dialog-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:22px}
+    .pm-chat-dialog-actions button{padding:9px 15px;border:1px solid #484848;border-radius:9px;background:#2b2b2b;color:#eee;font-size:12px;font-weight:600;cursor:pointer}
+    .pm-chat-dialog-actions button:hover{background:#383838}
+    .pm-chat-dialog-actions .pm-dialog-primary{border-color:#555;background:#eee;color:#171717}
+    .pm-chat-dialog-actions .pm-dialog-primary:hover{background:#d8d8d8}
+    .pm-chat-dialog-actions .pm-dialog-primary.is-danger{border-color:#8f4444;background:#b94c4c;color:#fff}
+    @media(max-width:760px){.pm-assistant-sidebar .pm-chat-menu-toggle{opacity:1;pointer-events:auto}.pm-chat-dialog{padding:21px;border-radius:16px}}
     .pm-chat-actions{position:absolute;right:4px;top:34px;z-index:20;min-width:132px;padding:5px;background:#2b2b2b;border:1px solid #484848;border-radius:9px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
     .pm-chat-actions[hidden]{display:none}
     .pm-chat-actions button{display:block;width:100%;padding:8px 10px;border:0;border-radius:6px;background:transparent;color:#eee;text-align:left;font-size:12px;cursor:pointer}
@@ -280,49 +304,131 @@
     }
   });
 
+  // Native-looking, accessible in-app dialog used instead of browser prompt/confirm popups.
+  const chatDialog = document.createElement("div");
+  chatDialog.className = "pm-chat-dialog-backdrop";
+  chatDialog.hidden = true;
+  chatDialog.innerHTML = '<section class="pm-chat-dialog" role="dialog" aria-modal="true" aria-labelledby="pmChatDialogTitle"><div class="pm-chat-dialog-mark">✦</div><h2 id="pmChatDialogTitle"></h2><p class="pm-chat-dialog-message"></p><div class="pm-chat-dialog-field"></div><div class="pm-chat-dialog-actions"><button type="button" class="pm-dialog-cancel">Cancel</button><button type="button" class="pm-dialog-primary">Continue</button></div></section>';
+  panel.appendChild(chatDialog);
+  const dialogTitle = chatDialog.querySelector("#pmChatDialogTitle");
+  const dialogMessage = chatDialog.querySelector(".pm-chat-dialog-message");
+  const dialogField = chatDialog.querySelector(".pm-chat-dialog-field");
+  const dialogCancel = chatDialog.querySelector(".pm-dialog-cancel");
+  const dialogPrimary = chatDialog.querySelector(".pm-dialog-primary");
+  let dialogPreviousFocus = null;
+
+  function closeChatDialog() {
+    chatDialog.hidden = true;
+    dialogField.replaceChildren();
+    if (dialogPreviousFocus && dialogPreviousFocus.isConnected) dialogPreviousFocus.focus();
+  }
+  dialogCancel.addEventListener("click", closeChatDialog);
+  chatDialog.addEventListener("click", event => { if (event.target === chatDialog) closeChatDialog(); });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !chatDialog.hidden) closeChatDialog();
+  });
+  function showChatDialog({ title, message, primary = "Continue", danger = false, field = null, onConfirm }) {
+    dialogPreviousFocus = document.activeElement;
+    dialogTitle.textContent = title;
+    dialogMessage.textContent = message || "";
+    dialogField.replaceChildren();
+    if (field) dialogField.appendChild(field);
+    dialogPrimary.textContent = primary;
+    dialogPrimary.classList.toggle("is-danger", danger);
+    dialogPrimary.onclick = () => onConfirm && onConfirm();
+    chatDialog.hidden = false;
+    if (field) field.focus();
+    else dialogCancel.focus();
+  }
+
   function shareChat(chat) {
     if (!chat || !Array.isArray(chat.messages) || !chat.messages.length) return;
     const transcript = chat.messages.map(item =>
-      (item.role === "user" ? "You" : "PDFMaster Assistant") + ":\n" + String(item.content || "")
-    ).join("\n\n");
-    const shareText = (chat.title || "PDFMaster chat") + "\n\n" + transcript;
+      (item.role === "user" ? "You" : "PDFMaster Assistant") + ":\\n" + String(item.content || "")
+    ).join("\\n\\n");
+    const shareText = (chat.title || "PDFMaster chat") + "\\n\\n" + transcript;
     if (navigator.share) {
       navigator.share({ title: chat.title || "PDFMaster chat", text: shareText }).catch(error => {
-        if (error && error.name !== "AbortError") {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(shareText).then(() => alert("Chat copied to clipboard.")).catch(() => window.prompt("Copy your chat:", shareText));
-          } else window.prompt("Copy your chat:", shareText);
-        }
+        if (error && error.name !== "AbortError") showShareCopyDialog(shareText);
       });
       return;
     }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(shareText).then(() => alert("Chat copied to clipboard.")).catch(() => window.prompt("Copy your chat:", shareText));
-    } else window.prompt("Copy your chat:", shareText);
+    showShareCopyDialog(shareText);
+  }
+
+  function showShareCopyDialog(shareText) {
+    const area = document.createElement("textarea");
+    area.className = "pm-chat-share-text";
+    area.readOnly = true;
+    area.value = shareText;
+    showChatDialog({
+      title: "Share conversation",
+      message: "Copy this conversation text and share it wherever you like.",
+      primary: "Copy text",
+      field: area,
+      onConfirm: () => {
+        const fallbackCopy = () => {
+          area.focus();
+          area.select();
+          try { document.execCommand("copy"); dialogMessage.textContent = "Select and copy the text below."; }
+          catch (_) { dialogMessage.textContent = "Please select and copy the conversation text."; }
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(shareText).then(() => {
+            dialogMessage.textContent = "Conversation copied to clipboard.";
+            dialogPrimary.textContent = "Done";
+            dialogPrimary.onclick = closeChatDialog;
+          }).catch(fallbackCopy);
+        } else fallbackCopy();
+      }
+    });
   }
 
   function renameChat(chat) {
-    const nextTitle = window.prompt("Enter a new chat name:", chat.title || "New chat");
-    if (nextTitle === null) return;
-    const cleanTitle = nextTitle.trim().replace(/\s+/g, " ").slice(0, 60);
-    if (!cleanTitle) { alert("Chat name cannot be empty."); return; }
-    chat.title = cleanTitle;
-    chat.updatedAt = Date.now();
-    saveChatHistory();
-    renderChatHistory();
+    const field = document.createElement("input");
+    field.className = "pm-chat-rename-input";
+    field.type = "text";
+    field.maxLength = 60;
+    field.value = chat.title || "New chat";
+    showChatDialog({
+      title: "Rename chat",
+      message: "Choose a clear name for this conversation.",
+      primary: "Save",
+      field,
+      onConfirm: () => {
+        const cleanTitle = field.value.trim().replace(/\\s+/g, " ").slice(0, 60);
+        if (!cleanTitle) { dialogMessage.textContent = "Chat name cannot be empty."; field.focus(); return; }
+        chat.title = cleanTitle;
+        chat.updatedAt = Date.now();
+        saveChatHistory();
+        renderChatHistory();
+        closeChatDialog();
+      }
+    });
+    field.addEventListener("keydown", event => {
+      if (event.key === "Enter") { event.preventDefault(); dialogPrimary.click(); }
+    });
   }
 
   function deleteChat(chat) {
-    if (!window.confirm('Delete "' + (chat.title || "New chat") + '"? This cannot be undone.')) return;
-    chatHistory = chatHistory.filter(item => item.id !== chat.id);
-    if (currentChatId === chat.id) {
-      currentChatId = null;
-      pookieHistory = [];
-      messages.replaceChildren();
-      addMessage("Chat deleted. Start a new conversation whenever you are ready.", "assistant", [], { persist:false });
-    }
-    saveChatHistory();
-    renderChatHistory();
+    showChatDialog({
+      title: "Delete this chat?",
+      message: '“' + (chat.title || "New chat") + '” will be removed from this browser. This cannot be undone.',
+      primary: "Delete chat",
+      danger: true,
+      onConfirm: () => {
+        chatHistory = chatHistory.filter(item => item.id !== chat.id);
+        if (currentChatId === chat.id) {
+          currentChatId = null;
+          pookieHistory = [];
+          messages.replaceChildren();
+          addMessage("Chat deleted. Start a new conversation whenever you are ready.", "assistant", [], { persist:false });
+        }
+        saveChatHistory();
+        renderChatHistory();
+        closeChatDialog();
+      }
+    });
   }
 
   function renderChatHistory() {
@@ -355,10 +461,16 @@
       const menu = document.createElement("div");
       menu.className = "pm-chat-actions";
       menu.hidden = true;
-      const addAction = (label, action, extraClass) => {
+      const addAction = (label, icon, action, extraClass) => {
         const actionButton = document.createElement("button");
         actionButton.type = "button";
-        actionButton.textContent = label;
+        const iconNode = document.createElement("span");
+        iconNode.className = "pm-chat-action-icon";
+        iconNode.setAttribute("aria-hidden", "true");
+        iconNode.textContent = icon;
+        const labelNode = document.createElement("span");
+        labelNode.textContent = label;
+        actionButton.append(iconNode, labelNode);
         if (extraClass) actionButton.className = extraClass;
         actionButton.addEventListener("click", () => {
           menu.hidden = true;
@@ -367,9 +479,9 @@
         });
         menu.appendChild(actionButton);
       };
-      addAction("Rename", renameChat);
-      addAction("Share", shareChat);
-      addAction("Delete", deleteChat, "pm-chat-delete");
+      addAction("Rename", "✎", renameChat);
+      addAction("Share", "↗", shareChat);
+      addAction("Delete", "⌫", deleteChat, "pm-chat-delete");
       menuToggle.addEventListener("click", event => {
         event.stopPropagation();
         const willOpen = menu.hidden;
