@@ -6760,11 +6760,22 @@ body:not(.tool-page-active) .topbar-badge:hover {
 }
 
 
-/* Align the sidebar brand beside the hamburger on every mobile page */
+/* Mobile only: align the sidebar brand with the hamburger and match the homepage gold mark */
 @media (max-width: 650px) {
   body > .sidebar.open > .logo {
+    margin-top: -14px !important;
     margin-left: 48px !important;
     width: calc(100% - 48px) !important;
+    min-height: 38px !important;
     box-sizing: border-box !important;
+  }
+
+  body > .sidebar.open > .logo .logo-icon {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    background: linear-gradient(135deg, #b08d50, #d9b77e) !important;
+    color: #100d10 !important;
+    box-shadow: 0 4px 16px rgba(176, 141, 80, .2) !important;
   }
 }
