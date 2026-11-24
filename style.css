@@ -6708,3 +6708,31 @@ body:not(.tool-page-active) .topbar-badge:hover {
     font-size: 15px;
   }
 }
+
+
+/* MOBILE HOME HEADER TWEAKS — logo clear of hamburger; hide duplicate top links */
+@media (max-width: 760px) {
+  .topbar {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+  }
+  .topbar-logo {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    margin-left: 49px !important;
+  }
+  .home-nav {
+    display: none !important;
+  }
+  .pm-auth-link {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+  .topbar-right .search-box {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+  }
+  .pm-assistant-launcher {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+  }
+}
