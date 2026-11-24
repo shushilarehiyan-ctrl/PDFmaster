@@ -316,88 +316,128 @@
     return /\b(search the web|web research|research|sources?|references?|latest|current|currently|recent|news|price|2026|2027|who is|what happened|look up|google it)\b|ताज़ा|ताजा|वर्तमान|स्रोत|रिसर्च|खोजो/.test(question.toLowerCase());
   }
 
-  // Free browser-side research: Wikipedia + OpenAlex. No API key or own server.
+  // Free browser-side knowledge search. Uses public APIs; no paid search key or own server.
   function cleanSearchExcerpt(value) {
     const node = document.createElement("div");
     node.innerHTML = String(value || "");
-    return (node.textContent || "").replace(/\s+/g, " ").trim();
+    return (node.textContent || "").replace(/\\s+/g, " ").trim();
+  }
+
+  async function fetchPublicJson(url, label) {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 9000);
+    try {
+      const response = await fetch(url, { signal: controller.signal });
+      if (!response.ok) throw new Error(label + " returned " + response.status);
+      return await response.json();
+    } finally {
+      window.clearTimeout(timeout);
+    }
   }
 
   async function searchFreeKnowledge(question) {
-    const encoded = encodeURIComponent(question.trim());
-    const wikiSearch = async (language) => {
-      const host = language + ".wikipedia.org";
-      const params = new URLSearchParams({
-        action: "query",
-        list: "search",
-        srsearch: question.trim(),
-        srlimit: "5",
-        format: "json",
-        origin: "*"
-      });
-      const response = await fetch("https://" + host + "/w/api.php?" + params.toString());
-      if (!response.ok) throw new Error(language + " Wikipedia request failed (" + response.status + ")");
-      const data = await response.json();
-      return (data.query && data.query.search || []).map(item => ({
-        title: item.title,
-        url: "https://" + host + "/wiki/" + encodeURIComponent(item.title.replace(/ /g, "_")),
-        snippet: cleanSearchExcerpt(item.snippet || "Wikipedia article")
-      }));
-    };
+    const query = question.trim();
+    const encoded = encodeURIComponent(query);
+    const providers = [
+      {
+        name: "English Wikipedia",
+        run: async () => {
+          const params = new URLSearchParams({ action: "query", list: "search", srsearch: query, srlimit: "5", format: "json", origin: "*" });
+          const data = await fetchPublicJson("https://en.wikipedia.org/w/api.php?" + params, "English Wikipedia");
+          return (data.query?.search || []).map(item => ({
+            title: item.title,
+            url: "https://en.wikipedia.org/wiki/" + encodeURIComponent(item.title.replace(/ /g, "_")),
+            snippet: cleanSearchExcerpt(item.snippet || "Encyclopedia article")
+          }));
+        }
+      },
+      {
+        name: "Hindi Wikipedia",
+        run: async () => {
+          const params = new URLSearchParams({ action: "query", list: "search", srsearch: query, srlimit: "5", format: "json", origin: "*" });
+          const data = await fetchPublicJson("https://hi.wikipedia.org/w/api.php?" + params, "Hindi Wikipedia");
+          return (data.query?.search || []).map(item => ({
+            title: item.title,
+            url: "https://hi.wikipedia.org/wiki/" + encodeURIComponent(item.title.replace(/ /g, "_")),
+            snippet: cleanSearchExcerpt(item.snippet || "Hindi encyclopedia article")
+          }));
+        }
+      },
+      {
+        name: "Wikidata",
+        run: async () => {
+          const params = new URLSearchParams({ action: "wbsearchentities", search: query, language: "en", uselang: "en", limit: "5", format: "json", origin: "*" });
+          const data = await fetchPublicJson("https://www.wikidata.org/w/api.php?" + params, "Wikidata");
+          return (data.search || []).map(item => ({
+            title: item.label || item.id,
+            url: item.concepturi || ("https://www.wikidata.org/wiki/" + item.id),
+            snippet: item.description || "Structured knowledge entry"
+          }));
+        }
+      },
+      {
+        name: "OpenAlex research",
+        run: async () => {
+          const params = new URLSearchParams({ search: query, per_page: "4", select: "doi,title,publication_year,primary_location" });
+          const data = await fetchPublicJson("https://api.openalex.org/works?" + params, "OpenAlex");
+          return (data.results || []).map(work => {
+            const location = work.primary_location || {};
+            const landing = location.landing_page_url || (location.source && location.source.homepage_url);
+            const doiUrl = work.doi && work.doi.startsWith("https://doi.org/") ? work.doi : "";
+            return {
+              title: work.title || "Research work",
+              url: landing || doiUrl || work.id || "https://openalex.org",
+              snippet: "Scholarly publication" + (work.publication_year ? " • " + work.publication_year : "")
+            };
+          }).filter(item => item.url && (item.url.startsWith("https://") || item.url.startsWith("http://")));
+        }
+      },
+      {
+        name: "Crossref research",
+        run: async () => {
+          const params = new URLSearchParams({ "query.bibliographic": query, rows: "4", select: "DOI,title,published,URL" });
+          const data = await fetchPublicJson("https://api.crossref.org/works?" + params, "Crossref");
+          return (data.message?.items || []).map(work => {
+            const dateParts = work.published?.["date-parts"]?.[0] || [];
+            return {
+              title: Array.isArray(work.title) ? work.title[0] : "Research publication",
+              url: work.URL || (work.DOI ? "https://doi.org/" + work.DOI : ""),
+              snippet: "Research publication" + (dateParts[0] ? " • " + dateParts[0] : "")
+            };
+          }).filter(item => item.url && (item.url.startsWith("https://") || item.url.startsWith("http://")));
+        }
+      }
+    ];
 
-    const openAlexSearch = async () => {
-      const params = new URLSearchParams({
-        search: question.trim(),
-        per_page: "4",
-        select: "doi,title,publication_year,primary_location"
-      });
-      const response = await fetch("https://api.openalex.org/works?" + params.toString());
-      if (!response.ok) throw new Error("OpenAlex request failed (" + response.status + ")");
-      const data = await response.json();
-      return (data.results || []).map(work => {
-        const location = work.primary_location || {};
-        const landing = location.landing_page_url || (location.source && location.source.homepage_url);
-        const doiUrl = work.doi && work.doi.startsWith("https://doi.org/") ? work.doi : "";
-        return {
-          title: work.title || "Research work",
-          url: landing || doiUrl || (work.id || "https://openalex.org"),
-          snippet: "Scholarly publication" + (work.publication_year ? " • " + work.publication_year : "")
-        };
-      }).filter(item => /^https?:\/\//i.test(item.url));
-    };
-
-    const results = await Promise.allSettled([
-      wikiSearch("en"),
-      wikiSearch("hi"),
-      openAlexSearch()
-    ]);
+    const results = await Promise.allSettled(providers.map(provider => provider.run()));
     const sources = results
       .filter(result => result.status === "fulfilled")
-      .flatMap(result => result.value)
+      .flatMap((result, index) => result.value.map(item => ({ ...item, provider: providers[index].name })))
       .filter((item, index, all) => item.url && all.findIndex(other => other.url === item.url) === index)
-      .slice(0, 12);
+      .slice(0, 18);
+    const unavailable = results.map((result, index) => result.status === "rejected" ? providers[index].name : "").filter(Boolean);
+    const searchLinks = [
+      { title: "Search English Wikipedia", url: "https://en.wikipedia.org/w/index.php?search=" + encoded, snippet: "Encyclopedia search" },
+      { title: "Search Hindi Wikipedia", url: "https://hi.wikipedia.org/w/index.php?search=" + encoded, snippet: "Hindi encyclopedia search" },
+      { title: "Search Wikidata", url: "https://www.wikidata.org/w/index.php?search=" + encoded, snippet: "Structured knowledge search" },
+      { title: "Search OpenAlex research", url: "https://openalex.org/works?search=" + encoded, snippet: "Scholarly works search" },
+      { title: "Search Crossref publications", url: "https://search.crossref.org/?q=" + encoded, snippet: "Academic publication search" }
+    ];
 
     if (!sources.length) {
       return {
-        answer: "The free search APIs could not return results in this browser. You can still open the search pages directly. This free mode searches Wikipedia and scholarly publications; it is not a full-web search engine.",
-        sources: [
-          { title: "English Wikipedia search", url: "https://en.wikipedia.org/w/index.php?search=" + encoded, snippet: "Search English Wikipedia." },
-          { title: "Hindi Wikipedia search", url: "https://hi.wikipedia.org/w/index.php?search=" + encoded, snippet: "Search Hindi Wikipedia." },
-          { title: "OpenAlex research search", url: "https://openalex.org/works?search=" + encoded, snippet: "Search scholarly publications." }
-        ]
+        answer: "The free knowledge services did not respond in this browser. I have included direct search links so you can still look up the topic. Check your internet connection and try again. This mode does not generate an AI-written answer.",
+        sources: searchLinks
       };
     }
 
-    const count = index => results[index].status === "fulfilled" ? results[index].value.length : 0;
-    const unavailable = results.map((result, index) => result.status === "rejected" ? ["English Wikipedia", "Hindi Wikipedia", "OpenAlex"][index] : "").filter(Boolean);
+    const counts = results.map((result, index) => result.status === "fulfilled" ? providers[index].name + ": " + result.value.length : "");
     return {
-      answer: "Search results found: " + sources.length +
-        " • English Wikipedia: " + count(0) +
-        " • Hindi Wikipedia: " + count(1) +
-        " • Research papers: " + count(2) +
-        (unavailable.length ? "\\nSome sources did not respond: " + unavailable.join(", ") + "." : "") +
-        "\\n\\nThese are source results, not an AI-written summary. Open a source to read it. This is not a full Google-style web search.",
-      sources
+      answer: "I searched " + providers.length + " free knowledge services and found " + sources.length + " results.\\n" +
+        counts.filter(Boolean).join(" • ") +
+        (unavailable.length ? "\\nUnavailable this time: " + unavailable.join(", ") + "." : "") +
+        "\\n\\nThese are retrieved source results, not an AI-written or fully verified summary. Open the sources and compare them; important medical, legal, financial or safety decisions need authoritative professional sources.",
+      sources: sources.concat(searchLinks).slice(0, 18)
     };
   }
 
@@ -489,11 +529,9 @@
       return;
     }
 
-    if (isResearchQuestion(value)) {
-      await askResearch(value);
-      return;
-    }
-    window.setTimeout(() => addMessage(localReply, "assistant"), 120);
+    // Unknown questions automatically search free public knowledge sources.
+    // This gives every visitor a useful next step without requiring a paid API key.
+    await askResearch(value);
   }
 
   form.addEventListener("submit", event => {
