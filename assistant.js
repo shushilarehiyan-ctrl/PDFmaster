@@ -342,9 +342,9 @@
   function shareChat(chat) {
     if (!chat || !Array.isArray(chat.messages) || !chat.messages.length) return;
     const transcript = chat.messages.map(item =>
-      (item.role === "user" ? "You" : "PDFMaster Assistant") + ":\\n" + String(item.content || "")
-    ).join("\\n\\n");
-    const shareText = (chat.title || "PDFMaster chat") + "\\n\\n" + transcript;
+      (item.role === "user" ? "You" : "PDFMaster Assistant") + ":\n" + String(item.content || "")
+    ).join("\n\n");
+    const shareText = (chat.title || "PDFMaster chat") + "\n\n" + transcript;
     if (navigator.share) {
       navigator.share({ title: chat.title || "PDFMaster chat", text: shareText }).catch(error => {
         if (error && error.name !== "AbortError") showShareCopyDialog(shareText);
@@ -394,7 +394,7 @@
       primary: "Save",
       field,
       onConfirm: () => {
-        const cleanTitle = field.value.trim().replace(/\\s+/g, " ").slice(0, 60);
+        const cleanTitle = field.value.trim().replace(/\s+/g, " ").slice(0, 60);
         if (!cleanTitle) { dialogMessage.textContent = "Chat name cannot be empty."; field.focus(); return; }
         chat.title = cleanTitle;
         chat.updatedAt = Date.now();
