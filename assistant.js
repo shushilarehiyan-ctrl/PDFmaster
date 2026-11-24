@@ -204,15 +204,15 @@
     .pm-assistant-history-top{display:none!important}
     .pm-assistant-history-list{display:grid;gap:3px}
     .pm-assistant-history-item button{width:100%;padding:9px 10px;border:0;border-radius:8px;background:transparent;color:#d6d6d6;text-align:left;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
-    .pm-assistant-history-item{display:flex;align-items:center;gap:4px;min-width:0;position:relative}
-    .pm-assistant-history-item .pm-chat-open{flex:1;min-width:0}
-    .pm-assistant-history-item .pm-chat-menu-toggle{flex:0 0 30px;width:30px;padding:6px 0;text-align:center;font-size:20px;color:#aaa;opacity:0;pointer-events:none;transition:opacity .15s ease,background .15s ease}
+    .pm-assistant-history-item{display:flex;align-items:center;min-width:0;position:relative}
+    .pm-assistant-history-item .pm-chat-open{flex:1;min-width:0;padding-right:42px}
+    .pm-assistant-history-item .pm-chat-menu-toggle{position:absolute;right:5px;top:50%;transform:translateY(-50%);display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;padding:0;border:0;border-radius:8px;background:transparent!important;color:#bdbdbd!important;font-size:21px;line-height:1;opacity:0;pointer-events:none;transition:opacity .14s ease,background .14s ease}
     .pm-assistant-history-item:hover .pm-chat-menu-toggle,.pm-assistant-history-item:focus-within .pm-chat-menu-toggle,.pm-assistant-history-item .pm-chat-menu-toggle[aria-expanded="true"]{opacity:1;pointer-events:auto}
-    .pm-assistant-history-item .pm-chat-menu-toggle:hover{color:#fff;background:#303030!important}
-    .pm-chat-actions{position:absolute;right:4px;top:34px;z-index:20;min-width:158px;padding:5px;background:#252525;border:1px solid #3d3d3d;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
-    .pm-chat-actions button{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border:0;border-radius:7px;background:transparent;color:#e5e5e5;text-align:left;font-size:12px;cursor:pointer}
-    .pm-chat-actions button:hover{background:#353535}
-    .pm-chat-actions .pm-chat-delete{color:#f08b8b}
+    .pm-assistant-history-item .pm-chat-menu-toggle:hover,.pm-assistant-history-item .pm-chat-menu-toggle[aria-expanded="true"]{background:#303030!important;color:#fff!important}
+    .pm-chat-actions{position:absolute;right:4px;top:calc(100% - 2px);z-index:20;width:220px;min-width:220px;padding:6px;background:#2b2b2b;border:1px solid #414141;border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.42)}
+    .pm-chat-actions button{display:flex;align-items:center;gap:12px;width:100%;min-height:36px;padding:8px 11px;border:0;border-radius:7px;background:transparent!important;color:#ececec!important;text-align:left;font-size:13px;font-weight:400;cursor:pointer}
+    .pm-chat-actions button:hover{background:#3a3a3a!important}
+    .pm-chat-actions .pm-chat-delete{color:#ececec!important}
     @media(max-width:760px){.pm-assistant-history-item .pm-chat-menu-toggle{opacity:1;pointer-events:auto}}
     .pm-chat-dialog-backdrop{position:fixed;inset:0;z-index:100020;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.62);backdrop-filter:blur(5px)}
     .pm-chat-dialog-backdrop[hidden]{display:none}
@@ -233,8 +233,7 @@
     .pm-chat-dialog-actions .pm-dialog-primary.is-danger{border-color:#8f4444;background:#b94c4c;color:#fff}
     @media(max-width:760px){.pm-assistant-sidebar .pm-chat-menu-toggle{opacity:1;pointer-events:auto}.pm-chat-dialog{padding:21px;border-radius:16px}}
     .pm-chat-actions[hidden]{display:none}
-    .pm-chat-action-icon{display:inline-grid;place-items:center;width:17px;color:#b8b8b8;font-size:14px}
-    .pm-chat-actions .pm-chat-delete .pm-chat-action-icon{color:#ef9292}
+    .pm-chat-action-icon{display:inline-grid;place-items:center;width:18px;color:#c4c4c4;font-size:15px;flex:0 0 18px}
     .pm-assistant-history-empty{padding:8px;color:#858585;font-size:11px;line-height:1.5}
     .pm-assistant-sidebar-note{padding:12px 7px 4px;border-top:1px solid #303030;color:#858585;font-size:10px;line-height:1.5}
     .pm-assistant-header{grid-column:2;grid-row:1;min-width:0;padding:10px 22px;background:#212121;border:0;border-bottom:1px solid #303030}
@@ -254,8 +253,7 @@
     .pm-assistant-form button{width:44px;height:44px;border-radius:50%}
     .pm-assistant-footer{grid-column:2;grid-row:5;padding:5px 12px 12px;color:#858585;font-size:10px}
     .pm-assistant-header-actions{display:none!important}
-    .pm-assistant-history-toggle{display:inline-flex;align-items:center;gap:7px;margin-left:auto;padding:8px 12px;border:1px solid #454545;border-radius:9px;background:#2b2b2b;color:#eee;font-size:12px;cursor:pointer}
-    .pm-assistant-history-toggle:hover{background:#383838}
+    .pm-assistant-history-toggle{display:none!important}
     @media(max-width:760px){
       .pm-assistant-sidebar.is-mobile-open{display:flex!important;position:fixed;inset:0 auto 0 0;width:270px;z-index:5;box-shadow:18px 0 60px rgba(0,0,0,.55)}
       .pm-assistant-mobile-menu{display:inline-flex!important}
@@ -285,22 +283,6 @@
   mobileMenuButton.style.cssText = "display:none;border:0;background:transparent;color:#eee;font-size:20px;margin-right:8px;cursor:pointer";
   header.insertBefore(mobileMenuButton, header.firstChild);
   mobileMenuButton.addEventListener("click", () => sidebar.classList.toggle("is-mobile-open"));
-  const historyToggleButton = document.createElement("button");
-  historyToggleButton.type = "button";
-  historyToggleButton.className = "pm-assistant-history-toggle";
-  historyToggleButton.textContent = "◷ History";
-  historyToggleButton.setAttribute("aria-label", "Show chat history");
-  header.appendChild(historyToggleButton);
-  historyToggleButton.addEventListener("click", () => {
-    if (window.matchMedia("(max-width: 760px)").matches) {
-      sidebar.classList.toggle("is-mobile-open");
-    } else {
-      const label = sidebar.querySelector(".pm-assistant-history-label");
-      if (label) label.scrollIntoView({ behavior: "smooth", block: "start" });
-      const firstChat = historyList && historyList.querySelector("button");
-      if (firstChat) firstChat.focus({ preventScroll: true });
-    }
-  });
 
   // Native-looking, accessible in-app dialog used instead of browser prompt/confirm popups.
   const chatDialog = document.createElement("div");
@@ -408,7 +390,49 @@
     });
   }
 
+  function moveChatToProject(chat) {
+    const field = document.createElement("input");
+    field.className = "pm-chat-rename-input";
+    field.type = "text";
+    field.maxLength = 50;
+    field.placeholder = "Project name";
+    field.value = chat.project || "";
+    showChatDialog({
+      title: "Move to project",
+      message: "Enter an existing project name or create a new project name.",
+      primary: "Move",
+      field,
+      onConfirm: () => {
+        const project = field.value.trim().replace(/\\s+/g, " ").slice(0, 50);
+        if (!project) { dialogMessage.textContent = "Please enter a project name."; field.focus(); return; }
+        chat.project = project;
+        chat.updatedAt = Date.now();
+        saveChatHistory();
+        renderChatHistory();
+        closeChatDialog();
+      }
+    });
+  }
+
+  function togglePinChat(chat) {
+    chat.pinned = !chat.pinned;
+    chat.updatedAt = Date.now();
+    saveChatHistory();
+    renderChatHistory();
+  }
+
+  function toggleLockChat(chat) {
+    chat.locked = !chat.locked;
+    chat.updatedAt = Date.now();
+    saveChatHistory();
+    renderChatHistory();
+  }
+
   function deleteChat(chat) {
+    if (chat.locked) {
+      showChatDialog({ title:"Chat is locked", message:"Unlock this chat from its options before deleting it.", primary:"Got it", onConfirm:closeChatDialog });
+      return;
+    }
     showChatDialog({
       title: "Delete this chat?",
       message: '“' + (chat.title || "New chat") + '” will be removed from this browser. This cannot be undone.',
@@ -432,7 +456,7 @@
   function renderChatHistory() {
     if (!historyList) return;
     historyList.replaceChildren();
-    const sorted = chatHistory.slice().sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    const sorted = chatHistory.slice().sort((a,b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)) || (b.updatedAt || 0) - (a.updatedAt || 0));
     if (!sorted.length) {
       const empty = document.createElement("div");
       empty.className = "pm-assistant-history-empty";
@@ -446,7 +470,7 @@
       const openButton = document.createElement("button");
       openButton.type = "button";
       openButton.className = "pm-chat-open";
-      openButton.textContent = chat.title || "New chat";
+      openButton.textContent = (chat.pinned ? "📌 " : "") + (chat.title || "New chat") + (chat.project ? " · " + chat.project : "");
       openButton.title = chat.title || "New chat";
       openButton.addEventListener("click", () => { sidebar.classList.remove("is-mobile-open"); openSavedChat(chat.id); });
       const menuToggle = document.createElement("button");
@@ -478,8 +502,11 @@
         });
         menu.appendChild(actionButton);
       };
-      addAction("Rename", "✎", renameChat);
       addAction("Share", "↗", shareChat);
+      addAction("Rename", "✎", renameChat);
+      addAction("Move to project", "▣", moveChatToProject);
+      addAction(chat.pinned ? "Unpin" : "Pin", "⌖", togglePinChat);
+      addAction(chat.locked ? "Unlock" : "Lock", "▤", toggleLockChat);
       addAction("Delete", "⌫", deleteChat, "pm-chat-delete");
       menuToggle.addEventListener("click", event => {
         event.stopPropagation();
@@ -489,6 +516,7 @@
         menu.hidden = !willOpen;
         menuToggle.setAttribute("aria-expanded", String(willOpen));
       });
+      if (chat.locked) openButton.title = (chat.title || "Chat") + " · Locked";
       row.append(openButton, menuToggle, menu);
       historyList.appendChild(row);
     });
