@@ -213,7 +213,7 @@
     .pm-chat-actions button{display:flex;align-items:center;gap:12px;width:100%;min-height:36px;padding:8px 11px;border:0;border-radius:7px;background:transparent!important;color:#ececec!important;text-align:left;font-size:13px;font-weight:400;cursor:pointer}
     .pm-chat-actions button:hover{background:#3a3a3a!important}
     .pm-chat-actions .pm-chat-delete{color:#ececec!important}
-    @media(max-width:760px){.pm-assistant-history-item .pm-chat-menu-toggle{opacity:1;pointer-events:auto}}
+    @media(max-width:760px){.pm-assistant-history-item .pm-chat-menu-toggle{opacity:.72;pointer-events:auto;color:#929292!important}.pm-assistant-history-item .pm-chat-menu-toggle:hover,.pm-assistant-history-item .pm-chat-menu-toggle[aria-expanded="true"]{opacity:1;color:#d0d0d0!important}}
     .pm-chat-dialog-backdrop{position:fixed;inset:0;z-index:100020;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.62);backdrop-filter:blur(5px)}
     .pm-chat-dialog-backdrop[hidden]{display:none}
     .pm-chat-dialog{width:min(420px,100%);padding:24px;border:1px solid #414141;border-radius:18px;background:#202020;color:#eee;box-shadow:0 24px 80px rgba(0,0,0,.55);animation:pmDialogIn .16s ease-out}
@@ -543,6 +543,14 @@
   }
   newChatButton.addEventListener("click", () => { sidebar.classList.remove("is-mobile-open"); startNewChat(); });
   renderChatHistory();
+
+  // Close any open chat menu when the user clicks/taps anywhere outside it.
+  document.addEventListener("click", event => {
+    if (event.target.closest(".pm-chat-actions") || event.target.closest(".pm-chat-menu-toggle")) return;
+    historyList.querySelectorAll(".pm-chat-actions").forEach(menu => { menu.hidden = true; });
+    historyList.querySelectorAll(".pm-chat-menu-toggle").forEach(button => button.setAttribute("aria-expanded", "false"));
+  });
+
   function setResearchMode(enabled) {
     researchMode = enabled;
     if (researchToggle) {
