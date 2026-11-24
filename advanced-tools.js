@@ -29,7 +29,6 @@
     { id: "pptx-to-pdf", title: "PPTX to PDF", category: "CONVERT TO PDF", description: "Convert slide text into a PDF. Slide visuals, animations and exact layout are not retained.", type: "pptx-pdf", accept: ".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation" },
     { id: "excel-to-pdf", title: "Excel to PDF", category: "CONVERT TO PDF", description: "Convert worksheet cell content into a readable PDF. Complex formatting may change.", type: "excel-pdf", accept: ".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" },
     { id: "sign-pdf", title: "Sign PDF", category: "SIGN & SECURITY", description: "Place a typed signature label on the first page. This is not a certificate-based digital signature.", type: "sign", accept: ".pdf,application/pdf" },
-    { id: "image-creation", title: "AI Image Creation", category: "AI IMAGE STUDIO", description: "Turn a text idea into an AI-generated image with an enhanced prompt and selectable visual style.", type: "image-gen" }
   ];
 
   // Distinct, task-matched marks for the tool cards and sidebar.
