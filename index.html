@@ -997,6 +997,13 @@
 
         });
 
+        // Close the mobile sidebar when the user taps anywhere outside it.
+        document.addEventListener("click", function(event) {
+            if (!sidebar.classList.contains("open")) return;
+            if (sidebar.contains(event.target) || menuToggle.contains(event.target)) return;
+            sidebar.classList.remove("open");
+            menuToggle.setAttribute("aria-expanded", "false");
+        });
 
         document.querySelectorAll(".sidebar-nav a").forEach(function(link) {
 
