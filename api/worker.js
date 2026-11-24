@@ -82,8 +82,8 @@ export default {
 
       // Adapt reasoning effort to the question: keep simple facts fast, reserve deeper reasoning for demanding tasks.
       const latestQuestion = messages[messages.length - 1].content;
-      const isComplexQuestion = /\\b(derive|prove|solve|calculate|analyze|analyse|compare|reasoning|step by step|numerical|mechanism|debug|algorithm|architecture|why|how does|how do)\\b|kyun|kaise|samjhao|siddh|vyutpann|numerical|logic|tark/i.test(latestQuestion);
-      const isAcademicQuestion = /\\b(math|mathematics|physics|chemistry|biology|science|calculus|algebra|trigonometry|programming|computer science|concept|explain|difference)\\b|ganit|vigyan/i.test(latestQuestion);
+      const isComplexQuestion = /\b(derive|prove|solve|calculate|analyze|analyse|compare|reasoning|step by step|numerical|mechanism|debug|algorithm|architecture|why|how does|how do)\\b|kyun|kaise|samjhao|siddh|vyutpann|numerical|logic|tark/i.test(latestQuestion);
+      const isAcademicQuestion = /\b(math|mathematics|physics|chemistry|biology|science|calculus|algebra|trigonometry|programming|computer science|concept|explain|difference)\\b|ganit|vigyan/i.test(latestQuestion);
       const reasoningEffort = isComplexQuestion ? "high" : isAcademicQuestion ? "medium" : "low";
       const maxCompletionTokens = isComplexQuestion ? 1400 : isAcademicQuestion ? 900 : 500;
 
