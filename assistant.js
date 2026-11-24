@@ -270,6 +270,7 @@
     .pm-assistant-form button{width:44px;height:44px;border-radius:50%}
     .pm-assistant-footer{grid-column:2;grid-row:5;padding:5px 12px 12px;color:#858585;font-size:10px}
     .pm-assistant-image-verification{display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%;padding:6px 0;color:#a8a8a8;font-size:10px}
+    .pm-assistant-image-verification[hidden]{display:none!important}
     .pm-assistant-image-verification:empty{display:none}
     .pm-assistant-generated-image{display:block;width:min(100%,640px);height:auto;max-height:520px;object-fit:contain;margin-top:12px;border:1px solid #454545;border-radius:12px;background:#171717}
     .pm-assistant-image-download{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:9px 14px;border:1px solid #555;border-radius:9px;background:#303030;color:#f5f5f5;text-decoration:none;font-size:12px;font-weight:600}
