@@ -80,6 +80,8 @@ export default {
         return json({ error: "The conversation is too long or the latest message is missing." }, 400, allowedOrigin);
       }
 
+      // Measure model time separately from browser/network overhead.
+      const pookieStartedAt = Date.now();
       try {
         const result = await env.AI.run(POOKIE_MODEL, {
           messages: [
@@ -96,7 +98,11 @@ export default {
           ? result.response
           : (typeof result?.choices?.[0]?.message?.content === "string" ? result.choices[0].message.content : "");
         if (!answer.trim()) return json({ error: "Pookie AI did not return an answer. Please try again." }, 502, allowedOrigin);
-        return json({ answer: answer.trim(), model: POOKIE_MODEL }, 200, allowedOrigin);
+        return json({
+          answer: answer.trim(),
+          model: POOKIE_MODEL,
+          modelDurationMs: Date.now() - pookieStartedAt
+        }, 200, allowedOrigin);
       } catch (error) {
         return json({ error: "Pookie AI is temporarily unavailable. Please try again later." }, 502, allowedOrigin);
       }
