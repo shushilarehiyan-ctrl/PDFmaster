@@ -30,6 +30,17 @@
   function renderAssistantContent(container, rawText) {
     let source = String(rawText || "").replace(/\\([*_\x60])/g, "$1");
     const mathParts = [];
+
+    // Convert fenced math/LaTeX blocks into display math before Markdown parsing.
+    // This applies to every assistant answer, not just a particular subject.
+    source = source.replace(/```[ \t]*(?:math|latex)\b[ \t]*\r?\n?([\s\S]*?)```/gi,
+      (match, tex) => {
+        const index = mathParts.length;
+        mathParts.push({ tex: tex.trim(), display: true });
+        return "PDFMASTERMATHPLACEHOLDER" + index + "END";
+      });
+
+    // Also support standard inline and display LaTeX delimiters.
     source = source.replace(/\$\$([\s\S]+?)\$\$|\\\[([\s\S]+?)\\\]|\\\(([\s\S]+?)\\\)|(?<!\\)\$([^$\n]+?)\$/g,
       (match, blockDollar, blockBracket, inlineParen, inlineDollar) => {
         const index = mathParts.length;
@@ -606,7 +617,7 @@
 
   async function askPookieAI(question) {
     if (!RESEARCH_API_URL) return false;
-    const loading = addMessage("Pookie AI is thinking…", "assistant");
+    const loading = addMessage("Thinking…", "assistant");
     const conversation = pookieHistory.concat([{ role: "user", content: question }]).slice(-12);
     try {
       const response = await fetch(RESEARCH_API_URL.replace(/\/$/, "") + "/api/chat", {
