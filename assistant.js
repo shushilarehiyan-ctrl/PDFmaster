@@ -633,17 +633,19 @@
       return;
     }
 
-    // Unknown questions go to Pookie AI first; if it is not configured or unavailable,
-    // keep the existing public-source research fallback working.
+    // Unknown questions go to Cloudflare-hosted Pookie AI first.
+    // Web Research must only run when the user explicitly turns it ON.
     const answeredByPookie = await askPookieAI(value);
     if (answeredByPookie) return;
 
-    // If the AI backend is unavailable, use the offline learning library as a fallback.
+    // If Pookie AI is unavailable, use the offline learning libraries.
     const offlineEducation = window.PDFMASTER_EDUCATION && window.PDFMASTER_EDUCATION.answer(value);
     if (offlineEducation) { addMessage(offlineEducation, "assistant"); return; }
     const offlineKnowledge = window.PDFMASTER_KNOWLEDGE && window.PDFMASTER_KNOWLEDGE.answer(value);
     if (offlineKnowledge) { addMessage(offlineKnowledge, "assistant"); return; }
-    await askResearch(value);
+
+    // Do not silently switch to source-based research while Web Research is OFF.
+    addMessage("Pookie AI se connection nahi ho paya. Web Research OFF hai, isliye maine research search start nahi ki. Please check the Cloudflare /api/chat connection and try again.", "assistant");
   }
 
   form.addEventListener("submit", event => {
