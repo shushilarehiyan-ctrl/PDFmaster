@@ -114,7 +114,13 @@ export default {
           modelDurationMs: Date.now() - pookieStartedAt
         }, 200, allowedOrigin);
       } catch (error) {
-        return json({ error: "PDFMASTER ASSISTANT is temporarily unavailable. Please try again later." }, 502, allowedOrigin);
+        // Temporary diagnostics: keep detailed provider errors in Cloudflare Worker logs, not in public API responses.
+        console.error("PDFMASTER /api/chat Workers AI failure:", {
+          name: error && error.name ? error.name : "Error",
+          message: error && error.message ? error.message : String(error),
+          stack: error && error.stack ? error.stack : ""
+        });
+        return json({ error: "PDFMASTER ASSISTANT is temporarily unavailable. Check Worker logs for the underlying AI error." }, 502, allowedOrigin);
       }
     }
 
