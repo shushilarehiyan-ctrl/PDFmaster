@@ -257,10 +257,10 @@
     .pm-assistant-history-toggle{display:none!important}
     @media(max-width:760px){
       .pm-assistant-sidebar.is-mobile-open{display:flex!important;position:fixed;inset:0 auto 0 0;width:min(270px,82vw);z-index:6;box-shadow:18px 0 60px rgba(0,0,0,.55)}
-      .pm-assistant-history-backdrop{position:fixed;inset:0;z-index:5;border:0;background:rgba(0,0,0,.38);padding:0}
+      .pm-assistant-history-backdrop{position:fixed;inset:0;z-index:5;border:0;background:transparent!important;padding:0;appearance:none;-webkit-appearance:none;box-shadow:none}
       .pm-assistant-history-backdrop[hidden]{display:none!important}
-      .pm-assistant-mobile-menu{opacity:.72;color:#aaa!important}
-      .pm-assistant-mobile-menu:hover,.pm-assistant-mobile-menu[aria-expanded="true"]{opacity:1;color:#d0d0d0!important}
+      .pm-assistant-mobile-menu{opacity:1;color:#c8cee0!important}
+      .pm-assistant-mobile-menu:hover,.pm-assistant-mobile-menu[aria-expanded="true"]{color:#c8cee0!important}
       .pm-assistant-mobile-menu{display:inline-flex!important}
       .pm-assistant-panel{grid-template-columns:1fr!important;grid-template-rows:58px minmax(0,1fr) auto auto auto!important}
       .pm-assistant-sidebar{display:none!important}
@@ -290,10 +290,10 @@
   const mobileMenuButton = document.createElement("button");
   mobileMenuButton.type = "button";
   mobileMenuButton.className = "pm-assistant-mobile-menu";
-  mobileMenuButton.textContent = "⋯";
+  mobileMenuButton.textContent = "☰";
   mobileMenuButton.setAttribute("aria-label", "Open chat history");
   mobileMenuButton.setAttribute("aria-expanded", "false");
-  mobileMenuButton.style.cssText = "display:none;border:0;background:transparent;color:#aaa;font-size:25px;line-height:1;margin-right:8px;padding:4px 8px;cursor:pointer";
+  mobileMenuButton.style.cssText = "display:none;border:0;background:transparent;color:#c8cee0;font-size:21px;line-height:1;margin-right:8px;padding:4px 8px;cursor:pointer";
   header.insertBefore(mobileMenuButton, header.firstChild);
 
   function setMobileHistoryOpen(open) {
