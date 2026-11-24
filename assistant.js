@@ -56,6 +56,7 @@
 
   function setOpen(open) {
     panel.classList.toggle("is-open", open);
+    if (!open && typeof setMobileHistoryOpen === "function") setMobileHistoryOpen(false);
     panel.setAttribute("aria-hidden", String(!open));
     launcher.setAttribute("aria-expanded", String(open));
     if (open) input.focus();
@@ -255,7 +256,11 @@
     .pm-assistant-header-actions{display:none!important}
     .pm-assistant-history-toggle{display:none!important}
     @media(max-width:760px){
-      .pm-assistant-sidebar.is-mobile-open{display:flex!important;position:fixed;inset:0 auto 0 0;width:270px;z-index:5;box-shadow:18px 0 60px rgba(0,0,0,.55)}
+      .pm-assistant-sidebar.is-mobile-open{display:flex!important;position:fixed;inset:0 auto 0 0;width:min(270px,82vw);z-index:6;box-shadow:18px 0 60px rgba(0,0,0,.55)}
+      .pm-assistant-history-backdrop{position:fixed;inset:0;z-index:5;border:0;background:rgba(0,0,0,.38);padding:0}
+      .pm-assistant-history-backdrop[hidden]{display:none!important}
+      .pm-assistant-mobile-menu{opacity:.72;color:#aaa!important}
+      .pm-assistant-mobile-menu:hover,.pm-assistant-mobile-menu[aria-expanded="true"]{opacity:1;color:#d0d0d0!important}
       .pm-assistant-mobile-menu{display:inline-flex!important}
       .pm-assistant-panel{grid-template-columns:1fr!important;grid-template-rows:58px minmax(0,1fr) auto auto auto!important}
       .pm-assistant-sidebar{display:none!important}
@@ -275,14 +280,29 @@
   panel.insertBefore(sidebar, panel.firstChild);
   const newChatButton = sidebar.querySelector(".pm-assistant-new");
   const historyList = sidebar.querySelector(".pm-assistant-history-list");
+  const mobileHistoryBackdrop = document.createElement("button");
+  mobileHistoryBackdrop.type = "button";
+  mobileHistoryBackdrop.className = "pm-assistant-history-backdrop";
+  mobileHistoryBackdrop.setAttribute("aria-label", "Close chat history");
+  mobileHistoryBackdrop.hidden = true;
+  panel.appendChild(mobileHistoryBackdrop);
+
   const mobileMenuButton = document.createElement("button");
   mobileMenuButton.type = "button";
   mobileMenuButton.className = "pm-assistant-mobile-menu";
-  mobileMenuButton.textContent = "☰";
+  mobileMenuButton.textContent = "⋯";
   mobileMenuButton.setAttribute("aria-label", "Open chat history");
-  mobileMenuButton.style.cssText = "display:none;border:0;background:transparent;color:#eee;font-size:20px;margin-right:8px;cursor:pointer";
+  mobileMenuButton.setAttribute("aria-expanded", "false");
+  mobileMenuButton.style.cssText = "display:none;border:0;background:transparent;color:#aaa;font-size:25px;line-height:1;margin-right:8px;padding:4px 8px;cursor:pointer";
   header.insertBefore(mobileMenuButton, header.firstChild);
-  mobileMenuButton.addEventListener("click", () => sidebar.classList.toggle("is-mobile-open"));
+
+  function setMobileHistoryOpen(open) {
+    sidebar.classList.toggle("is-mobile-open", open);
+    mobileHistoryBackdrop.hidden = !open;
+    mobileMenuButton.setAttribute("aria-expanded", String(open));
+  }
+  mobileMenuButton.addEventListener("click", () => setMobileHistoryOpen(!sidebar.classList.contains("is-mobile-open")));
+  mobileHistoryBackdrop.addEventListener("click", () => setMobileHistoryOpen(false));
 
   // Native-looking, accessible in-app dialog used instead of browser prompt/confirm popups.
   const chatDialog = document.createElement("div");
@@ -472,7 +492,7 @@
       openButton.className = "pm-chat-open";
       openButton.textContent = (chat.pinned ? "📌 " : "") + (chat.title || "New chat") + (chat.project ? " · " + chat.project : "");
       openButton.title = chat.title || "New chat";
-      openButton.addEventListener("click", () => { sidebar.classList.remove("is-mobile-open"); openSavedChat(chat.id); });
+      openButton.addEventListener("click", () => { setMobileHistoryOpen(false); openSavedChat(chat.id); });
       const menuToggle = document.createElement("button");
       menuToggle.type = "button";
       menuToggle.className = "pm-chat-menu-toggle";
@@ -541,7 +561,7 @@
     addMessage("Hello! Ask me about science, history, technology, maths, space, programming, documents or almost any topic.", "assistant");
     input.focus();
   }
-  newChatButton.addEventListener("click", () => { sidebar.classList.remove("is-mobile-open"); startNewChat(); });
+  newChatButton.addEventListener("click", () => { setMobileHistoryOpen(false); startNewChat(); });
   renderChatHistory();
 
   // Close any open chat menu when the user clicks/taps anywhere outside it.
