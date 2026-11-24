@@ -221,6 +221,8 @@
     .pm-assistant-form button{width:44px;height:44px;border-radius:50%}
     .pm-assistant-footer{grid-column:2;grid-row:5;padding:5px 12px 12px;color:#858585;font-size:10px}
     .pm-assistant-header-actions{display:none!important}
+    .pm-assistant-history-toggle{display:inline-flex;align-items:center;gap:7px;margin-left:auto;padding:8px 12px;border:1px solid #454545;border-radius:9px;background:#2b2b2b;color:#eee;font-size:12px;cursor:pointer}
+    .pm-assistant-history-toggle:hover{background:#383838}
     @media(max-width:760px){
       .pm-assistant-sidebar.is-mobile-open{display:flex!important;position:fixed;inset:0 auto 0 0;width:270px;z-index:5;box-shadow:18px 0 60px rgba(0,0,0,.55)}
       .pm-assistant-mobile-menu{display:inline-flex!important}
@@ -250,6 +252,22 @@
   mobileMenuButton.style.cssText = "display:none;border:0;background:transparent;color:#eee;font-size:20px;margin-right:8px;cursor:pointer";
   header.insertBefore(mobileMenuButton, header.firstChild);
   mobileMenuButton.addEventListener("click", () => sidebar.classList.toggle("is-mobile-open"));
+  const historyToggleButton = document.createElement("button");
+  historyToggleButton.type = "button";
+  historyToggleButton.className = "pm-assistant-history-toggle";
+  historyToggleButton.textContent = "◷ History";
+  historyToggleButton.setAttribute("aria-label", "Show chat history");
+  header.appendChild(historyToggleButton);
+  historyToggleButton.addEventListener("click", () => {
+    if (window.matchMedia("(max-width: 760px)").matches) {
+      sidebar.classList.toggle("is-mobile-open");
+    } else {
+      const label = sidebar.querySelector(".pm-assistant-history-label");
+      if (label) label.scrollIntoView({ behavior: "smooth", block: "start" });
+      const firstChat = historyList && historyList.querySelector("button");
+      if (firstChat) firstChat.focus({ preventScroll: true });
+    }
+  });
 
   function renderChatHistory() {
     if (!historyList) return;
