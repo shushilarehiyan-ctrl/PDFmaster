@@ -74,7 +74,7 @@
 
   // Safe arithmetic parser — no eval().
   function calculate(expression) {
-    const tokens = expression.match(/\d+(?:\.\d+)?|[()+\-*/^]/g);
+    const tokens = expression.match(/\d+(?:\.\d+)?|[()+\-*\/^]/g);
     if (!tokens || tokens.join("") !== expression.replace(/\s+/g, "")) return null;
     let pos = 0;
     function primary() {
@@ -123,14 +123,14 @@
   function mathAnswer(question) {
     const q = question.toLowerCase().trim();
     if (/\b(pdf|form|1099|w-2|w-9|tax|document)\b/.test(q)) return null;
-    const hasMathCue = /\b(calculate|solve|evaluate|compute|work out|plus|minus|times|multiplied by|divided by|add|subtract)\b|[0-9]\s*[+*/^]\s*[0-9]|[0-9]\s+-\s*[0-9]|कितना|जोड़|गुणा|भाग|हल करो/.test(q);
+    const hasMathCue = /\b(calculate|solve|evaluate|compute|work out|plus|minus|times|multiplied by|divided by|add|subtract)\b|[0-9]\s*[+*\/^]\s*[0-9]|[0-9]\s+-\s*[0-9]|कितना|जोड़|गुणा|भाग|हल करो/.test(q);
     const cleaned = q
       .replace(/what is|calculate|solve|evaluate|answer|please|find|the value of|equals|equal to|kitna hota hai|kitna|है|कितना|जोड़|गुणा|भाग|हल करो/gi, " ")
       .replace(/divided by/gi, "/").replace(/times/gi, "*").replace(/plus/gi, "+").replace(/minus/gi, "-")
       .replace(/[=?]/g, " ");
-    const candidates = cleaned.match(/[0-9().+\-*/^\s]+/g) || [];
+    const candidates = cleaned.match(/[0-9().+\-*\/^\s]+/g) || [];
     const expression = candidates.sort((a, b) => b.length - a.length)[0]?.trim();
-    if (!expression || (!hasMathCue && !/^[0-9().+\-*/^\s]+$/.test(q))) return null;
+    if (!expression || (!hasMathCue && !/^[0-9().+\-*\/^\s]+$/.test(q))) return null;
     try {
       const result = calculate(expression);
       if (result === null) return null;
@@ -174,7 +174,7 @@
       return "Today is " + new Intl.DateTimeFormat("en-IN", { weekday: "long" }).format(now) + ".";
     }
 
-    const match = q.match(/(?:what day is|which day is|day of the week for|weekday of)\s+(\d{1,2})[\s/-]+(\d{1,2})[\s/-]+(\d{4})/)
+    const match = q.match(/(?:what day is|which day is|day of the week for|weekday of)\s+(\d{1,2})[\s\/-]+(\d{1,2})[\s/-]+(\d{4})/)
       || q.match(/(?:what day is|which day is|day of the week for|weekday of)\s+(\d{1,2})\s+(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+(\d{4})/);
     if (match) {
       const months = ["january","february","march","april","may","june","july","august","september","october","november","december"];
@@ -363,7 +363,7 @@
           url: landing || doiUrl || (work.id || "https://openalex.org"),
           snippet: "Scholarly publication" + (work.publication_year ? " • " + work.publication_year : "")
         };
-      }).filter(item => /^https?:\\/\\//i.test(item.url));
+      }).filter(item => /^https?:\/\//i.test(item.url));
     };
 
     const results = await Promise.allSettled([
