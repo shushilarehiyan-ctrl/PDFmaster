@@ -35,6 +35,13 @@ async function verifyTurnstile(token, request, env) {
       body: JSON.stringify(payload)
     });
     if (!response.ok) {
+      const errorDetails = await response.text().catch(() => "");
+      console.error("PDFMASTER Turnstile Siteverify HTTP error:", {
+        status: response.status,
+        statusText: response.statusText,
+        contentType: response.headers.get("Content-Type") || "",
+        details: errorDetails.slice(0, 500)
+      });
       return { success: false, status: 502, error: "Image verification is temporarily unavailable. Please try again." };
     }
 
