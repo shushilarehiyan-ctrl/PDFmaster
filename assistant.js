@@ -187,43 +187,105 @@
     return bubble;
   }
 
-  // Local-only chat history: saved in this browser, not synced to other devices.
-  const historyStyle = document.createElement("style");
-  historyStyle.textContent = ".pm-assistant-header-actions{display:flex;gap:6px;margin-left:auto;align-items:center}.pm-assistant-header-actions button{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:inherit;border-radius:8px;padding:7px 9px;font-size:11px;cursor:pointer}.pm-assistant-history{display:none;max-height:190px;overflow:auto;padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.1);background:rgba(10,14,28,.96)}.pm-assistant-history.is-open{display:block}.pm-assistant-history-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;font-size:11px;opacity:.8}.pm-assistant-history-list{display:grid;gap:5px}.pm-assistant-history-item button{width:100%;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:0;border-radius:7px;padding:8px;background:rgba(255,255,255,.06);color:inherit;font-size:11px;cursor:pointer}.pm-assistant-history-item button:hover,.pm-assistant-header-actions button:hover{background:rgba(255,255,255,.13)}.pm-assistant-history-empty{font-size:11px;opacity:.65;padding:8px 2px}";
-  document.head.appendChild(historyStyle);
-  const header = panel.querySelector(".pm-assistant-header");
-  const heading = panel.querySelector(".pm-assistant-heading");
-  const actions = document.createElement("div"); actions.className = "pm-assistant-header-actions";
-  const newChatButton = document.createElement("button"); newChatButton.type = "button"; newChatButton.textContent = "+ New"; newChatButton.setAttribute("aria-label", "Start a new chat");
-  const historyButton = document.createElement("button"); historyButton.type = "button"; historyButton.textContent = "History"; historyButton.setAttribute("aria-expanded", "false");
-  actions.append(newChatButton, historyButton);
-  if (header && heading) heading.insertAdjacentElement("afterend", actions);
-  const historyPanel = document.createElement("div"); historyPanel.className = "pm-assistant-history"; historyPanel.setAttribute("aria-label", "Chat history");
-  historyPanel.innerHTML = '<div class="pm-assistant-history-top"><strong>Recent chats</strong><span>Saved on this device</span></div><div class="pm-assistant-history-list"></div>';
-  if (messages.parentNode) messages.parentNode.insertBefore(historyPanel, messages);
-  const historyList = historyPanel.querySelector(".pm-assistant-history-list");
+  // Full-screen ChatGPT-style workspace with a persistent local history sidebar.
+  const workspaceStyle = document.createElement("style");
+  workspaceStyle.textContent = `
+    .pm-assistant-panel{position:fixed!important;inset:0!important;z-index:99999!important;width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;border:0!important;border-radius:0!important;display:none;overflow:hidden!important;background:#212121!important;color:#ececec!important;box-shadow:none!important;grid-template-columns:260px minmax(0,1fr);grid-template-rows:64px minmax(0,1fr) auto auto auto}
+    .pm-assistant-panel.is-open{display:grid!important;animation:none!important}
+    .pm-assistant-sidebar{grid-column:1;grid-row:1/6;display:flex;flex-direction:column;min-height:0;padding:14px 12px;background:#171717;border-right:1px solid #303030}
+    .pm-assistant-brand{display:flex;align-items:center;gap:10px;padding:5px 7px 18px;font-size:15px;font-weight:700}
+    .pm-assistant-brand-mark{width:30px;height:30px;display:grid;place-items:center;border-radius:10px;background:linear-gradient(135deg,#e8d09a,#b08d50);color:#21180d;font-size:18px}
+    .pm-assistant-new{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;border:1px solid #414141;border-radius:10px;background:transparent;color:#f4f4f4;text-align:left;font-size:13px;cursor:pointer}
+    .pm-assistant-new:hover,.pm-assistant-history-item button:hover{background:#292929}
+    .pm-assistant-history-label{padding:22px 8px 9px;color:#a6a6a6;font-size:11px;font-weight:700}
+    .pm-assistant-history{display:block!important;position:static!important;max-height:none!important;flex:1;min-height:0;overflow:auto;padding:0!important;border:0!important;background:transparent!important}
+    .pm-assistant-history-top{display:none!important}
+    .pm-assistant-history-list{display:grid;gap:3px}
+    .pm-assistant-history-item button{width:100%;padding:9px 10px;border:0;border-radius:8px;background:transparent;color:#d6d6d6;text-align:left;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+    .pm-assistant-history-empty{padding:8px;color:#858585;font-size:11px;line-height:1.5}
+    .pm-assistant-sidebar-note{padding:12px 7px 4px;border-top:1px solid #303030;color:#858585;font-size:10px;line-height:1.5}
+    .pm-assistant-header{grid-column:2;grid-row:1;min-width:0;padding:10px 22px;background:#212121;border:0;border-bottom:1px solid #303030}
+    .pm-assistant-avatar{width:32px;height:32px;border-radius:50%}
+    .pm-assistant-heading strong{font-size:14px;color:#f3f3f3}
+    .pm-assistant-heading span{font-size:10px}
+    .pm-assistant-close{width:34px;height:34px;font-size:24px}
+    .pm-assistant-messages{grid-column:2;grid-row:2;display:flex;align-items:stretch;gap:22px;width:min(820px,100%);min-width:0;margin:0 auto;padding:34px 28px 24px;box-sizing:border-box}
+    .pm-assistant-message{max-width:90%;padding:13px 16px;font-size:14px;line-height:1.75;border-radius:17px}
+    .pm-assistant-message.assistant{background:transparent;padding-left:0;padding-right:0}
+    .pm-assistant-message.user{background:#303030;color:#f5f5f5}
+    .pm-assistant-message-label{font-size:9px}
+    .pm-assistant-quick{grid-column:2;grid-row:3;width:min(820px,100%);margin:0 auto;padding:0 28px 10px;box-sizing:border-box;background:transparent}
+    .pm-assistant-quick button{font-size:11px}
+    .pm-assistant-form{grid-column:2;grid-row:4;width:min(820px,100%);box-sizing:border-box;margin:0 auto;padding:12px 28px 8px;border:0}
+    .pm-assistant-form input{min-height:52px;padding:14px 17px;border:1px solid #505050;border-radius:18px;background:#303030;font-size:14px}
+    .pm-assistant-form button{width:44px;height:44px;border-radius:50%}
+    .pm-assistant-footer{grid-column:2;grid-row:5;padding:5px 12px 12px;color:#858585;font-size:10px}
+    .pm-assistant-header-actions{display:none!important}
+    @media(max-width:760px){
+      .pm-assistant-panel{grid-template-columns:1fr!important;grid-template-rows:58px minmax(0,1fr) auto auto auto!important}
+      .pm-assistant-sidebar{display:none!important}
+      .pm-assistant-header,.pm-assistant-messages,.pm-assistant-quick,.pm-assistant-form,.pm-assistant-footer{grid-column:1!important}
+      .pm-assistant-header{grid-row:1!important;padding:8px 13px}
+      .pm-assistant-messages{grid-row:2!important;padding:24px 17px}
+      .pm-assistant-quick{grid-row:3!important;padding:0 14px 8px}
+      .pm-assistant-form{grid-row:4!important;padding:9px 12px 5px}
+      .pm-assistant-footer{grid-row:5!important}
+    }
+  `;
+  document.head.appendChild(workspaceStyle);
+
+  const sidebar = document.createElement("aside");
+  sidebar.className = "pm-assistant-sidebar";
+  sidebar.innerHTML = '<div class="pm-assistant-brand"><span class="pm-assistant-brand-mark">✦</span><span>PDFMaster</span></div><button class="pm-assistant-new" type="button"><span>＋</span><span>New chat</span></button><div class="pm-assistant-history-label">Your chats</div><div class="pm-assistant-history" aria-label="Chat history"><div class="pm-assistant-history-list"></div></div><div class="pm-assistant-sidebar-note">Your conversations are saved in this browser on this device.</div>';
+  panel.insertBefore(sidebar, panel.firstChild);
+  const newChatButton = sidebar.querySelector(".pm-assistant-new");
+  const historyList = sidebar.querySelector(".pm-assistant-history-list");
+
   function renderChatHistory() {
-    if (!historyList) return; historyList.replaceChildren();
+    if (!historyList) return;
+    historyList.replaceChildren();
     const sorted = chatHistory.slice().sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-    if (!sorted.length) { const empty = document.createElement("div"); empty.className = "pm-assistant-history-empty"; empty.textContent = "Your chats will appear here after you send a message."; historyList.appendChild(empty); return; }
-    sorted.forEach(chat => { const button = document.createElement("button"); button.type = "button"; button.textContent = chat.title || "New chat"; button.title = chat.title || "New chat"; button.addEventListener("click", () => openSavedChat(chat.id)); const row = document.createElement("div"); row.className = "pm-assistant-history-item"; row.appendChild(button); historyList.appendChild(row); });
+    if (!sorted.length) {
+      const empty = document.createElement("div");
+      empty.className = "pm-assistant-history-empty";
+      empty.textContent = "Your conversations will appear here after you send a message.";
+      historyList.appendChild(empty);
+      return;
+    }
+    sorted.forEach(chat => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = chat.title || "New chat";
+      button.title = chat.title || "New chat";
+      button.addEventListener("click", () => openSavedChat(chat.id));
+      const row = document.createElement("div");
+      row.className = "pm-assistant-history-item";
+      row.appendChild(button);
+      historyList.appendChild(row);
+    });
   }
+
   function openSavedChat(id) {
-    const chat = chatHistory.find(item => item.id === id); if (!chat) return;
-    currentChatId = chat.id; pookieHistory = chat.messages.filter(item => item && ["user","assistant"].includes(item.role) && typeof item.content === "string").map(item => ({ role:item.role, content:item.content })).slice(-12);
-    restoringChat = true; messages.replaceChildren();
+    const chat = chatHistory.find(item => item.id === id);
+    if (!chat) return;
+    currentChatId = chat.id;
+    pookieHistory = chat.messages.filter(item => item && ["user","assistant"].includes(item.role) && typeof item.content === "string").map(item => ({ role:item.role, content:item.content })).slice(-12);
+    restoringChat = true;
+    messages.replaceChildren();
     chat.messages.forEach(item => addMessage(item.content, item.role, item.sources || [], { persist:false }));
-    restoringChat = false; historyPanel.classList.remove("is-open"); historyButton.setAttribute("aria-expanded", "false"); messages.scrollTop = messages.scrollHeight;
+    restoringChat = false;
+    messages.scrollTop = messages.scrollHeight;
   }
+
   function startNewChat() {
-    currentChatId = null; pookieHistory = []; messages.replaceChildren();
+    currentChatId = null;
+    pookieHistory = [];
+    messages.replaceChildren();
     addMessage("Hello! Ask me about science, history, technology, maths, space, programming, documents or almost any topic.", "assistant");
-    historyPanel.classList.remove("is-open"); historyButton.setAttribute("aria-expanded", "false"); input.focus();
+    input.focus();
   }
   newChatButton.addEventListener("click", startNewChat);
-  historyButton.addEventListener("click", () => { const open = historyPanel.classList.toggle("is-open"); historyButton.setAttribute("aria-expanded", String(open)); renderChatHistory(); });
   renderChatHistory();
-
   function setResearchMode(enabled) {
     researchMode = enabled;
     if (researchToggle) {
