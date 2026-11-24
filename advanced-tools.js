@@ -183,7 +183,7 @@
         details.appendChild(make("p", "", result.promptUsed));
         output.appendChild(details);
       }
-      status(output, "Image created successfully.", false);
+      output.appendChild(make("p", "pm-image-generation-success", "Image created successfully."));
       output.classList.add("pm-image-generation-result");
       return;
     }
@@ -518,7 +518,7 @@
   // Add quick sidebar navigation for every advanced tool and official form.
   const sidebar = document.querySelector("#sidebar");
   if (sidebar) {
-    const sidebarLabel = make("div", "sidebar-label", "MORE PDF TOOLS");
+    const sidebarLabel = make("div", "sidebar-label", "MORE TOOLS");
     const sidebarNav = make("nav", "sidebar-nav");
     sidebarNav.setAttribute("aria-label", "More PDF tools and forms");
     const navItems = definitions.map(function (def) {
