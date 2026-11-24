@@ -736,7 +736,7 @@
     if (/photo|image|jpg|png|फोटो|तस्वीर/.test(q) && /pdf|convert|बनाना/.test(q)) return "Let's turn your photos into a PDF.\n\nStep 1: Open the Photo to PDF tool.\n\nTell me when it’s open.";
     if (/password|protect|lock|पासवर्ड|सुरक्षित/.test(q)) return "To add password protection, open the Protect PDF tool. Keep a secure copy of your password.";
     if (/not open|cannot open|can't open|won't open|error|failed|issue|problem|upload|नहीं खुल|एरर|समस्या/.test(q)) return "First, check whether the file opens on your device outside PDFMaster. Also confirm it is a PDF and the upload has finished.\n\nWhat exact error message do you see?";
-    if (/word|docx/.test(q)) return "PDF and Word documents can have different layouts after conversion. Do you want to convert Word to PDF, convert PDF to Word, or fix formatting?";
+    if (/\\b(?:ms\\s+)?word\\b|\\bdocx\\b/.test(q) && /pdf|document|docx|convert|format|file/.test(q)) return "PDF and Word documents can have different layouts after conversion. Do you want to convert Word to PDF, convert PDF to Word, or fix formatting?";
     if (/hello|hi|hey|namaste|नमस्ते|नमस्कार/.test(q)) return "Hello! Main PDFMASTER ASSISTANT hoon. Aap mujhse kisi bhi topic par sawaal poochh sakte hain—Science, Maths, GK, Programming, writing, reasoning, PDF tools aur bahut kuchh. Detailed answers ke liye AI backend connected hona chahiye; latest information ke liye Web Research ON karein.";
     return "I don't have a reliable offline answer for that yet. Main kai tarah ke topics mein madad kar sakta hoon, lekin is sawaal ke liye connected AI backend ki zaroorat hai. Connection available na ho to main galat jawab banane ke bajay apni limitation bataunga.";
   }
