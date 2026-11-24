@@ -595,8 +595,6 @@
     if (dateTime) return dateTime;
     const utility = utilityAnswer(question);
     if (utility) return utility;
-    const education = window.PDFMASTER_EDUCATION && window.PDFMASTER_EDUCATION.answer(question);
-    if (education) return education;
     const extra = extraToolsAnswer(question);
     if (extra) return extra;
     const math = mathAnswer(question);
@@ -611,8 +609,6 @@
     if (/not open|cannot open|can't open|won't open|error|failed|issue|problem|upload|नहीं खुल|एरर|समस्या/.test(q)) return "First, check whether the file opens on your device outside PDFMaster. Also confirm it is a PDF and the upload has finished.\n\nWhat exact error message do you see?";
     if (/word|docx/.test(q)) return "PDF and Word documents can have different layouts after conversion. Do you want to convert Word to PDF, convert PDF to Word, or fix formatting?";
     if (/hello|hi|hey|namaste|नमस्ते|नमस्कार/.test(q)) return "Hello! Ask me about PDFMaster tools, document issues, or basic calculations. Turn on Web Research for questions that need current web sources.";
-    const knowledge = window.PDFMASTER_KNOWLEDGE && window.PDFMASTER_KNOWLEDGE.answer(question);
-    if (knowledge) return knowledge;
     return "I don't have a reliable offline answer for that yet. I can help with PDFMaster workflows, calculations, computer basics and the built-in general-knowledge library. Try a short topic question such as photosynthesis, capital of India or fundamental rights. I won't invent an answer.";
   }
 
@@ -641,6 +637,12 @@
     // keep the existing public-source research fallback working.
     const answeredByPookie = await askPookieAI(value);
     if (answeredByPookie) return;
+
+    // If the AI backend is unavailable, use the offline learning library as a fallback.
+    const offlineEducation = window.PDFMASTER_EDUCATION && window.PDFMASTER_EDUCATION.answer(value);
+    if (offlineEducation) { addMessage(offlineEducation, "assistant"); return; }
+    const offlineKnowledge = window.PDFMASTER_KNOWLEDGE && window.PDFMASTER_KNOWLEDGE.answer(value);
+    if (offlineKnowledge) { addMessage(offlineKnowledge, "assistant"); return; }
     await askResearch(value);
   }
 
