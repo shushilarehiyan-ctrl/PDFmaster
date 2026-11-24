@@ -153,7 +153,7 @@
       }
       status(output, "Understanding your idea and creating the image… This may take a little while.", false);
       const apiBase = window.PDFMASTER_RESEARCH_API || "https://pdfmaster.sherebihar35.workers.dev";
-      const response = await fetch(apiBase.replace(/\\/$/, "") + "/api/image", {
+      const response = await fetch(apiBase.replace(/\/$/, "") + "/api/image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
