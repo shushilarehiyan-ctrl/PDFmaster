@@ -6779,3 +6779,62 @@ body:not(.tool-page-active) .topbar-badge:hover {
     box-shadow: 0 4px 16px rgba(176, 141, 80, .2) !important;
   }
 }
+
+
+/* PDFMaster AI Image Creation workspace */
+.pm-image-generation-prompt-input {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  padding: 14px 16px;
+  border: 1px solid rgba(217, 183, 126, .28);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .035);
+  color: inherit;
+  font: inherit;
+  line-height: 1.55;
+}
+.pm-image-generation-prompt-input:focus {
+  outline: 2px solid rgba(217, 183, 126, .55);
+  outline-offset: 2px;
+}
+.pm-image-generation-result {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+.pm-image-generation-preview {
+  display: block;
+  width: 100%;
+  max-width: 720px;
+  max-height: 720px;
+  object-fit: contain;
+  border: 1px solid rgba(217, 183, 126, .22);
+  border-radius: 14px;
+  background: #100d10;
+}
+.pm-image-generation-download {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 16px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #b08d50, #d9b77e);
+  color: #100d10;
+  font-weight: 700;
+  text-decoration: none;
+}
+.pm-image-generation-prompt {
+  color: inherit;
+  opacity: .86;
+  font-size: .9rem;
+}
+.pm-image-generation-prompt p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.pm-image-generation-success {
+  color: #d9b77e;
+  font-weight: 600;
+}
