@@ -204,6 +204,15 @@
     .pm-assistant-history-top{display:none!important}
     .pm-assistant-history-list{display:grid;gap:3px}
     .pm-assistant-history-item button{width:100%;padding:9px 10px;border:0;border-radius:8px;background:transparent;color:#d6d6d6;text-align:left;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+    .pm-assistant-history-item{display:flex;align-items:center;gap:4px;min-width:0;position:relative}
+    .pm-assistant-history-item .pm-chat-open{flex:1;min-width:0}
+    .pm-assistant-history-item .pm-chat-menu-toggle{flex:0 0 30px;width:30px;padding:6px 0;text-align:center;font-size:18px;color:#aaa}
+    .pm-assistant-history-item .pm-chat-menu-toggle:hover{color:#fff}
+    .pm-chat-actions{position:absolute;right:4px;top:34px;z-index:20;min-width:132px;padding:5px;background:#2b2b2b;border:1px solid #484848;border-radius:9px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+    .pm-chat-actions[hidden]{display:none}
+    .pm-chat-actions button{display:block;width:100%;padding:8px 10px;border:0;border-radius:6px;background:transparent;color:#eee;text-align:left;font-size:12px;cursor:pointer}
+    .pm-chat-actions button:hover{background:#414141}
+    .pm-chat-actions .pm-chat-delete{color:#ff8585}
     .pm-assistant-history-empty{padding:8px;color:#858585;font-size:11px;line-height:1.5}
     .pm-assistant-sidebar-note{padding:12px 7px 4px;border-top:1px solid #303030;color:#858585;font-size:10px;line-height:1.5}
     .pm-assistant-header{grid-column:2;grid-row:1;min-width:0;padding:10px 22px;background:#212121;border:0;border-bottom:1px solid #303030}
@@ -271,6 +280,51 @@
     }
   });
 
+  function shareChat(chat) {
+    if (!chat || !Array.isArray(chat.messages) || !chat.messages.length) return;
+    const transcript = chat.messages.map(item =>
+      (item.role === "user" ? "You" : "PDFMaster Assistant") + ":\\n" + String(item.content || "")
+    ).join("\\n\\n");
+    const shareText = (chat.title || "PDFMaster chat") + "\\n\\n" + transcript;
+    if (navigator.share) {
+      navigator.share({ title: chat.title || "PDFMaster chat", text: shareText }).catch(error => {
+        if (error && error.name !== "AbortError") {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(shareText).then(() => alert("Chat copied to clipboard.")).catch(() => window.prompt("Copy your chat:", shareText));
+          } else window.prompt("Copy your chat:", shareText);
+        }
+      });
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(shareText).then(() => alert("Chat copied to clipboard.")).catch(() => window.prompt("Copy your chat:", shareText));
+    } else window.prompt("Copy your chat:", shareText);
+  }
+
+  function renameChat(chat) {
+    const nextTitle = window.prompt("Enter a new chat name:", chat.title || "New chat");
+    if (nextTitle === null) return;
+    const cleanTitle = nextTitle.trim().replace(/\\s+/g, " ").slice(0, 60);
+    if (!cleanTitle) { alert("Chat name cannot be empty."); return; }
+    chat.title = cleanTitle;
+    chat.updatedAt = Date.now();
+    saveChatHistory();
+    renderChatHistory();
+  }
+
+  function deleteChat(chat) {
+    if (!window.confirm('Delete "' + (chat.title || "New chat") + '"? This cannot be undone.')) return;
+    chatHistory = chatHistory.filter(item => item.id !== chat.id);
+    if (currentChatId === chat.id) {
+      currentChatId = null;
+      pookieHistory = [];
+      messages.replaceChildren();
+      addMessage("Chat deleted. Start a new conversation whenever you are ready.", "assistant", [], { persist:false });
+    }
+    saveChatHistory();
+    renderChatHistory();
+  }
+
   function renderChatHistory() {
     if (!historyList) return;
     historyList.replaceChildren();
@@ -283,14 +337,48 @@
       return;
     }
     sorted.forEach(chat => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.textContent = chat.title || "New chat";
-      button.title = chat.title || "New chat";
-      button.addEventListener("click", () => { sidebar.classList.remove("is-mobile-open"); openSavedChat(chat.id); });
       const row = document.createElement("div");
       row.className = "pm-assistant-history-item";
-      row.appendChild(button);
+      const openButton = document.createElement("button");
+      openButton.type = "button";
+      openButton.className = "pm-chat-open";
+      openButton.textContent = chat.title || "New chat";
+      openButton.title = chat.title || "New chat";
+      openButton.addEventListener("click", () => { sidebar.classList.remove("is-mobile-open"); openSavedChat(chat.id); });
+      const menuToggle = document.createElement("button");
+      menuToggle.type = "button";
+      menuToggle.className = "pm-chat-menu-toggle";
+      menuToggle.textContent = "⋯";
+      menuToggle.title = "Chat options";
+      menuToggle.setAttribute("aria-label", "Options for " + (chat.title || "chat"));
+      menuToggle.setAttribute("aria-expanded", "false");
+      const menu = document.createElement("div");
+      menu.className = "pm-chat-actions";
+      menu.hidden = true;
+      const addAction = (label, action, extraClass) => {
+        const actionButton = document.createElement("button");
+        actionButton.type = "button";
+        actionButton.textContent = label;
+        if (extraClass) actionButton.className = extraClass;
+        actionButton.addEventListener("click", () => {
+          menu.hidden = true;
+          menuToggle.setAttribute("aria-expanded", "false");
+          action(chat);
+        });
+        menu.appendChild(actionButton);
+      };
+      addAction("Rename", renameChat);
+      addAction("Share", shareChat);
+      addAction("Delete", deleteChat, "pm-chat-delete");
+      menuToggle.addEventListener("click", event => {
+        event.stopPropagation();
+        const willOpen = menu.hidden;
+        historyList.querySelectorAll(".pm-chat-actions").forEach(other => { other.hidden = true; });
+        historyList.querySelectorAll(".pm-chat-menu-toggle").forEach(other => other.setAttribute("aria-expanded", "false"));
+        menu.hidden = !willOpen;
+        menuToggle.setAttribute("aria-expanded", String(willOpen));
+      });
+      row.append(openButton, menuToggle, menu);
       historyList.appendChild(row);
     });
   }
