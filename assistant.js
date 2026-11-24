@@ -12,6 +12,7 @@
   const imageVerification = document.createElement("div");
   imageVerification.className = "pm-assistant-image-verification";
   imageVerification.setAttribute("aria-label", "Image generation verification");
+  imageVerification.hidden = true;
   if (quick) {
     const verificationLabel = document.createElement("span");
     verificationLabel.textContent = "Verify once to create images:";
@@ -1089,6 +1090,7 @@
         action: "image_generation",
         callback: token => {
           imageTurnstileToken = token;
+          imageVerification.hidden = true;
           if (pendingImagePrompt) {
             const queuedPrompt = pendingImagePrompt;
             pendingImagePrompt = "";
@@ -1112,6 +1114,7 @@
   async function createAssistantImage(prompt) {
     if (!imageTurnstileToken) {
       pendingImagePrompt = prompt;
+      imageVerification.hidden = false;
       await ensureImageTurnstile();
       addMessage("Image banane ke liye upar Cloudflare verification complete karo. Verification ke baad image automatically ban jayegi.", "assistant");
       return true;
