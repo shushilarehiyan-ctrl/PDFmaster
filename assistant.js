@@ -411,8 +411,9 @@
 
     const results = await Promise.allSettled(providers.map(provider => provider.run()));
     const sources = results
-      .filter(result => result.status === "fulfilled")
-      .flatMap((result, index) => result.value.map(item => ({ ...item, provider: providers[index].name })))
+      .flatMap((result, index) => result.status === "fulfilled"
+        ? result.value.map(item => ({ ...item, provider: providers[index].name }))
+        : [])
       .filter((item, index, all) => item.url && all.findIndex(other => other.url === item.url) === index)
       .slice(0, 18);
     const unavailable = results.map((result, index) => result.status === "rejected" ? providers[index].name : "").filter(Boolean);
