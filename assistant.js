@@ -10,7 +10,7 @@
   const researchToggle = document.getElementById("pmAssistantResearchToggle");
 
   // Set this only after deploying api/worker.js. Never place an API key here.
-  const RESEARCH_API_URL = window.PDFMASTER_RESEARCH_API || "";
+  const RESEARCH_API_URL = window.PDFMASTER_RESEARCH_API || "https://pdfmaster.sherebihar35.workers.dev";
   let researchMode = false;
   let pookieHistory = [];
 
