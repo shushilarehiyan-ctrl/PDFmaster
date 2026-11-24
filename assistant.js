@@ -617,8 +617,37 @@
 
   async function askPDFMasterAI(question) {
     if (!RESEARCH_API_URL) return false;
+
+    const latestQuestion = String(question || "").trim();
+    if (!latestQuestion) return true;
+    if (latestQuestion.length > 2000) {
+      addMessage("Your question is too long for one message. Please shorten it to 2,000 characters or less.", "assistant");
+      return true;
+    }
+
     const loading = addMessage("Thinking…", "assistant");
-    const conversation = pookieHistory.concat([{ role: "user", content: question }]).slice(-12);
+    const candidates = pookieHistory.concat([{ role: "user", content: latestQuestion }])
+      .filter(item => item && ["user", "assistant"].includes(item.role) && typeof item.content === "string" && item.content.trim());
+    const conversation = [];
+    let totalChars = 0;
+
+    // Match the Worker limits: at most 12 messages, 2,000 characters per
+    // message, and 7,000 characters total. Keep the newest question intact.
+    for (let i = candidates.length - 1; i >= 0 && conversation.length < 12; i--) {
+      let content = candidates[i].content.trim();
+      if (content.length > 2000) content = content.slice(0, 2000);
+      if (totalChars + content.length > 7000) {
+        if (i === candidates.length - 1) {
+          loading.remove();
+          addMessage("This question and its context are too long to send. Please start a new chat or shorten the question.", "assistant");
+          return true;
+        }
+        break;
+      }
+      conversation.unshift({ role: candidates[i].role, content });
+      totalChars += content.length;
+    }
+
     try {
       const response = await fetch(RESEARCH_API_URL.replace(/\/$/, "") + "/api/chat", {
         method: "POST",
@@ -627,13 +656,25 @@
       });
       const data = await response.json().catch(() => ({}));
       loading.remove();
-      if (!response.ok || !data.answer) return false;
+
+      if (!response.ok || !data.answer) {
+        const detail = typeof data.error === "string" && data.error.trim()
+          ? data.error.trim()
+          : "The server returned an empty or invalid response.";
+        addMessage("PDFMASTER ASSISTANT request failed (HTTP " + response.status + "): " + detail, "assistant");
+        return true;
+      }
+
       pookieHistory = conversation.concat([{ role: "assistant", content: data.answer }]).slice(-12);
       addMessage(data.answer, "assistant");
       return true;
     } catch (error) {
       loading.remove();
-      return false;
+      const reason = error && error.name === "AbortError"
+        ? "The request timed out."
+        : "The browser could not reach the AI server. Check the internet connection, Worker availability, and allowed website origin.";
+      addMessage("PDFMASTER ASSISTANT connection error: " + reason, "assistant");
+      return true;
     }
   }
 
