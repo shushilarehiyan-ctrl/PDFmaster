@@ -316,12 +316,88 @@
     return /\b(search the web|web research|research|sources?|references?|latest|current|currently|recent|news|price|2026|2027|who is|what happened|look up|google it)\b|ताज़ा|ताजा|वर्तमान|स्रोत|रिसर्च|खोजो/.test(question.toLowerCase());
   }
 
+  // Free browser-side research: Wikipedia + OpenAlex. No API key or own server.
+  function cleanSearchExcerpt(value) {
+    const node = document.createElement("div");
+    node.innerHTML = String(value || "");
+    return (node.textContent || "").replace(/\\s+/g, " ").trim();
+  }
+
+  async function searchFreeKnowledge(question) {
+    const isHindi = /[\\u0900-\\u097F]/.test(question);
+    const wikiHost = isHindi ? "hi.wikipedia.org" : "en.wikipedia.org";
+    const encoded = encodeURIComponent(question.trim());
+    const tasks = [
+      fetch("https://" + wikiHost + "/w/rest.php/v1/search/page?q=" + encoded + "&limit=5")
+        .then(response => {
+          if (!response.ok) throw new Error("Wikipedia search unavailable");
+          return response.json();
+        })
+        .then(data => (data.pages || []).map(page => ({
+          title: page.title || page.key || "Wikipedia article",
+          url: "https://" + wikiHost + "/wiki/" + encodeURIComponent(page.key || page.title || ""),
+          snippet: cleanSearchExcerpt(page.description || page.excerpt || "Wikipedia article")
+        })))
+    ];
+
+    // OpenAlex is a scholarly index; include it as a second source of research results.
+    tasks.push(
+      fetch("https://api.openalex.org/works?search=" + encoded + "&per-page=4&select=doi,title,publication_year,primary_location")
+        .then(response => {
+          if (!response.ok) throw new Error("OpenAlex search unavailable");
+          return response.json();
+        })
+        .then(data => (data.results || []).map(work => {
+          const landing = work.primary_location && work.primary_location.landing_page_url;
+          const doiUrl = work.doi && work.doi.startsWith("https://doi.org/") ? work.doi : "";
+          return {
+            title: work.title || "Research work",
+            url: landing || doiUrl || "https://openalex.org",
+            snippet: "Research publication" + (work.publication_year ? " • " + work.publication_year : "")
+          };
+        }).filter(item => item.url))
+    );
+
+    const results = await Promise.allSettled(tasks);
+    const sources = results
+      .filter(result => result.status === "fulfilled")
+      .flatMap(result => result.value)
+      .filter((item, index, all) => item.url && all.findIndex(other => other.url === item.url) === index)
+      .slice(0, 8);
+
+    if (!sources.length) {
+      const wikiSearch = "https://" + wikiHost + "/w/index.php?search=" + encoded;
+      const openAlexSearch = "https://openalex.org/works?search=" + encoded;
+      return {
+        answer: "Direct search services did not respond from this browser. You can still open these search pages. This free mode searches Wikipedia and scholarly works; it is not a full Google-style web search.",
+        sources: [
+          { title: (isHindi ? "Hindi" : "English") + " Wikipedia search", url: wikiSearch, snippet: "Open search results on Wikipedia." },
+          { title: "OpenAlex research search", url: openAlexSearch, snippet: "Search scholarly publications." }
+        ]
+      };
+    }
+
+    const wikiCount = results[0].status === "fulfilled" ? results[0].value.length : 0;
+    const researchCount = results[1].status === "fulfilled" ? results[1].value.length : 0;
+    return {
+      answer: "I found " + sources.length + " results from free knowledge sources. Wikipedia results: " + wikiCount +
+        "; scholarly research results: " + researchCount +
+        ". These are source results, not an AI-written summary. Open a source to read the full information. This is not a full-web search engine.",
+      sources
+    };
+  }
+
   async function askResearch(question) {
     if (!RESEARCH_API_URL) {
-      addMessage(
-        "Smart Web Research ka interface tayyar hai, lekin secure search backend abhi deploy nahi hua hai. Isliye main abhi live websites search karke verified answer nahi de sakta. API key browser ya GitHub code mein nahi rakhenge.",
-        "assistant"
-      );
+      const loading = addMessage("Searching free knowledge sources…", "assistant");
+      try {
+        const data = await searchFreeKnowledge(question);
+        loading.remove();
+        addMessage(data.answer, "assistant", data.sources);
+      } catch (error) {
+        loading.remove();
+        addMessage("Free research search could not be completed in this browser. Please check your internet connection and try again.", "assistant");
+      }
       return;
     }
     const loading = addMessage("Searching reliable web sources…", "assistant");
