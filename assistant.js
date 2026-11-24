@@ -2,6 +2,7 @@
 (function () {
   const launcher = document.getElementById("pmAssistantLauncher");
   const panel = document.getElementById("pmAssistantPanel");
+  const header = panel && panel.querySelector(".pm-assistant-header");
   const close = document.getElementById("pmAssistantClose");
   const form = document.getElementById("pmAssistantForm");
   const input = document.getElementById("pmAssistantInput");
@@ -58,6 +59,7 @@
     panel.setAttribute("aria-hidden", String(!open));
     launcher.setAttribute("aria-expanded", String(open));
     if (open) input.focus();
+    else launcher.focus();
   }
   launcher.addEventListener("click", () => setOpen(!panel.classList.contains("is-open")));
   if (close) close.addEventListener("click", () => setOpen(false));
