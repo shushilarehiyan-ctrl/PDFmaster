@@ -6760,9 +6760,9 @@ body:not(.tool-page-active) .topbar-badge:hover {
 }
 
 
-/* Keep the sidebar brand clear of the fixed hamburger while the mobile menu is open */
+/* Align the sidebar brand beside the hamburger on every mobile page */
 @media (max-width: 650px) {
-  body:not(.tool-page-active) > .sidebar > .logo {
+  body > .sidebar.open > .logo {
     margin-left: 48px !important;
     width: calc(100% - 48px) !important;
     box-sizing: border-box !important;
