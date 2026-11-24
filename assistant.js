@@ -30,7 +30,7 @@
   function renderAssistantContent(container, rawText) {
     let source = String(rawText || "").replace(/\\([*_\x60])/g, "$1");
     const mathParts = [];
-    source = source.replace(/\\$\\$([\\s\\S]+?)\\$\\$|\\\\\\[([\\s\\S]+?)\\\\\\]|\\\\\\(([\\s\\S]+?)\\\\\\)|(?<!\\\\)\\$([^$\\n]+?)\\$/g,
+    source = source.replace(/\$\$([\s\S]+?)\$\$|\\\[([\s\S]+?)\\\]|\\\(([\s\S]+?)\\\)|(?<!\\)\$([^$\n]+?)\$/g,
       (match, blockDollar, blockBracket, inlineParen, inlineDollar) => {
         const index = mathParts.length;
         mathParts.push({
@@ -42,7 +42,7 @@
 
     const escapedFallback = source.replace(/[&<>"]/g, char => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"
-    })[char]).replace(/\\n/g, "<br>");
+    })[char]).replace(/\n/g, "<br>");
 
     const markdownHTML = window.marked && typeof window.marked.parse === "function"
       ? window.marked.parse(source, { gfm: true, breaks: true })
@@ -60,7 +60,7 @@
 
     textNodes.forEach(node => {
       const value = node.nodeValue || "";
-      const tokenPattern = /PDFMASTERMATHPLACEHOLDER(\\d+)END/g;
+      const tokenPattern = /PDFMASTERMATHPLACEHOLDER(\d+)END/g;
       let match, lastIndex = 0;
       const fragment = document.createDocumentFragment();
       let changed = false;
@@ -82,10 +82,10 @@
               trust: false
             });
           } catch (_) {
-            holder.textContent = math.display ? "$" + math.tex + "$" : "$" + math.tex + "$";
+            holder.textContent = math.display ? "$$" + math.tex + "$$" : "$" + math.tex + "$";
           }
         } else if (math) {
-          holder.textContent = math.display ? "$" + math.tex + "$" : "$" + math.tex + "$";
+            holder.textContent = math.display ? "$$" + math.tex + "$$" : "$" + math.tex + "$";
         }
         fragment.appendChild(holder);
         lastIndex = tokenPattern.lastIndex;
