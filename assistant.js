@@ -9,9 +9,23 @@
   const messages = document.getElementById("pmAssistantMessages");
   const quick = document.getElementById("pmAssistantQuick");
   const researchToggle = document.getElementById("pmAssistantResearchToggle");
+  const imageVerification = document.createElement("div");
+  imageVerification.className = "pm-assistant-image-verification";
+  imageVerification.setAttribute("aria-label", "Image generation verification");
+  if (quick) {
+    const verificationLabel = document.createElement("span");
+    verificationLabel.textContent = "Verify once to create images:";
+    imageVerification.appendChild(verificationLabel);
+    quick.appendChild(imageVerification);
+  }
 
   // Set this only after deploying api/worker.js. Never place an API key here.
   const RESEARCH_API_URL = window.PDFMASTER_RESEARCH_API || "https://pdfmaster.sherebihar35.workers.dev";
+  const IMAGE_API_URL = RESEARCH_API_URL;
+  const TURNSTILE_SITE_KEY = "0x4AAAAAAGQ802svQx32R_BB";
+  let imageTurnstileToken = "";
+  let imageTurnstileWidgetId = null;
+  let turnstileLoadPromise = null;
   let researchMode = false;
   let pookieHistory = [];
   const HISTORY_KEY = "pdfmaster_assistant_chats_v1";
@@ -253,6 +267,11 @@
     .pm-assistant-form input{min-height:52px;padding:14px 17px;border:1px solid #505050;border-radius:18px;background:#303030;font-size:14px}
     .pm-assistant-form button{width:44px;height:44px;border-radius:50%}
     .pm-assistant-footer{grid-column:2;grid-row:5;padding:5px 12px 12px;color:#858585;font-size:10px}
+    .pm-assistant-image-verification{display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%;padding:6px 0;color:#a8a8a8;font-size:10px}
+    .pm-assistant-image-verification:empty{display:none}
+    .pm-assistant-generated-image{display:block;width:min(100%,640px);height:auto;max-height:520px;object-fit:contain;margin-top:12px;border:1px solid #454545;border-radius:12px;background:#171717}
+    .pm-assistant-image-download{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:9px 14px;border:1px solid #555;border-radius:9px;background:#303030;color:#f5f5f5;text-decoration:none;font-size:12px;font-weight:600}
+    .pm-assistant-image-download:hover{background:#414141}
     .pm-assistant-header-actions{display:none!important}
     .pm-assistant-history-toggle{display:none!important}
     @media(max-width:760px){
@@ -1037,6 +1056,98 @@
     };
   }
 
+  function loadImageTurnstile() {
+    if (window.turnstile && typeof window.turnstile.render === "function") return Promise.resolve();
+    if (turnstileLoadPromise) return turnstileLoadPromise;
+    turnstileLoadPromise = new Promise((resolve, reject) => {
+      const existing = document.querySelector('script[data-pm-turnstile="true"]');
+      if (existing) {
+        existing.addEventListener("load", resolve, { once:true });
+        existing.addEventListener("error", reject, { once:true });
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.defer = true;
+      script.dataset.pmTurnstile = "true";
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+    return turnstileLoadPromise;
+  }
+
+  async function ensureImageTurnstile() {
+    if (!imageVerification || imageTurnstileWidgetId !== null) return;
+    try {
+      await loadImageTurnstile();
+      if (!window.turnstile || typeof window.turnstile.render !== "function") throw new Error("Turnstile did not load.");
+      imageTurnstileWidgetId = window.turnstile.render(imageVerification, {
+        sitekey: TURNSTILE_SITE_KEY,
+        action: "image_generation",
+        callback: token => { imageTurnstileToken = token; },
+        "expired-callback": () => { imageTurnstileToken = ""; },
+        "error-callback": () => { imageTurnstileToken = ""; }
+      });
+    } catch (error) {
+      imageVerification.textContent = "Image verification could not load. Please refresh and try again.";
+      console.warn("PDFMaster chat image verification failed to load.", error);
+    }
+  }
+
+  function isImageGenerationRequest(prompt) {
+    const value = String(prompt || "").trim();
+    return /(?:\b(?:generate|create|make|draw|design|render)\b.{0,45}\b(?:image|picture|illustration|art|photo|wallpaper|poster|logo)\b|\b(?:image|picture|illustration|photo|wallpaper|poster|logo)\b.{0,35}\b(?:of|showing|with)\b|\b(?:image|picture|photo|tasveer|तस्वीर|चित्र)\s*(?:banao|bana\s*do|बनाओ|बना\s*दो)|\b(?:banao|bana\s*do)\b.{0,35}\b(?:image|picture|photo|tasveer)\b)/i.test(value);
+  }
+
+  async function createAssistantImage(prompt) {
+    if (!imageTurnstileToken) {
+      await ensureImageTurnstile();
+      addMessage("Image banane se pehle chat ke upar Cloudflare verification complete karo. Phir apna prompt dobara Send karo.", "assistant");
+      return true;
+    }
+    const loading = addMessage("Creating your image…", "assistant");
+    const token = imageTurnstileToken;
+    imageTurnstileToken = "";
+    try {
+      const response = await fetch(IMAGE_API_URL.replace(/\/$/, "") + "/api/image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, style: "auto", turnstileToken: token })
+      });
+      const data = await response.json().catch(() => ({}));
+      loading.remove();
+      if (!response.ok || typeof data.image !== "string" || !data.image.startsWith("data:image/")) {
+        addMessage("Image create nahi ho payi: " + (data.error || "Please try again."), "assistant");
+        return true;
+      }
+      const bubble = addMessage("Your image is ready.", "assistant");
+      const content = bubble.querySelector(".pm-assistant-content");
+      const image = document.createElement("img");
+      image.className = "pm-assistant-generated-image";
+      image.src = data.image;
+      image.alt = "AI-generated image";
+      image.loading = "lazy";
+      const download = document.createElement("a");
+      download.className = "pm-assistant-image-download";
+      download.href = data.image;
+      download.download = "PDFMaster_AI_Image.jpg";
+      download.textContent = "↓ Download image";
+      content.append(image, download);
+      return true;
+    } catch (error) {
+      loading.remove();
+      addMessage("Image generation server se connect nahi ho paya. Please try again.", "assistant");
+      return true;
+    } finally {
+      if (window.turnstile && imageTurnstileWidgetId !== null) {
+        try { window.turnstile.reset(imageTurnstileWidgetId); } catch (_) {}
+      }
+      imageTurnstileToken = "";
+    }
+  }
+
   async function askPDFMasterAI(question) {
     if (!RESEARCH_API_URL) return false;
 
@@ -1170,6 +1281,11 @@
     addMessage(value, "user");
     if (!researchMode) pookieHistory = pookieHistory.concat([{ role: "user", content: value }]).slice(-12);
     input.value = "";
+
+    if (isImageGenerationRequest(value)) {
+      await createAssistantImage(value);
+      return;
+    }
 
     // Hard gate: source-based research is allowed only when the visible
     // Web Research toggle is ON. Quick-action flags must never bypass the toggle.
