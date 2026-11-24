@@ -107,7 +107,21 @@ export default {
         const answer = typeof result?.response === "string"
           ? result.response
           : (typeof result?.choices?.[0]?.message?.content === "string" ? result.choices[0].message.content : "");
-        if (!answer.trim()) return json({ error: "PDFMASTER ASSISTANT did not return an answer. Please try again." }, 502, allowedOrigin);
+        if (!answer.trim()) {
+          console.error("PDFMASTER /api/chat returned an empty or unrecognized AI result:", {
+            resultType: typeof result,
+            resultKeys: result && typeof result === "object" ? Object.keys(result) : [],
+            responseType: typeof result?.response,
+            responseLength: typeof result?.response === "string" ? result.response.length : null,
+            choicesCount: Array.isArray(result?.choices) ? result.choices.length : null,
+            firstChoiceKeys: result?.choices?.[0] && typeof result.choices[0] === "object" ? Object.keys(result.choices[0]) : [],
+            messageType: typeof result?.choices?.[0]?.message,
+            messageKeys: result?.choices?.[0]?.message && typeof result.choices[0].message === "object" ? Object.keys(result.choices[0].message) : [],
+            finishReason: result?.choices?.[0]?.finish_reason || result?.choices?.[0]?.finishReason || null,
+            modelDurationMs: Date.now() - pookieStartedAt
+          });
+          return json({ error: "PDFMASTER ASSISTANT did not return an answer. Please try again." }, 502, allowedOrigin);
+        }
         return json({
           answer: answer.trim(),
           model: POOKIE_MODEL,
