@@ -6558,3 +6558,17 @@ body:not(.tool-page-active) .topbar-badge:hover {
   background: linear-gradient(135deg, #d4af37, #f3cc72) !important;
   color: #292012 !important;
 }
+
+
+/* Match the profile avatar circle to the AI Assistant launcher gradient */
+.pm-auth-avatar {
+  border: 2px solid #E3C995 !important;
+  box-shadow: 0 3px 12px rgba(176, 141, 80, .22) !important;
+}
+.pm-auth-avatar-fallback,
+.pm-account-avatar-fallback {
+  background: linear-gradient(135deg, #E8D09A, #B08D50) !important;
+  border: 1px solid #E3C995 !important;
+  color: #160F09 !important;
+  box-shadow: 0 3px 12px rgba(176, 141, 80, .22) !important;
+}
