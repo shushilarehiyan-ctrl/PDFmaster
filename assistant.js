@@ -335,6 +335,75 @@
     }
   }
 
+  function queryTerms(value) {
+    return String(value || "").toLowerCase()
+      .replace(/[^\\p{L}\\p{N}\\s]/gu, " ")
+      .split(/\\s+/)
+      .filter(word => word.length > 2 && !/^(the|and|for|with|what|when|where|which|who|how|why|from|into|about|explain|tell|please|hai|kaise|kya|kahan|kyun|aur|mein|ke|ka|ki|ko|se|par|hai)$/.test(word));
+  }
+
+  function extractiveSummary(question, documents) {
+    const terms = [...new Set(queryTerms(question))];
+    const candidates = [];
+    documents.forEach((doc, index) => {
+      const text = String(doc.text || "").replace(/\\s+/g, " ").trim();
+      const sentences = text.match(/[^.!?।]+[.!?।]?/g) || [];
+      sentences.forEach(sentence => {
+        const clean = sentence.trim();
+        if (clean.length < 45 || clean.length > 420) return;
+        const lower = clean.toLowerCase();
+        const matches = terms.filter(term => lower.includes(term)).length;
+        const score = matches / Math.max(terms.length, 1) + Math.min(clean.length / 5000, 0.08);
+        if (matches) candidates.push({ text: clean, score, sourceIndex: index, provider: doc.provider });
+      });
+    });
+    candidates.sort((a, b) => b.score - a.score);
+    const chosen = [];
+    for (const item of candidates) {
+      if (chosen.length >= 5) break;
+      if (chosen.some(existing => existing.text.toLowerCase() === item.text.toLowerCase())) continue;
+      chosen.push(item);
+    }
+    const distinctProviders = new Set(chosen.map(item => item.provider));
+    if (!chosen.length) return {
+      text: "I found related sources, but could not extract enough relevant article text to form a reliable summary. Open the source links below.",
+      evidence: []
+    };
+    return {
+      text: chosen.map((item, index) => (index + 1) + ". " + item.text).join("\\n\\n") +
+        "\\n\\nEvidence note: " + chosen.length + " relevant passages were selected from " +
+        distinctProviders.size + " source provider(s). This is an extractive summary, not an AI-generated explanation or proof that the sources agree.",
+      evidence: chosen
+    };
+  }
+
+  async function enrichKnowledgeSource(source) {
+    try {
+      if (source.kind === "wikipedia") {
+        const params = new URLSearchParams({
+          action: "query", prop: "extracts", exintro: "1", explaintext: "1",
+          exchars: "4500", titles: source.title, format: "json", origin: "*"
+        });
+        const data = await fetchPublicJson("https://" + source.language + ".wikipedia.org/w/api.php?" + params, source.provider);
+        const page = Object.values(data.query?.pages || {})[0];
+        if (page && page.extract) source.text = page.extract;
+      } else if (source.kind === "openalex" && source.abstract_inverted_index) {
+        const words = [];
+        Object.entries(source.abstract_inverted_index).forEach(([word, positions]) => {
+          positions.forEach(position => { words[position] = word; });
+        });
+        source.text = words.filter(Boolean).join(" ");
+      } else if (source.kind === "crossref" && source.abstract) {
+        source.text = cleanSearchExcerpt(source.abstract);
+      } else if (source.kind === "wikidata" && source.snippet) {
+        source.text = source.snippet;
+      }
+    } catch (_) {
+      // Keep the search result even if its article text cannot be fetched.
+    }
+    return source;
+  }
+
   async function searchFreeKnowledge(question) {
     const query = question.trim();
     const encoded = encodeURIComponent(query);
@@ -345,7 +414,7 @@
           const params = new URLSearchParams({ action: "query", list: "search", srsearch: query, srlimit: "5", format: "json", origin: "*" });
           const data = await fetchPublicJson("https://en.wikipedia.org/w/api.php?" + params, "English Wikipedia");
           return (data.query?.search || []).map(item => ({
-            title: item.title,
+            title: item.title, language: "en", kind: "wikipedia", provider: "English Wikipedia",
             url: "https://en.wikipedia.org/wiki/" + encodeURIComponent(item.title.replace(/ /g, "_")),
             snippet: cleanSearchExcerpt(item.snippet || "Encyclopedia article")
           }));
@@ -357,7 +426,7 @@
           const params = new URLSearchParams({ action: "query", list: "search", srsearch: query, srlimit: "5", format: "json", origin: "*" });
           const data = await fetchPublicJson("https://hi.wikipedia.org/w/api.php?" + params, "Hindi Wikipedia");
           return (data.query?.search || []).map(item => ({
-            title: item.title,
+            title: item.title, language: "hi", kind: "wikipedia", provider: "Hindi Wikipedia",
             url: "https://hi.wikipedia.org/wiki/" + encodeURIComponent(item.title.replace(/ /g, "_")),
             snippet: cleanSearchExcerpt(item.snippet || "Hindi encyclopedia article")
           }));
@@ -369,23 +438,24 @@
           const params = new URLSearchParams({ action: "wbsearchentities", search: query, language: "en", uselang: "en", limit: "5", format: "json", origin: "*" });
           const data = await fetchPublicJson("https://www.wikidata.org/w/api.php?" + params, "Wikidata");
           return (data.search || []).map(item => ({
-            title: item.label || item.id,
+            title: item.label || item.id, kind: "wikidata", provider: "Wikidata",
             url: item.concepturi || ("https://www.wikidata.org/wiki/" + item.id),
-            snippet: item.description || "Structured knowledge entry"
+            snippet: item.description || "Structured knowledge entry", text: item.description || ""
           }));
         }
       },
       {
         name: "OpenAlex research",
         run: async () => {
-          const params = new URLSearchParams({ search: query, per_page: "4", select: "doi,title,publication_year,primary_location" });
+          const params = new URLSearchParams({ search: query, per_page: "4", select: "doi,title,publication_year,primary_location,abstract_inverted_index" });
           const data = await fetchPublicJson("https://api.openalex.org/works?" + params, "OpenAlex");
           return (data.results || []).map(work => {
             const location = work.primary_location || {};
             const landing = location.landing_page_url || (location.source && location.source.homepage_url);
             const doiUrl = work.doi && work.doi.startsWith("https://doi.org/") ? work.doi : "";
             return {
-              title: work.title || "Research work",
+              title: work.title || "Research work", kind: "openalex", provider: "OpenAlex research",
+              abstract_inverted_index: work.abstract_inverted_index,
               url: landing || doiUrl || work.id || "https://openalex.org",
               snippet: "Scholarly publication" + (work.publication_year ? " • " + work.publication_year : "")
             };
@@ -395,12 +465,13 @@
       {
         name: "Crossref research",
         run: async () => {
-          const params = new URLSearchParams({ "query.bibliographic": query, rows: "4", select: "DOI,title,published,URL" });
+          const params = new URLSearchParams({ "query.bibliographic": query, rows: "4", select: "DOI,title,published,URL,abstract" });
           const data = await fetchPublicJson("https://api.crossref.org/works?" + params, "Crossref");
           return (data.message?.items || []).map(work => {
             const dateParts = work.published?.["date-parts"]?.[0] || [];
             return {
               title: Array.isArray(work.title) ? work.title[0] : "Research publication",
+              kind: "crossref", provider: "Crossref research", abstract: work.abstract || "",
               url: work.URL || (work.DOI ? "https://doi.org/" + work.DOI : ""),
               snippet: "Research publication" + (dateParts[0] ? " • " + dateParts[0] : "")
             };
@@ -410,12 +481,10 @@
     ];
 
     const results = await Promise.allSettled(providers.map(provider => provider.run()));
-    const sources = results
-      .flatMap((result, index) => result.status === "fulfilled"
-        ? result.value.map(item => ({ ...item, provider: providers[index].name }))
-        : [])
+    let sources = results
+      .flatMap((result, index) => result.status === "fulfilled" ? result.value : [])
       .filter((item, index, all) => item.url && all.findIndex(other => other.url === item.url) === index)
-      .slice(0, 18);
+      .slice(0, 14);
     const unavailable = results.map((result, index) => result.status === "rejected" ? providers[index].name : "").filter(Boolean);
     const searchLinks = [
       { title: "Search English Wikipedia", url: "https://en.wikipedia.org/w/index.php?search=" + encoded, snippet: "Encyclopedia search" },
@@ -427,18 +496,33 @@
 
     if (!sources.length) {
       return {
-        answer: "The free knowledge services did not respond in this browser. I have included direct search links so you can still look up the topic. Check your internet connection and try again. This mode does not generate an AI-written answer.",
+        answer: "The free knowledge services did not respond in this browser. I have included direct search links so you can still look up the topic. Check your internet connection and try again.",
         sources: searchLinks
       };
     }
 
+    const loading = addMessage("Reading article summaries and research abstracts…", "assistant");
+    const enriched = await Promise.all(sources.slice(0, 10).map(enrichKnowledgeSource));
+    loading.remove();
+    const documents = enriched.filter(item => item.text).map(item => ({
+      text: item.text, provider: item.provider, title: item.title, url: item.url
+    }));
+    const summary = extractiveSummary(query, documents);
+    const displaySources = sources.map(item => ({
+      title: item.title,
+      url: item.url,
+      snippet: item.text
+        ? cleanSearchExcerpt(item.text).slice(0, 280) + (item.text.length > 280 ? "…" : "")
+        : item.snippet + " (full text unavailable)"
+    }));
     const counts = results.map((result, index) => result.status === "fulfilled" ? providers[index].name + ": " + result.value.length : "");
     return {
-      answer: "I searched " + providers.length + " free knowledge services and found " + sources.length + " results.\\n" +
-        counts.filter(Boolean).join(" • ") +
+      answer: "KNOWLEDGE UNIVERSE 2.0 — SOURCE-BASED ANSWER\\n\\n" + summary.text +
+        "\\n\\nSearch coverage: " + sources.length + " results across " + providers.length + " free services." +
         (unavailable.length ? "\\nUnavailable this time: " + unavailable.join(", ") + "." : "") +
-        "\\n\\nThese are retrieved source results, not an AI-written or fully verified summary. Open the sources and compare them; important medical, legal, financial or safety decisions need authoritative professional sources.",
-      sources: sources.concat(searchLinks).slice(0, 18)
+        "\\n\\n" + counts.filter(Boolean).join(" • ") +
+        "\\n\\nPlease open the cited sources to verify context. This system extracts relevant passages; it does not independently fact-check claims or replace expert advice.",
+      sources: displaySources.concat(searchLinks).slice(0, 14)
     };
   }
 
