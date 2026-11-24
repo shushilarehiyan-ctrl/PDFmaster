@@ -336,7 +336,7 @@
       [/^(what is )?(operating system|os)\??$/,"Operating System hardware aur applications manage karta hai. Examples: Windows, Linux, Android, macOS."]
     ];
     for(const [re,answer] of facts) if(re.test(q)) return answer;
-    if(/help|what can you do|commands|features|kya kar sakte/.test(q)) return "Offline features:\n• Calculator: 25*(8+2)\n• Percentage: 15% of 240\n• Conversion: 5 km to miles, 25 C to F, 10 kg to grams\n• Text: word count: paste text; uppercase: hello; reverse text: abc\n• Date/time: today's date, current time, tomorrow's date\n• Computer basics: HTML, CSS, JavaScript, Python, CPU, RAM, PDF, URL, AI\n• General knowledge: science, maths, India, geography, history, environment, economics, Class 11–12 PCM and Biology\n• PDF help: merge, split, compress, convert, protect\n\nLive/current information and detailed open-ended answers need a connected AI/search backend.";
+    if(/help|what can you do|commands|features|kya kar sakte/.test(q)) return "Main PDFMASTER ASSISTANT hoon — ek general-purpose AI assistant. Aap mujhse lagbhag kisi bhi vishay par sawaal poochh sakte hain: Science, Maths, Physics, Chemistry, Biology, Computer Science, Programming, History, Geography, Economics, GK, language, grammar, writing, reasoning, study help aur everyday questions. Main concepts samjha sakta hoon, examples de sakta hoon, calculations solve kar sakta hoon aur coding mein madad kar sakta hoon.\n\nPDFMaster ki khaas suvidhayein: PDF merge, split, compress, convert aur protect; calculator, percentage, unit conversion aur text tools.\n\nLimitations: Offline mode mein main built-in knowledge aur tools tak seemit hoon. Detailed open-ended answers ke liye connected AI backend zaroori hai; latest/current information ke liye Web Research ON karein. Agar mujhe jawab pakka na ho, main andaza lagane ke bajay apni limitation bataunga.";
     return null;
   }
 
@@ -615,7 +615,7 @@
     };
   }
 
-  async function askPookieAI(question) {
+  async function askPDFMasterAI(question) {
     if (!RESEARCH_API_URL) return false;
     const loading = addMessage("Thinking…", "assistant");
     const conversation = pookieHistory.concat([{ role: "user", content: question }]).slice(-12);
@@ -696,8 +696,8 @@
     if (/password|protect|lock|पासवर्ड|सुरक्षित/.test(q)) return "To add password protection, open the Protect PDF tool. Keep a secure copy of your password.";
     if (/not open|cannot open|can't open|won't open|error|failed|issue|problem|upload|नहीं खुल|एरर|समस्या/.test(q)) return "First, check whether the file opens on your device outside PDFMaster. Also confirm it is a PDF and the upload has finished.\n\nWhat exact error message do you see?";
     if (/word|docx/.test(q)) return "PDF and Word documents can have different layouts after conversion. Do you want to convert Word to PDF, convert PDF to Word, or fix formatting?";
-    if (/hello|hi|hey|namaste|नमस्ते|नमस्कार/.test(q)) return "Hello! Ask me about PDFMaster tools, document issues, or basic calculations. Turn on Web Research for questions that need current web sources.";
-    return "I don't have a reliable offline answer for that yet. I can help with PDFMaster workflows, calculations, computer basics and the built-in general-knowledge library. Try a short topic question such as photosynthesis, capital of India or fundamental rights. I won't invent an answer.";
+    if (/hello|hi|hey|namaste|नमस्ते|नमस्कार/.test(q)) return "Hello! Main PDFMASTER ASSISTANT hoon. Aap mujhse kisi bhi topic par sawaal poochh sakte hain—Science, Maths, GK, Programming, writing, reasoning, PDF tools aur bahut kuchh. Detailed answers ke liye AI backend connected hona chahiye; latest information ke liye Web Research ON karein.";
+    return "I don't have a reliable offline answer for that yet. Main kai tarah ke topics mein madad kar sakta hoon, lekin is sawaal ke liye connected AI backend ki zaroorat hai. Connection available na ho to main galat jawab banane ke bajay apni limitation bataunga.";
   }
 
 
@@ -721,19 +721,19 @@
       return;
     }
 
-    // Unknown questions go to Cloudflare-hosted Pookie AI first.
+    // Unknown questions go to Cloudflare-hosted PDFMASTER ASSISTANT first.
     // Web Research must only run when the user explicitly turns it ON.
-    const answeredByPookie = await askPookieAI(value);
-    if (answeredByPookie) return;
+    const answeredByAssistant = await askPDFMasterAI(value);
+    if (answeredByAssistant) return;
 
-    // If Pookie AI is unavailable, use the offline learning libraries.
+    // If PDFMASTER ASSISTANT is unavailable, use the offline learning libraries.
     const offlineEducation = window.PDFMASTER_EDUCATION && window.PDFMASTER_EDUCATION.answer(value);
     if (offlineEducation) { addMessage(offlineEducation, "assistant"); return; }
     const offlineKnowledge = window.PDFMASTER_KNOWLEDGE && window.PDFMASTER_KNOWLEDGE.answer(value);
     if (offlineKnowledge) { addMessage(offlineKnowledge, "assistant"); return; }
 
     // Do not silently switch to source-based research while Web Research is OFF.
-    addMessage("Pookie AI se connection nahi ho paya. Web Research OFF hai, isliye maine research search start nahi ki. Please check the Cloudflare /api/chat connection and try again.", "assistant");
+    addMessage("PDFMASTER ASSISTANT se connection nahi ho paya. Web Research OFF hai, isliye maine research search start nahi ki. Please check the Cloudflare /api/chat connection and try again.", "assistant");
   }
 
   form.addEventListener("submit", event => {
