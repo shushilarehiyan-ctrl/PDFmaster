@@ -28,7 +28,8 @@
     { id: "jpg-to-pdf", title: "JPG to PDF", category: "CONVERT TO PDF", description: "Combine one or more JPG images into a PDF.", type: "image-pdf", accept: "image/jpeg", multiple: true },
     { id: "pptx-to-pdf", title: "PPTX to PDF", category: "CONVERT TO PDF", description: "Convert slide text into a PDF. Slide visuals, animations and exact layout are not retained.", type: "pptx-pdf", accept: ".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation" },
     { id: "excel-to-pdf", title: "Excel to PDF", category: "CONVERT TO PDF", description: "Convert worksheet cell content into a readable PDF. Complex formatting may change.", type: "excel-pdf", accept: ".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" },
-    { id: "sign-pdf", title: "Sign PDF", category: "SIGN & SECURITY", description: "Place a typed signature label on the first page. This is not a certificate-based digital signature.", type: "sign", accept: ".pdf,application/pdf" }
+    { id: "sign-pdf", title: "Sign PDF", category: "SIGN & SECURITY", description: "Place a typed signature label on the first page. This is not a certificate-based digital signature.", type: "sign", accept: ".pdf,application/pdf" },
+    { id: "image-creation", title: "AI Image Creation", category: "AI IMAGE STUDIO", description: "Turn a text idea into an AI-generated image with an enhanced prompt and selectable visual style.", type: "image-gen" }
   ];
 
   // Distinct, task-matched marks for the tool cards and sidebar.
@@ -45,7 +46,8 @@
     "jpg-to-pdf": "J",
     "pptx-to-pdf": "P",
     "excel-to-pdf": "X",
-    "sign-pdf": "✍"
+    "sign-pdf": "✍",
+    "image-creation": "✦"
   };
   const formIcons = {
     "Form W-9": "W9",
@@ -143,9 +145,50 @@
   }
 
   async function run(def, files, controls, output) {
+    const type = def.type;
+    if (type === "image-gen") {
+      const prompt = String(controls.prompt && controls.prompt.value || "").trim();
+      if (prompt.length < 3 || prompt.length > 1200) {
+        throw new Error("Please enter an image idea between 3 and 1,200 characters.");
+      }
+      status(output, "Understanding your idea and creating the image… This may take a little while.", false);
+      const apiBase = window.PDFMASTER_RESEARCH_API || "https://pdfmaster.sherebihar35.workers.dev";
+      const response = await fetch(apiBase.replace(/\\/$/, "") + "/api/image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: prompt,
+          style: String(controls.style && controls.style.value || "auto")
+        })
+      });
+      const result = await response.json().catch(function () { return {}; });
+      if (!response.ok) throw new Error(result.error || "Image generation failed. Please try again.");
+      if (!result.image || typeof result.image !== "string" || !result.image.startsWith("data:image/")) {
+        throw new Error("The image service returned an invalid image. Please try again.");
+      }
+
+      output.replaceChildren();
+      const preview = make("img", "pm-image-generation-preview");
+      preview.src = result.image;
+      preview.alt = "AI-generated image based on your description";
+      preview.loading = "eager";
+      output.appendChild(preview);
+      const downloadLink = make("a", "pm-image-generation-download", "Download image ↓");
+      downloadLink.href = result.image;
+      downloadLink.download = "PDFMaster_AI_Image.jpg";
+      output.appendChild(downloadLink);
+      if (result.promptUsed) {
+        const details = make("details", "pm-image-generation-prompt");
+        details.appendChild(make("summary", "", "View enhanced prompt"));
+        details.appendChild(make("p", "", result.promptUsed));
+        output.appendChild(details);
+      }
+      status(output, "Image created successfully.", false);
+      output.classList.add("pm-image-generation-result");
+      return;
+    }
     if (!files.length) throw new Error("Please choose a file first.");
     const file = files[0];
-    const type = def.type;
     status(output, "Processing… please keep this tab open.", false);
 
     if (type === "edit" || type === "sign") {
@@ -343,14 +386,49 @@
     card.appendChild(make("h3", "", def.title));
     card.appendChild(make("p", "", def.description));
 
-    const fileInput = make("input");
-    fileInput.type = "file";
-    fileInput.accept = def.accept;
-    fileInput.multiple = !!def.multiple;
-    fileInput.setAttribute("aria-label", "Choose file for " + def.title);
-    card.appendChild(fileInput);
-
     const controls = {};
+    let fileInput = null;
+    if (def.type === "image-gen") {
+      const promptLabel = make("label", "", "Describe the image you want");
+      const promptInput = make("textarea", "pm-image-generation-prompt-input");
+      promptInput.maxLength = 1200;
+      promptInput.rows = 5;
+      promptInput.placeholder = "Example: A peaceful futuristic city at night, glowing buildings reflected in wet streets, cinematic atmosphere…";
+      promptInput.setAttribute("aria-label", "Describe the image you want to create");
+      card.appendChild(promptLabel);
+      card.appendChild(promptInput);
+      controls.prompt = promptInput;
+
+      const styleLabel = make("label", "", "Visual style");
+      const styleSelect = make("select");
+      [
+        ["auto", "Auto — choose for me"],
+        ["photorealistic", "Photorealistic"],
+        ["cinematic", "Cinematic"],
+        ["3d", "3D render"],
+        ["anime", "Anime"],
+        ["illustration", "Digital illustration"],
+        ["watercolor", "Watercolor"],
+        ["pixel-art", "Pixel art"],
+        ["minimalist", "Minimalist"]
+      ].forEach(function (option) {
+        const item = make("option", "", option[1]);
+        item.value = option[0];
+        styleSelect.appendChild(item);
+      });
+      card.appendChild(styleLabel);
+      card.appendChild(styleSelect);
+      controls.style = styleSelect;
+      card.appendChild(make("p", "advanced-note", "The AI improves your description before generating. Results depend on the image model; small details and text inside images may not always be exact."));
+    } else {
+      fileInput = make("input");
+      fileInput.type = "file";
+      fileInput.accept = def.accept;
+      fileInput.multiple = !!def.multiple;
+      fileInput.setAttribute("aria-label", "Choose file for " + def.title);
+      card.appendChild(fileInput);
+    }
+
     if (def.type === "edit" || def.type === "sign") {
       const textLabel = make("label", "", def.type === "sign" ? "Signature text" : "Text to add");
       const textInput = make("input");
@@ -386,13 +464,13 @@
     const actions = make("div", "tool-actions");
     const clear = make("button", "secondary-btn", "Clear");
     clear.type = "button";
-    clear.addEventListener("click", function () { fileInput.value = ""; if (controls.text) controls.text.value = ""; output.textContent = ""; });
-    const process = make("button", "", def.type === "sign" ? "Add Signature →" : def.type === "edit" ? "Edit PDF →" : "Convert →");
+    clear.addEventListener("click", function () { if (fileInput) fileInput.value = ""; if (controls.text) controls.text.value = ""; if (controls.prompt) controls.prompt.value = ""; if (controls.style) controls.style.value = "auto"; output.replaceChildren(); output.classList.remove("pm-image-generation-result"); });
+    const process = make("button", "", def.type === "image-gen" ? "Create Image ✦" : def.type === "sign" ? "Add Signature →" : def.type === "edit" ? "Edit PDF →" : "Convert →");
     process.type = "button";
     const output = make("div", "advanced-result");
     output.setAttribute("aria-live", "polite");
     process.addEventListener("click", async function () {
-      const files = Array.from(fileInput.files || []);
+      const files = fileInput ? Array.from(fileInput.files || []) : [];
       process.disabled = true;
       process.textContent = "Working…";
       workspaceBody.classList.add("is-processing");
@@ -407,7 +485,7 @@
         status(output, error.message || "Something went wrong. Please try another file.", true);
       } finally {
         process.disabled = false;
-        process.textContent = def.type === "sign" ? "Add Signature →" : def.type === "edit" ? "Edit PDF →" : "Convert →";
+        process.textContent = def.type === "image-gen" ? "Create Image ✦" : def.type === "sign" ? "Add Signature →" : def.type === "edit" ? "Edit PDF →" : "Convert →";
         workspaceBody.classList.remove("is-processing");
         processingNote.remove();
       }
@@ -557,7 +635,8 @@
       "form-941": "941",
       "form-w-2": "W2",
       "photo-to-pdf": "▧",
-      "image-compressor": "◩"
+      "image-compressor": "◩",
+      "image-creation": "✦"
     };
     return icons[card.id] || "▤";
   }
