@@ -13,6 +13,12 @@ const configReady = Boolean(
 const loginButton = document.getElementById("googleSignInButton");
 const statusNode = document.getElementById("authStatus");
 const authLink = document.getElementById("pmAuthLink");
+const accountName = document.getElementById("accountName");
+const accountEmail = document.getElementById("accountEmail");
+const accountPhoto = document.getElementById("accountPhoto");
+const accountCreated = document.getElementById("accountCreated");
+const accountSignOut = document.getElementById("accountSignOut");
+const accountStatus = document.getElementById("accountStatus");
 
 function showStatus(message, isError = false) {
   if (!statusNode) return;
@@ -59,27 +65,34 @@ if (!configReady) {
     if (authLink) {
       if (user) {
         authLink.textContent = user.displayName ? user.displayName.split(" ")[0] : "My Account";
-        authLink.href = "login.html";
-        authLink.setAttribute("aria-label", "Signed in. Open account options.");
-        let signOutButton = document.getElementById("pmSignOutButton");
-        if (!signOutButton) {
-          signOutButton = document.createElement("button");
-          signOutButton.type = "button";
-          signOutButton.id = "pmSignOutButton";
-          signOutButton.className = "pm-auth-signout";
-          signOutButton.textContent = "Sign out";
-          authLink.insertAdjacentElement("afterend", signOutButton);
-        }
-        signOutButton.onclick = async () => {
-          try { await signOut(auth); window.location.reload(); }
-          catch (error) { console.error("PDFMaster sign-out error:", error); }
-        };
+        authLink.href = "account.html";
+        authLink.setAttribute("aria-label", "Open your PDFMaster account.");
+
       } else {
         authLink.textContent = "Sign in";
         authLink.href = "login.html";
         document.getElementById("pmSignOutButton")?.remove();
       }
     }
+    if (accountName) {
+      if (!user) { window.location.replace("login.html"); return; }
+      accountName.textContent = user.displayName || "PDFMaster user";
+      accountEmail.textContent = user.email || "Email not available";
+      accountCreated.textContent = user.metadata?.creationTime
+        ? new Date(user.metadata.creationTime).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
+        : "Not available";
+      if (accountPhoto && user.photoURL) { accountPhoto.src = user.photoURL; accountPhoto.hidden = false; }
+      if (accountStatus) accountStatus.textContent = "Your Google account is connected.";
+    }
+    if (accountSignOut) accountSignOut.onclick = async () => {
+      accountSignOut.disabled = true;
+      try { await signOut(auth); window.location.replace("index.html"); }
+      catch (error) {
+        console.error("PDFMaster sign-out error:", error);
+        accountSignOut.disabled = false;
+        if (accountStatus) accountStatus.textContent = "Could not sign out. Please try again.";
+      }
+    };
     if (loginButton && user) {
       showStatus("Already signed in as " + (user.email || "your Google account") + ".");
       loginButton.textContent = "Continue to PDFMaster";
