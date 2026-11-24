@@ -320,11 +320,11 @@
   function cleanSearchExcerpt(value) {
     const node = document.createElement("div");
     node.innerHTML = String(value || "");
-    return (node.textContent || "").replace(/\\s+/g, " ").trim();
+    return (node.textContent || "").replace(/\s+/g, " ").trim();
   }
 
   async function searchFreeKnowledge(question) {
-    const isHindi = /[\\u0900-\\u097F]/.test(question);
+    const isHindi = /[\u0900-\u097F]/.test(question);
     const wikiHost = isHindi ? "hi.wikipedia.org" : "en.wikipedia.org";
     const encoded = encodeURIComponent(question.trim());
     const tasks = [
