@@ -232,11 +232,9 @@
     .pm-chat-dialog-actions .pm-dialog-primary:hover{background:#d8d8d8}
     .pm-chat-dialog-actions .pm-dialog-primary.is-danger{border-color:#8f4444;background:#b94c4c;color:#fff}
     @media(max-width:760px){.pm-assistant-sidebar .pm-chat-menu-toggle{opacity:1;pointer-events:auto}.pm-chat-dialog{padding:21px;border-radius:16px}}
-    .pm-chat-actions{position:absolute;right:4px;top:34px;z-index:20;min-width:132px;padding:5px;background:#2b2b2b;border:1px solid #484848;border-radius:9px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
     .pm-chat-actions[hidden]{display:none}
-    .pm-chat-actions button{display:block;width:100%;padding:8px 10px;border:0;border-radius:6px;background:transparent;color:#eee;text-align:left;font-size:12px;cursor:pointer}
-    .pm-chat-actions button:hover{background:#414141}
-    .pm-chat-actions .pm-chat-delete{color:#ff8585}
+    .pm-chat-action-icon{display:inline-grid;place-items:center;width:17px;color:#b8b8b8;font-size:14px}
+    .pm-chat-actions .pm-chat-delete .pm-chat-action-icon{color:#ef9292}
     .pm-assistant-history-empty{padding:8px;color:#858585;font-size:11px;line-height:1.5}
     .pm-assistant-sidebar-note{padding:12px 7px 4px;border-top:1px solid #303030;color:#858585;font-size:10px;line-height:1.5}
     .pm-assistant-header{grid-column:2;grid-row:1;min-width:0;padding:10px 22px;background:#212121;border:0;border-bottom:1px solid #303030}
