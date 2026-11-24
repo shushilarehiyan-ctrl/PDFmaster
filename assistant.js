@@ -12,6 +12,7 @@
   // Set this only after deploying api/worker.js. Never place an API key here.
   const RESEARCH_API_URL = window.PDFMASTER_RESEARCH_API || "";
   let researchMode = false;
+  let pookieHistory = [];
 
   if (!launcher || !panel || !form || !input || !messages) return;
 
@@ -526,6 +527,28 @@
     };
   }
 
+  async function askPookieAI(question) {
+    if (!RESEARCH_API_URL) return false;
+    const loading = addMessage("Pookie AI is thinking…", "assistant");
+    const conversation = pookieHistory.concat([{ role: "user", content: question }]).slice(-12);
+    try {
+      const response = await fetch(RESEARCH_API_URL.replace(/\/$/, "") + "/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: conversation })
+      });
+      const data = await response.json().catch(() => ({}));
+      loading.remove();
+      if (!response.ok || !data.answer) return false;
+      pookieHistory = conversation.concat([{ role: "assistant", content: data.answer }]).slice(-12);
+      addMessage(data.answer, "assistant");
+      return true;
+    } catch (error) {
+      loading.remove();
+      return false;
+    }
+  }
+
   async function askResearch(question) {
     if (!RESEARCH_API_URL) {
       const loading = addMessage("Searching free knowledge sources…", "assistant");
@@ -614,7 +637,10 @@
       return;
     }
 
-    // Unknown questions are handled by the existing public-source research flow.
+    // Unknown questions go to Pookie AI first; if it is not configured or unavailable,
+    // keep the existing public-source research fallback working.
+    const answeredByPookie = await askPookieAI(value);
+    if (answeredByPookie) return;
     await askResearch(value);
   }
 
