@@ -6502,3 +6502,26 @@ body:not(.tool-page-active) .topbar-badge:hover {
 @media (max-width:760px) {
   .pm-auth-link { min-height:38px; padding:8px 11px; }
 }
+
+/* PDFMASTER MY ACCOUNT */
+.pm-account-page{display:grid;place-items:center;min-height:100vh;padding:28px 18px}
+.pm-account-shell{width:min(100%,620px)}
+.pm-account-brand{display:flex;align-items:center;gap:11px;margin-bottom:34px;font-size:22px;font-weight:800}
+.pm-account-mark{display:grid;place-items:center;width:43px;height:43px;border-radius:13px;background:var(--primary);color:#fff}
+.pm-account-back{display:inline-block;margin-bottom:18px;color:var(--primary-light);font-size:13px}
+.pm-account-card{padding:34px;border:1px solid var(--border);border-radius:22px;background:var(--surface);box-shadow:var(--shadow)}
+.pm-account-eyebrow{color:var(--primary-light);font-size:11px;font-weight:800;letter-spacing:1.5px}
+.pm-account-card h1{margin:10px 0 26px;font-size:30px}
+.pm-account-identity{display:flex;align-items:center;gap:17px;padding:20px;border:1px solid var(--border);border-radius:16px;background:var(--surface-light)}
+.pm-account-photo{width:68px;height:68px;flex:0 0 68px;border-radius:50%;object-fit:cover}
+.pm-account-identity h2{font-size:18px;overflow-wrap:anywhere}
+.pm-account-identity p{margin-top:6px;color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+.pm-account-details{margin:22px 0;border-top:1px solid var(--border)}
+.pm-account-details div{display:flex;justify-content:space-between;gap:16px;padding:16px 2px;border-bottom:1px solid var(--border);font-size:13px}
+.pm-account-details span,.pm-account-status,.pm-account-note{color:var(--muted)}
+.pm-account-details strong{text-align:right}
+.pm-account-status,.pm-account-note{font-size:12px;line-height:1.6}
+.pm-account-signout{width:100%;margin-top:18px;padding:13px;border:1px solid rgba(255,100,124,.35);border-radius:12px;background:rgba(255,100,124,.1);color:#ff9aaa;font-weight:700}
+.pm-account-signout:disabled{opacity:.6;cursor:wait}
+.pm-account-note{margin:18px 4px;text-align:center}
+@media(max-width:480px){.pm-account-card{padding:23px 18px}.pm-account-details div{font-size:12px}}
