@@ -24,6 +24,7 @@
   const IMAGE_API_URL = RESEARCH_API_URL;
   const TURNSTILE_SITE_KEY = "0x4AAAAAAGQ802svQx32R_BB";
   let imageTurnstileToken = "";
+  let pendingImagePrompt = "";
   let imageTurnstileWidgetId = null;
   let turnstileLoadPromise = null;
   let researchMode = false;
@@ -1086,7 +1087,14 @@
       imageTurnstileWidgetId = window.turnstile.render(imageVerification, {
         sitekey: TURNSTILE_SITE_KEY,
         action: "image_generation",
-        callback: token => { imageTurnstileToken = token; },
+        callback: token => {
+          imageTurnstileToken = token;
+          if (pendingImagePrompt) {
+            const queuedPrompt = pendingImagePrompt;
+            pendingImagePrompt = "";
+            createAssistantImage(queuedPrompt);
+          }
+        },
         "expired-callback": () => { imageTurnstileToken = ""; },
         "error-callback": () => { imageTurnstileToken = ""; }
       });
@@ -1103,8 +1111,9 @@
 
   async function createAssistantImage(prompt) {
     if (!imageTurnstileToken) {
+      pendingImagePrompt = prompt;
       await ensureImageTurnstile();
-      addMessage("Image banane se pehle chat ke upar Cloudflare verification complete karo. Phir apna prompt dobara Send karo.", "assistant");
+      addMessage("Image banane ke liye upar Cloudflare verification complete karo. Verification ke baad image automatically ban jayegi.", "assistant");
       return true;
     }
     const loading = addMessage("Creating your image…", "assistant");
