@@ -619,9 +619,9 @@
     addMessage(value, "user");
     input.value = "";
 
-    // Explicit Web Research always takes priority. Otherwise try the offline
-    // knowledge/tools first so local answers never get blocked by an unconfigured backend.
-    if (forceResearch || researchMode) {
+    // Hard gate: source-based research is allowed only when the visible
+    // Web Research toggle is ON. Quick-action flags must never bypass the toggle.
+    if (researchMode) {
       await askResearch(value);
       return;
     }
