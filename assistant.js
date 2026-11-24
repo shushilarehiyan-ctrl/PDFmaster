@@ -403,7 +403,7 @@
       primary: "Move",
       field,
       onConfirm: () => {
-        const project = field.value.trim().replace(/\\s+/g, " ").slice(0, 50);
+        const project = field.value.trim().replace(/\s+/g, " ").slice(0, 50);
         if (!project) { dialogMessage.textContent = "Please enter a project name."; field.focus(); return; }
         chat.project = project;
         chat.updatedAt = Date.now();
