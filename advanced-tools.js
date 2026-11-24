@@ -57,6 +57,55 @@
     "Form W-2": "W2"
   };
 
+  const TURNSTILE_SITE_KEY = "0x4AAAAAAGQ802svQx32R_BB";
+  let turnstileScriptPromise = null;
+
+  function loadTurnstile() {
+    if (window.turnstile && typeof window.turnstile.render === "function") return Promise.resolve();
+    if (turnstileScriptPromise) return turnstileScriptPromise;
+    turnstileScriptPromise = new Promise(function (resolve, reject) {
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.defer = true;
+      script.onload = function () {
+        if (window.turnstile && typeof window.turnstile.render === "function") resolve();
+        else reject(new Error("Cloudflare verification could not be initialized. Please refresh the page."));
+      };
+      script.onerror = function () {
+        turnstileScriptPromise = null;
+        reject(new Error("Could not load Cloudflare verification. Check your internet connection."));
+      };
+      document.head.appendChild(script);
+    });
+    return turnstileScriptPromise;
+  }
+
+  function mountImageTurnstile(target, controls, output) {
+    loadTurnstile().then(function () {
+      if (!target || controls.turnstileWidgetId) return;
+      controls.turnstileWidgetId = window.turnstile.render(target, {
+        sitekey: TURNSTILE_SITE_KEY,
+        action: "image_generation",
+        theme: "auto",
+        callback: function (token) {
+          controls.turnstileToken = token;
+          status(output, "Verification complete. You can now create your image.", false);
+        },
+        "expired-callback": function () {
+          controls.turnstileToken = "";
+          status(output, "Verification expired. Please wait for the check to refresh, then try again.", true);
+        },
+        "error-callback": function () {
+          controls.turnstileToken = "";
+          status(output, "Verification could not load. Please refresh the page and try again.", true);
+        }
+      });
+    }).catch(function (error) {
+      status(output, error.message || "Could not load verification.", true);
+    });
+  }
+
   function make(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -151,6 +200,10 @@
       if (prompt.length < 3 || prompt.length > 1200) {
         throw new Error("Please enter an image idea between 3 and 1,200 characters.");
       }
+      const turnstileToken = String(controls.turnstileToken || "");
+      if (!turnstileToken) {
+        throw new Error("Please complete the Cloudflare verification before creating an image.");
+      }
       status(output, "Understanding your idea and creating the image… This may take a little while.", false);
       const apiBase = window.PDFMASTER_RESEARCH_API || "https://pdfmaster.sherebihar35.workers.dev";
       const response = await fetch(apiBase.replace(/\/$/, "") + "/api/image", {
@@ -158,7 +211,8 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: prompt,
-          style: String(controls.style && controls.style.value || "auto")
+          style: String(controls.style && controls.style.value || "auto"),
+          turnstileToken: turnstileToken
         })
       });
       const result = await response.json().catch(function () { return {}; });
@@ -420,6 +474,11 @@
       card.appendChild(styleSelect);
       controls.style = styleSelect;
       card.appendChild(make("p", "advanced-note", "The AI improves your description before generating. Results depend on the image model; small details and text inside images may not always be exact."));
+      const verificationLabel = make("label", "", "Security verification");
+      card.appendChild(verificationLabel);
+      const verificationBox = make("div", "pm-image-turnstile");
+      card.appendChild(verificationBox);
+      controls.turnstileContainer = verificationBox;
     } else {
       fileInput = make("input");
       fileInput.type = "file";
@@ -464,7 +523,18 @@
     const actions = make("div", "tool-actions");
     const clear = make("button", "secondary-btn", "Clear");
     clear.type = "button";
-    clear.addEventListener("click", function () { if (fileInput) fileInput.value = ""; if (controls.text) controls.text.value = ""; if (controls.prompt) controls.prompt.value = ""; if (controls.style) controls.style.value = "auto"; output.replaceChildren(); output.classList.remove("pm-image-generation-result"); });
+    clear.addEventListener("click", function () {
+      if (fileInput) fileInput.value = "";
+      if (controls.text) controls.text.value = "";
+      if (controls.prompt) controls.prompt.value = "";
+      if (controls.style) controls.style.value = "auto";
+      if (def.type === "image-gen") {
+        controls.turnstileToken = "";
+        if (controls.turnstileWidgetId && window.turnstile) window.turnstile.reset(controls.turnstileWidgetId);
+      }
+      output.replaceChildren();
+      output.classList.remove("pm-image-generation-result");
+    });
     const process = make("button", "", def.type === "image-gen" ? "Create Image ✦" : def.type === "sign" ? "Add Signature →" : def.type === "edit" ? "Edit PDF →" : "Convert →");
     process.type = "button";
     const output = make("div", "advanced-result");
@@ -484,6 +554,10 @@
         console.error(def.title + " error:", error);
         status(output, error.message || "Something went wrong. Please try another file.", true);
       } finally {
+        if (def.type === "image-gen" && controls.turnstileWidgetId && window.turnstile) {
+          controls.turnstileToken = "";
+          window.turnstile.reset(controls.turnstileWidgetId);
+        }
         process.disabled = false;
         process.textContent = def.type === "image-gen" ? "Create Image ✦" : def.type === "sign" ? "Add Signature →" : def.type === "edit" ? "Edit PDF →" : "Convert →";
         workspaceBody.classList.remove("is-processing");
@@ -495,6 +569,9 @@
     card.appendChild(actions);
     card.appendChild(output);
     container.appendChild(card);
+    if (def.type === "image-gen") {
+      mountImageTurnstile(controls.turnstileContainer, controls, output);
+    }
   });
 
   officialForms.forEach(function (form) {
