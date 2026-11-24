@@ -25,6 +25,78 @@
   launcher.addEventListener("click", () => setOpen(!panel.classList.contains("is-open")));
   if (close) close.addEventListener("click", () => setOpen(false));
 
+  // Render AI Markdown safely, then typeset any LaTeX with KaTeX.
+  // Math is temporarily tokenized so Markdown cannot consume LaTeX delimiters.
+  function renderAssistantContent(container, rawText) {
+    let source = String(rawText || "").replace(/\\([*_\x60])/g, "$1");
+    const mathParts = [];
+    source = source.replace(/\\$\\$([\\s\\S]+?)\\$\\$|\\\\\\[([\\s\\S]+?)\\\\\\]|\\\\\\(([\\s\\S]+?)\\\\\\)|(?<!\\\\)\\$([^$\\n]+?)\\$/g,
+      (match, blockDollar, blockBracket, inlineParen, inlineDollar) => {
+        const index = mathParts.length;
+        mathParts.push({
+          tex: blockDollar || blockBracket || inlineParen || inlineDollar,
+          display: Boolean(blockDollar || blockBracket)
+        });
+        return "PDFMASTERMATHPLACEHOLDER" + index + "END";
+      });
+
+    const escapedFallback = source.replace(/[&<>"]/g, char => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"
+    })[char]).replace(/\\n/g, "<br>");
+
+    const markdownHTML = window.marked && typeof window.marked.parse === "function"
+      ? window.marked.parse(source, { gfm: true, breaks: true })
+      : escapedFallback;
+    const safeHTML = window.DOMPurify
+      ? window.DOMPurify.sanitize(markdownHTML, { USE_PROFILES: { html: true } })
+      : escapedFallback;
+
+    container.innerHTML = safeHTML;
+
+    if (!mathParts.length) return;
+    const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    textNodes.forEach(node => {
+      const value = node.nodeValue || "";
+      const tokenPattern = /PDFMASTERMATHPLACEHOLDER(\\d+)END/g;
+      let match, lastIndex = 0;
+      const fragment = document.createDocumentFragment();
+      let changed = false;
+      while ((match = tokenPattern.exec(value))) {
+        changed = true;
+        if (match.index > lastIndex) {
+          fragment.appendChild(document.createTextNode(value.slice(lastIndex, match.index)));
+        }
+        const mathIndex = Number(match[1]);
+        const math = mathParts[mathIndex];
+        const holder = document.createElement("span");
+        holder.className = math && math.display ? "pm-assistant-display-math" : "pm-assistant-inline-math";
+        if (math && window.katex && typeof window.katex.render === "function") {
+          try {
+            window.katex.render(math.tex, holder, {
+              displayMode: math.display,
+              throwOnError: false,
+              strict: "ignore",
+              trust: false
+            });
+          } catch (_) {
+            holder.textContent = math.display ? "$" + math.tex + "$" : "$" + math.tex + "$";
+          }
+        } else if (math) {
+          holder.textContent = math.display ? "$" + math.tex + "$" : "$" + math.tex + "$";
+        }
+        fragment.appendChild(holder);
+        lastIndex = tokenPattern.lastIndex;
+      }
+      if (changed) {
+        if (lastIndex < value.length) fragment.appendChild(document.createTextNode(value.slice(lastIndex)));
+        node.parentNode.replaceChild(fragment, node);
+      }
+    });
+  }
+
   function addMessage(text, who, sources) {
     const bubble = document.createElement("div");
     bubble.className = "pm-assistant-message " + who;
@@ -33,8 +105,13 @@
       label.className = "pm-assistant-message-label";
       label.textContent = "PDFMASTER ASSISTANT";
       bubble.appendChild(label);
+      const content = document.createElement("div");
+      content.className = "pm-assistant-content";
+      renderAssistantContent(content, text);
+      bubble.appendChild(content);
+    } else {
+      bubble.appendChild(document.createTextNode(text));
     }
-    bubble.appendChild(document.createTextNode(text));
     if (Array.isArray(sources) && sources.length) {
       const list = document.createElement("div");
       list.className = "pm-assistant-sources";
