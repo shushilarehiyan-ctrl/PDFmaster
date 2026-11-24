@@ -47,7 +47,7 @@ export default {
     if (!allowedOrigin) return json({ error: "Origin not allowed." }, 403, "https://shushilarehiyan-ctrl.github.io");
 
     const url = new URL(request.url);
-    if (request.method !== "POST" || !["/api/research", "/api/chat"].includes(url.pathname)) {
+    if (request.method !== "POST" || !["/api/research", "/api/chat", "/api/image"].includes(url.pathname)) {
       return json({ error: "Not found." }, 404, allowedOrigin);
     }
 
@@ -136,6 +136,79 @@ export default {
           stack: error && error.stack ? error.stack : ""
         });
         return json({ error: "PDFMASTER ASSISTANT is temporarily unavailable. Check Worker logs for the underlying AI error." }, 502, allowedOrigin);
+      }
+    }
+
+    // PDFMASTER IMAGE CREATION: understand the request, improve the prompt, then generate an image.
+    if (url.pathname === "/api/image") {
+      if (!env.AI || typeof env.AI.run !== "function") {
+        return json({ error: "Image generation is not configured. Check the Cloudflare Workers AI binding." }, 503, allowedOrigin);
+      }
+
+      const userPrompt = String(body.prompt || "").trim();
+      if (userPrompt.length < 3 || userPrompt.length > 1200) {
+        return json({ error: "Please enter an image description between 3 and 1,200 characters." }, 400, allowedOrigin);
+      }
+
+      const styleNames = {
+        auto: "Choose the visual treatment that best fits the user's request.",
+        photorealistic: "photorealistic photography",
+        cinematic: "cinematic visual style",
+        "3d": "high-quality 3D render",
+        anime: "anime illustration",
+        illustration: "polished digital illustration",
+        watercolor: "watercolor painting",
+        "pixel-art": "pixel art",
+        minimalist: "minimalist visual design"
+      };
+      const requestedStyle = String(body.style || "auto").toLowerCase();
+      const styleInstruction = styleNames[requestedStyle] || styleNames.auto;
+
+      let enhancedPrompt = userPrompt;
+      try {
+        const promptResult = await env.AI.run(POOKIE_MODEL, {
+          max_completion_tokens: 350,
+          temperature: 0.25,
+          messages: [
+            {
+              role: "system",
+              content: "You are PDFMaster's image-prompt editor. Convert the user's image idea into one clear, vivid, model-ready English prompt. Preserve the user's actual subject, requested details, intended mood, and composition. Add only useful visual details that support the request; never replace the subject or invent important objects. Resolve minor ambiguity with sensible defaults rather than asking questions. Avoid text inside the image unless the user explicitly requests it. Keep the prompt under 220 words. Do not add explanations, headings, quotation marks, or markdown. Keep content non-graphic and age-appropriate."
+            },
+            {
+              role: "user",
+              content: "User's image idea: " + userPrompt + "\nVisual style: " + styleInstruction
+            }
+          ]
+        });
+        const candidate = typeof promptResult?.response === "string"
+          ? promptResult.response
+          : (typeof promptResult?.choices?.[0]?.message?.content === "string" ? promptResult.choices[0].message.content : "");
+        if (candidate.trim()) enhancedPrompt = candidate.trim().slice(0, 1800);
+      } catch (promptError) {
+        console.warn("PDFMASTER image prompt enhancement unavailable; using original prompt.", promptError);
+      }
+
+      try {
+        const generated = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", {
+          prompt: enhancedPrompt,
+          steps: 4
+        });
+        if (!generated || typeof generated.image !== "string" || !generated.image) {
+          console.error("PDFMASTER image model returned an unexpected response.");
+          return json({ error: "The image model did not return an image. Please try a clearer description." }, 502, allowedOrigin);
+        }
+
+        return json({
+          image: "data:image/jpeg;base64," + generated.image,
+          promptUsed: enhancedPrompt,
+          model: "@cf/black-forest-labs/flux-1-schnell"
+        }, 200, allowedOrigin);
+      } catch (error) {
+        console.error("PDFMASTER /api/image Workers AI failure:", {
+          name: error && error.name ? error.name : "Error",
+          message: error && error.message ? error.message : String(error)
+        });
+        return json({ error: "Image generation is temporarily unavailable. Please try again shortly." }, 502, allowedOrigin);
       }
     }
 
