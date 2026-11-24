@@ -13,6 +13,43 @@
   const RESEARCH_API_URL = window.PDFMASTER_RESEARCH_API || "https://pdfmaster.sherebihar35.workers.dev";
   let researchMode = false;
   let pookieHistory = [];
+  const HISTORY_KEY = "pdfmaster_assistant_chats_v1";
+  const MAX_SAVED_CHATS = 30;
+  const MAX_MESSAGES_PER_CHAT = 80;
+  let chatHistory = loadChatHistory();
+  let currentChatId = null;
+  let restoringChat = false;
+
+  function loadChatHistory() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+      return Array.isArray(saved) ? saved.filter(chat => chat && typeof chat.id === "string" && Array.isArray(chat.messages)).slice(0, MAX_SAVED_CHATS) : [];
+    } catch (_) { return []; }
+  }
+  function saveChatHistory() {
+    try {
+      chatHistory = chatHistory.filter(chat => chat && Array.isArray(chat.messages) && chat.messages.length).sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, MAX_SAVED_CHATS);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(chatHistory));
+    } catch (error) { console.warn("PDFMaster chat history could not be saved in this browser.", error); }
+  }
+  function getCurrentChat() {
+    let chat = chatHistory.find(item => item.id === currentChatId);
+    if (!chat) {
+      chat = { id: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2), title: "New chat", updatedAt: Date.now(), messages: [] };
+      chatHistory.unshift(chat); currentChatId = chat.id;
+    }
+    return chat;
+  }
+  function recordChatMessage(text, who, sources) {
+    if (restoringChat || !["user", "assistant"].includes(who)) return;
+    const clean = String(text || "").trim();
+    if (!clean || /^(Thinking…|Searching free knowledge sources…|Searching reliable web sources…|Reading article summaries and research abstracts…)$/.test(clean)) return;
+    const chat = getCurrentChat();
+    chat.messages.push({ role: who, content: clean.slice(0, 4000), sources: Array.isArray(sources) ? sources.slice(0, 8) : [] });
+    chat.messages = chat.messages.slice(-MAX_MESSAGES_PER_CHAT);
+    if (chat.title === "New chat" && who === "user") chat.title = clean.replace(/\s+/g, " ").slice(0, 48) || "New chat";
+    chat.updatedAt = Date.now(); saveChatHistory(); renderChatHistory();
+  }
 
   if (!launcher || !panel || !form || !input || !messages) return;
 
@@ -108,7 +145,7 @@
     });
   }
 
-  function addMessage(text, who, sources) {
+  function addMessage(text, who, sources, options) {
     const bubble = document.createElement("div");
     bubble.className = "pm-assistant-message " + who;
     if (who === "assistant") {
@@ -146,8 +183,46 @@
     }
     messages.appendChild(bubble);
     messages.scrollTop = messages.scrollHeight;
+    if (!options || options.persist !== false) recordChatMessage(text, who, sources);
     return bubble;
   }
+
+  // Local-only chat history: saved in this browser, not synced to other devices.
+  const historyStyle = document.createElement("style");
+  historyStyle.textContent = ".pm-assistant-header-actions{display:flex;gap:6px;margin-left:auto;align-items:center}.pm-assistant-header-actions button{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:inherit;border-radius:8px;padding:7px 9px;font-size:11px;cursor:pointer}.pm-assistant-history{display:none;max-height:190px;overflow:auto;padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.1);background:rgba(10,14,28,.96)}.pm-assistant-history.is-open{display:block}.pm-assistant-history-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;font-size:11px;opacity:.8}.pm-assistant-history-list{display:grid;gap:5px}.pm-assistant-history-item button{width:100%;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:0;border-radius:7px;padding:8px;background:rgba(255,255,255,.06);color:inherit;font-size:11px;cursor:pointer}.pm-assistant-history-item button:hover,.pm-assistant-header-actions button:hover{background:rgba(255,255,255,.13)}.pm-assistant-history-empty{font-size:11px;opacity:.65;padding:8px 2px}";
+  document.head.appendChild(historyStyle);
+  const header = panel.querySelector(".pm-assistant-header");
+  const heading = panel.querySelector(".pm-assistant-heading");
+  const actions = document.createElement("div"); actions.className = "pm-assistant-header-actions";
+  const newChatButton = document.createElement("button"); newChatButton.type = "button"; newChatButton.textContent = "+ New"; newChatButton.setAttribute("aria-label", "Start a new chat");
+  const historyButton = document.createElement("button"); historyButton.type = "button"; historyButton.textContent = "History"; historyButton.setAttribute("aria-expanded", "false");
+  actions.append(newChatButton, historyButton);
+  if (header && heading) heading.insertAdjacentElement("afterend", actions);
+  const historyPanel = document.createElement("div"); historyPanel.className = "pm-assistant-history"; historyPanel.setAttribute("aria-label", "Chat history");
+  historyPanel.innerHTML = '<div class="pm-assistant-history-top"><strong>Recent chats</strong><span>Saved on this device</span></div><div class="pm-assistant-history-list"></div>';
+  if (messages.parentNode) messages.parentNode.insertBefore(historyPanel, messages);
+  const historyList = historyPanel.querySelector(".pm-assistant-history-list");
+  function renderChatHistory() {
+    if (!historyList) return; historyList.replaceChildren();
+    const sorted = chatHistory.slice().sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    if (!sorted.length) { const empty = document.createElement("div"); empty.className = "pm-assistant-history-empty"; empty.textContent = "Your chats will appear here after you send a message."; historyList.appendChild(empty); return; }
+    sorted.forEach(chat => { const button = document.createElement("button"); button.type = "button"; button.textContent = chat.title || "New chat"; button.title = chat.title || "New chat"; button.addEventListener("click", () => openSavedChat(chat.id)); const row = document.createElement("div"); row.className = "pm-assistant-history-item"; row.appendChild(button); historyList.appendChild(row); });
+  }
+  function openSavedChat(id) {
+    const chat = chatHistory.find(item => item.id === id); if (!chat) return;
+    currentChatId = chat.id; pookieHistory = chat.messages.filter(item => item && ["user","assistant"].includes(item.role) && typeof item.content === "string").map(item => ({ role:item.role, content:item.content })).slice(-12);
+    restoringChat = true; messages.replaceChildren();
+    chat.messages.forEach(item => addMessage(item.content, item.role, item.sources || [], { persist:false }));
+    restoringChat = false; historyPanel.classList.remove("is-open"); historyButton.setAttribute("aria-expanded", "false"); messages.scrollTop = messages.scrollHeight;
+  }
+  function startNewChat() {
+    currentChatId = null; pookieHistory = []; messages.replaceChildren();
+    addMessage("Hello! Ask me about science, history, technology, maths, space, programming, documents or almost any topic.", "assistant");
+    historyPanel.classList.remove("is-open"); historyButton.setAttribute("aria-expanded", "false"); input.focus();
+  }
+  newChatButton.addEventListener("click", startNewChat);
+  historyButton.addEventListener("click", () => { const open = historyPanel.classList.toggle("is-open"); historyButton.setAttribute("aria-expanded", String(open)); renderChatHistory(); });
+  renderChatHistory();
 
   function setResearchMode(enabled) {
     researchMode = enabled;
@@ -626,7 +701,7 @@
     }
 
     const loading = addMessage("Thinking…", "assistant");
-    const candidates = pookieHistory.concat([{ role: "user", content: latestQuestion }])
+    const candidates = pookieHistory.slice(-12)
       .filter(item => item && ["user", "assistant"].includes(item.role) && typeof item.content === "string" && item.content.trim());
     const conversation = [];
     let totalChars = 0;
@@ -746,6 +821,7 @@
     const value = String(text || "").trim();
     if (!value) return;
     addMessage(value, "user");
+    if (!researchMode) pookieHistory = pookieHistory.concat([{ role: "user", content: value }]).slice(-12);
     input.value = "";
 
     // Hard gate: source-based research is allowed only when the visible
@@ -758,7 +834,7 @@
     const localReply = answer(value);
     const isFallback = localReply.startsWith("I don't have a reliable offline answer for that yet.");
     if (!isFallback) {
-      window.setTimeout(() => addMessage(localReply, "assistant"), 120);
+      window.setTimeout(() => { addMessage(localReply, "assistant"); pookieHistory = pookieHistory.concat([{ role: "assistant", content: localReply }]).slice(-12); }, 120);
       return;
     }
 
