@@ -222,6 +222,8 @@
     .pm-assistant-footer{grid-column:2;grid-row:5;padding:5px 12px 12px;color:#858585;font-size:10px}
     .pm-assistant-header-actions{display:none!important}
     @media(max-width:760px){
+      .pm-assistant-sidebar.is-mobile-open{display:flex!important;position:fixed;inset:0 auto 0 0;width:270px;z-index:5;box-shadow:18px 0 60px rgba(0,0,0,.55)}
+      .pm-assistant-mobile-menu{display:inline-flex!important}
       .pm-assistant-panel{grid-template-columns:1fr!important;grid-template-rows:58px minmax(0,1fr) auto auto auto!important}
       .pm-assistant-sidebar{display:none!important}
       .pm-assistant-header,.pm-assistant-messages,.pm-assistant-quick,.pm-assistant-form,.pm-assistant-footer{grid-column:1!important}
@@ -240,6 +242,14 @@
   panel.insertBefore(sidebar, panel.firstChild);
   const newChatButton = sidebar.querySelector(".pm-assistant-new");
   const historyList = sidebar.querySelector(".pm-assistant-history-list");
+  const mobileMenuButton = document.createElement("button");
+  mobileMenuButton.type = "button";
+  mobileMenuButton.className = "pm-assistant-mobile-menu";
+  mobileMenuButton.textContent = "☰";
+  mobileMenuButton.setAttribute("aria-label", "Open chat history");
+  mobileMenuButton.style.cssText = "display:none;border:0;background:transparent;color:#eee;font-size:20px;margin-right:8px;cursor:pointer";
+  header.insertBefore(mobileMenuButton, header.firstChild);
+  mobileMenuButton.addEventListener("click", () => sidebar.classList.toggle("is-mobile-open"));
 
   function renderChatHistory() {
     if (!historyList) return;
@@ -257,7 +267,7 @@
       button.type = "button";
       button.textContent = chat.title || "New chat";
       button.title = chat.title || "New chat";
-      button.addEventListener("click", () => openSavedChat(chat.id));
+      button.addEventListener("click", () => { sidebar.classList.remove("is-mobile-open"); openSavedChat(chat.id); });
       const row = document.createElement("div");
       row.className = "pm-assistant-history-item";
       row.appendChild(button);
@@ -284,7 +294,7 @@
     addMessage("Hello! Ask me about science, history, technology, maths, space, programming, documents or almost any topic.", "assistant");
     input.focus();
   }
-  newChatButton.addEventListener("click", startNewChat);
+  newChatButton.addEventListener("click", () => { sidebar.classList.remove("is-mobile-open"); startNewChat(); });
   renderChatHistory();
   function setResearchMode(enabled) {
     researchMode = enabled;
