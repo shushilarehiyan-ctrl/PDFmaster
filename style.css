@@ -6736,3 +6736,25 @@ body:not(.tool-page-active) .topbar-badge:hover {
     grid-row: 2 !important;
   }
 }
+
+
+/* MOBILE MENU + PDFMASTER MARK: equal square size and shared alignment */
+@media (max-width: 650px) {
+  body:not(.tool-page-active) > .menu-toggle {
+    width: 38px !important;
+    height: 38px !important;
+    top: 14px !important;
+    left: 14px !important;
+    box-sizing: border-box !important;
+    display: grid !important;
+    place-items: center !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+  }
+  body:not(.tool-page-active) .topbar-logo .logo-icon {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    box-sizing: border-box !important;
+  }
+}
