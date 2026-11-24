@@ -1109,7 +1109,7 @@
 
   function isImageGenerationRequest(prompt) {
     const value = String(prompt || "").trim();
-    return /(?:\b(?:generate|create|make|draw|design|render)\b.{0,45}\b(?:image|picture|illustration|art|photo|wallpaper|poster|logo)\b|\b(?:image|picture|illustration|photo|wallpaper|poster|logo)\b.{0,35}\b(?:of|showing|with)\b|\b(?:image|picture|photo|tasveer|तस्वीर|चित्र)\s*(?:banao|bana\s*do|बनाओ|बना\s*दो)|\b(?:banao|bana\s*do)\b.{0,35}\b(?:image|picture|photo|tasveer)\b)/i.test(value);
+    return /(?:\b(?:generate|create|make|draw|design|render)\b.{0,45}\b(?:image|picture|illustration|art|photo|wallpaper|poster|logo)\b|\b(?:image|picture|illustration|photo|wallpaper|poster|logo)\b.{0,35}\b(?:of|showing|with)\b|\b(?:image|picture|photo|tasveer|तस्वीर|चित्र)\s*(?:banao|bana\s*do|बनाओ|बना\s*दो)|\b(?:banao|bana\s*do)\b.{0,35}\b(?:image|picture|photo|tasveer)\b|\b(?:create|generate|make|draw|render)\b.{0,100}\b(?:cat|kitten|dog|puppy|elephant|lion|tiger|bird|rabbit|horse|flower|tree|person|portrait|landscape|sunset|mountain|house|car|robot|dragon|character)\b)/i.test(value);
   }
 
   async function createAssistantImage(prompt) {
