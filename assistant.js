@@ -473,6 +473,7 @@
         actionButton.addEventListener("click", () => {
           menu.hidden = true;
           menuToggle.setAttribute("aria-expanded", "false");
+          menuToggle.focus({ preventScroll: true });
           action(chat);
         });
         menu.appendChild(actionButton);
