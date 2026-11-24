@@ -13,6 +13,48 @@ const ALLOWED_ORIGINS = new Set([
 ]);
 const POOKIE_MODEL = "@cf/zai-org/glm-4.7-flash";
 
+async function verifyTurnstile(token, request, env) {
+  if (!env.TURNSTILE_SECRET_KEY) {
+    return { success: false, status: 503, error: "Image verification is not configured. Please contact the site administrator." };
+  }
+  if (typeof token !== "string" || token.length < 1 || token.length > 2048) {
+    return { success: false, status: 400, error: "Please complete the verification before creating an image." };
+  }
+
+  try {
+    const payload = {
+      secret: env.TURNSTILE_SECRET_KEY,
+      response: token
+    };
+    const visitorIp = request.headers.get("CF-Connecting-IP");
+    if (visitorIp) payload.remoteip = visitorIp;
+
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      return { success: false, status: 502, error: "Image verification is temporarily unavailable. Please try again." };
+    }
+
+    const result = await response.json();
+    const allowedHostnames = new Set([
+      "localhost",
+      "127.0.0.1",
+      "shushilarehiyan-ctrl.github.io"
+    ]);
+    const hostname = String(result.hostname || "").toLowerCase();
+    if (!result.success || !allowedHostnames.has(hostname) || result.action !== "image_generation") {
+      return { success: false, status: 403, error: "Verification failed or expired. Please complete the check again." };
+    }
+    return { success: true };
+  } catch (error) {
+    console.warn("PDFMASTER Turnstile Siteverify request failed:", error && error.message ? error.message : String(error));
+    return { success: false, status: 502, error: "Image verification is temporarily unavailable. Please try again." };
+  }
+}
+
 function json(data, status, origin) {
   return new Response(JSON.stringify(data), {
     status,
@@ -148,6 +190,11 @@ export default {
       const userPrompt = String(body.prompt || "").trim();
       if (userPrompt.length < 3 || userPrompt.length > 1200) {
         return json({ error: "Please enter an image description between 3 and 1,200 characters." }, 400, allowedOrigin);
+      }
+
+      const verification = await verifyTurnstile(body.turnstileToken, request, env);
+      if (!verification.success) {
+        return json({ error: verification.error }, verification.status, allowedOrigin);
       }
 
       const styleNames = {
