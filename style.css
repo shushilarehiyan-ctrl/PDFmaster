@@ -6483,3 +6483,22 @@ body:not(.tool-page-active) .topbar-badge:hover {
   font-size: 9px;
   line-height: 1.45;
 }
+
+
+/* PDFMASTER ACCOUNT / GOOGLE SIGN-IN */
+.pm-auth-link {
+  display:inline-flex; align-items:center; justify-content:center;
+  min-height:40px; padding:9px 15px; border:1px solid rgba(153,151,255,.38);
+  border-radius:10px; background:linear-gradient(135deg,rgba(119,117,255,.22),rgba(57,135,255,.12));
+  color:#f4f6fc; font-size:12px; font-weight:700; white-space:nowrap;
+  text-decoration:none; transition:.2s ease;
+}
+.pm-auth-link:hover { border-color:var(--primary-light); transform:translateY(-1px); }
+.pm-auth-signout {
+  border:1px solid var(--border); border-radius:10px; padding:9px 12px;
+  background:var(--surface); color:var(--muted); font-size:11px; font-weight:700; cursor:pointer;
+}
+.pm-auth-signout:hover { color:var(--text); border-color:var(--primary); }
+@media (max-width:760px) {
+  .pm-auth-link { min-height:38px; padding:8px 11px; }
+}
