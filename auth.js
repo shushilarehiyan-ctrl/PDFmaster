@@ -64,9 +64,32 @@ if (!configReady) {
   onAuthStateChanged(auth, user => {
     if (authLink) {
       if (user) {
-        authLink.textContent = user.displayName ? user.displayName.split(" ")[0] : "My Account";
         authLink.href = "account.html";
         authLink.setAttribute("aria-label", "Open your PDFMaster account.");
+        authLink.classList.add("pm-auth-profile");
+        const profileImage = document.createElement("img");
+        profileImage.className = "pm-auth-avatar";
+        profileImage.alt = "";
+        profileImage.referrerPolicy = "no-referrer";
+        const profileInitials = (user.displayName || user.email || "U")
+          .split(/\\s+/).map(part => part[0]).join("").slice(0, 2).toUpperCase();
+        const profileFallback = document.createElement("span");
+        profileFallback.className = "pm-auth-avatar-fallback";
+        profileFallback.textContent = profileInitials;
+        const profileLabel = document.createElement("span");
+        profileLabel.textContent = user.displayName ? user.displayName.split(" ")[0] : "My Account";
+        authLink.replaceChildren(profileFallback, profileLabel);
+        if (user.photoURL) {
+          profileImage.src = user.photoURL;
+          profileImage.onload = () => {
+            profileFallback.hidden = true;
+            authLink.insertBefore(profileImage, profileLabel);
+          };
+          profileImage.onerror = () => {
+            profileImage.remove();
+            profileFallback.hidden = false;
+          };
+        }
 
       } else {
         authLink.textContent = "Sign in";
@@ -81,7 +104,25 @@ if (!configReady) {
       accountCreated.textContent = user.metadata?.creationTime
         ? new Date(user.metadata.creationTime).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
         : "Not available";
-      if (accountPhoto && user.photoURL) { accountPhoto.src = user.photoURL; accountPhoto.hidden = false; }
+      const accountFallback = document.getElementById("accountPhotoFallback");
+      if (accountPhoto && user.photoURL) {
+        accountPhoto.referrerPolicy = "no-referrer";
+        accountPhoto.onload = () => {
+          accountPhoto.hidden = false;
+          if (accountFallback) accountFallback.hidden = true;
+        };
+        accountPhoto.onerror = () => {
+          accountPhoto.hidden = true;
+          if (accountFallback) accountFallback.hidden = false;
+        };
+        accountPhoto.src = user.photoURL;
+      } else if (accountFallback) {
+        accountFallback.hidden = false;
+      }
+      if (accountFallback) {
+        accountFallback.textContent = (user.displayName || user.email || "U")
+          .split(/\\s+/).map(part => part[0]).join("").slice(0, 2).toUpperCase();
+      }
       if (accountStatus) accountStatus.textContent = "Your Google account is connected.";
     }
     if (accountSignOut) accountSignOut.onclick = async () => {
