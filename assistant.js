@@ -283,9 +283,9 @@
   function shareChat(chat) {
     if (!chat || !Array.isArray(chat.messages) || !chat.messages.length) return;
     const transcript = chat.messages.map(item =>
-      (item.role === "user" ? "You" : "PDFMaster Assistant") + ":\\n" + String(item.content || "")
-    ).join("\\n\\n");
-    const shareText = (chat.title || "PDFMaster chat") + "\\n\\n" + transcript;
+      (item.role === "user" ? "You" : "PDFMaster Assistant") + ":\n" + String(item.content || "")
+    ).join("\n\n");
+    const shareText = (chat.title || "PDFMaster chat") + "\n\n" + transcript;
     if (navigator.share) {
       navigator.share({ title: chat.title || "PDFMaster chat", text: shareText }).catch(error => {
         if (error && error.name !== "AbortError") {
@@ -304,7 +304,7 @@
   function renameChat(chat) {
     const nextTitle = window.prompt("Enter a new chat name:", chat.title || "New chat");
     if (nextTitle === null) return;
-    const cleanTitle = nextTitle.trim().replace(/\\s+/g, " ").slice(0, 60);
+    const cleanTitle = nextTitle.trim().replace(/\s+/g, " ").slice(0, 60);
     if (!cleanTitle) { alert("Chat name cannot be empty."); return; }
     chat.title = cleanTitle;
     chat.updatedAt = Date.now();
@@ -664,7 +664,7 @@
   function cleanSearchExcerpt(value) {
     const node = document.createElement("div");
     node.innerHTML = String(value || "");
-    return (node.textContent || "").replace(/\\s+/g, " ").trim();
+    return (node.textContent || "").replace(/\s+/g, " ").trim();
   }
 
   async function fetchPublicJson(url, label) {
@@ -682,7 +682,7 @@
   function queryTerms(value) {
     return String(value || "").toLowerCase()
       .replace(/[^\\p{L}\\p{N}\\s]/gu, " ")
-      .split(/\\s+/)
+      .split(/\s+/)
       .filter(word => word.length > 2 && !/^(the|and|for|with|what|when|where|which|who|how|why|from|into|about|explain|tell|please|hai|kaise|kya|kahan|kyun|aur|mein|ke|ka|ki|ko|se|par|hai)$/.test(word));
   }
 
@@ -690,7 +690,7 @@
     const terms = [...new Set(queryTerms(question))];
     const candidates = [];
     documents.forEach((doc, index) => {
-      const text = String(doc.text || "").replace(/\\s+/g, " ").trim();
+      const text = String(doc.text || "").replace(/\s+/g, " ").trim();
       const sentences = text.match(/[^.!?।]+[.!?।]?/g) || [];
       sentences.forEach(sentence => {
         const clean = sentence.trim();
@@ -714,8 +714,8 @@
       evidence: []
     };
     return {
-      text: chosen.map((item, index) => (index + 1) + ". " + item.text).join("\\n\\n") +
-        "\\n\\nEvidence note: " + chosen.length + " relevant passages were selected from " +
+      text: chosen.map((item, index) => (index + 1) + ". " + item.text).join("\n\n") +
+        "\n\nEvidence note: " + chosen.length + " relevant passages were selected from " +
         distinctProviders.size + " source provider(s). This is an extractive summary, not an AI-generated explanation or proof that the sources agree.",
       evidence: chosen
     };
@@ -861,11 +861,11 @@
     }));
     const counts = results.map((result, index) => result.status === "fulfilled" ? providers[index].name + ": " + result.value.length : "");
     return {
-      answer: "KNOWLEDGE UNIVERSE 2.0 — SOURCE-BASED ANSWER\\n\\n" + summary.text +
-        "\\n\\nSearch coverage: " + sources.length + " results across " + providers.length + " free services." +
-        (unavailable.length ? "\\nUnavailable this time: " + unavailable.join(", ") + "." : "") +
-        "\\n\\n" + counts.filter(Boolean).join(" • ") +
-        "\\n\\nPlease open the cited sources to verify context. This system extracts relevant passages; it does not independently fact-check claims or replace expert advice.",
+      answer: "KNOWLEDGE UNIVERSE 2.0 — SOURCE-BASED ANSWER\n\n" + summary.text +
+        "\n\nSearch coverage: " + sources.length + " results across " + providers.length + " free services." +
+        (unavailable.length ? "\nUnavailable this time: " + unavailable.join(", ") + "." : "") +
+        "\n\n" + counts.filter(Boolean).join(" • ") +
+        "\n\nPlease open the cited sources to verify context. This system extracts relevant passages; it does not independently fact-check claims or replace expert advice.",
       sources: displaySources.concat(searchLinks).slice(0, 14)
     };
   }
@@ -991,7 +991,7 @@
     if (/photo|image|jpg|png|फोटो|तस्वीर/.test(q) && /pdf|convert|बनाना/.test(q)) return "Let's turn your photos into a PDF.\n\nStep 1: Open the Photo to PDF tool.\n\nTell me when it’s open.";
     if (/(?:pdf|document|file|दस्तावेज|पीडीएफ)/.test(q) && /(?:password|protect|lock|encrypt|पासवर्ड|सुरक्षित|लॉक|सुरक्षा)/.test(q)) return "To add password protection to a PDF, open the Protect PDF tool. Keep a secure copy of your password.";
     if (/not open|cannot open|can't open|won't open|error|failed|issue|problem|upload|नहीं खुल|एरर|समस्या/.test(q)) return "First, check whether the file opens on your device outside PDFMaster. Also confirm it is a PDF and the upload has finished.\n\nWhat exact error message do you see?";
-    if (/\\b(?:ms\\s+)?word\\b|\\bdocx\\b/.test(q) && /pdf|document|docx|convert|format|file/.test(q)) return "PDF and Word documents can have different layouts after conversion. Do you want to convert Word to PDF, convert PDF to Word, or fix formatting?";
+    if (/\\b(?:ms\s+)?word\\b|\\bdocx\\b/.test(q) && /pdf|document|docx|convert|format|file/.test(q)) return "PDF and Word documents can have different layouts after conversion. Do you want to convert Word to PDF, convert PDF to Word, or fix formatting?";
     if (/hello|hi|hey|namaste|नमस्ते|नमस्कार/.test(q)) return "Hello! Main PDFMASTER ASSISTANT hoon. Aap mujhse kisi bhi topic par sawaal poochh sakte hain—Science, Maths, GK, Programming, writing, reasoning, PDF tools aur bahut kuchh. Detailed answers ke liye AI backend connected hona chahiye; latest information ke liye Web Research ON karein.";
     return "I don't have a reliable offline answer for that yet. Main kai tarah ke topics mein madad kar sakta hoon, lekin is sawaal ke liye connected AI backend ki zaroorat hai. Connection available na ho to main galat jawab banane ke bajay apni limitation bataunga.";
   }
