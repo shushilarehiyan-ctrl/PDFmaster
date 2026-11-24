@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101116">
+  <title>Sign in | PDFMaster</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { display:grid; place-items:center; padding:24px; }
+    .login-shell { width:min(100%,440px); padding:38px; border:1px solid var(--border); border-radius:24px; background:rgba(20,24,36,.96); box-shadow:var(--shadow); }
+    .login-brand { display:flex; align-items:center; gap:11px; margin-bottom:30px; color:var(--text); font-size:21px; font-weight:800; text-decoration:none; }
+    .login-brand-mark { display:grid; place-items:center; width:42px; height:42px; border-radius:13px; background:var(--primary); color:white; }
+    .login-shell h1 { margin-bottom:10px; font-size:28px; }
+    .login-subtitle { margin-bottom:26px; color:var(--muted); font-size:13px; line-height:1.7; }
+    .google-button { display:flex; align-items:center; justify-content:center; gap:12px; width:100%; min-height:50px; border:1px solid var(--border); border-radius:12px; background:#fff; color:#202124; font-size:14px; font-weight:700; cursor:pointer; }
+    .google-button:disabled { opacity:.55; cursor:not-allowed; }
+    .google-mark { font-size:19px; font-weight:800; color:#4285f4; }
+    #authStatus { min-height:54px; margin-top:18px; color:var(--muted); font-size:12px; line-height:1.6; }
+    #authStatus[data-state="error"] { color:#ff9aa9; }
+    .login-foot { margin-top:22px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted); font-size:11px; line-height:1.6; }
+    .back-link { display:inline-block; margin-top:22px; color:var(--primary-light); font-size:12px; text-decoration:none; }
+    @media(max-width:480px) { .login-shell { padding:27px 22px; } }
+  </style>
+</head>
+<body>
+  <main class="login-shell">
+    <a class="login-brand" href="index.html"><span class="login-brand-mark">P</span><span>PDF<span class="logo-accent">Master</span></span></a>
+    <h1>Welcome back</h1>
+    <p class="login-subtitle">Sign in with your Google account to access your PDFMaster account.</p>
+    <button class="google-button" id="googleSignInButton" type="button" disabled>
+      <span class="google-mark" aria-hidden="true">G</span>
+      Continue with Google
+    </button>
+    <p id="authStatus" role="status" aria-live="polite">Checking sign-in configuration…</p>
+    <p class="login-foot">Your PDF files continue to be processed in your browser. Signing in does not automatically upload your documents.</p>
+    <a class="back-link" href="index.html">← Back to PDFMaster</a>
+  </main>
+  <script type="module" src="auth.js"></script>
+</body>
+</html>
