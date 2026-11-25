@@ -192,7 +192,8 @@ function rotateMergePage(file, pageNumber, delta, page, canvas, label) {
     const next = (getMergePageRotation(file, pageNumber) + delta + 360) % 360;
     if (next === 0) mergePageRotations.delete(key);
     else mergePageRotations.set(key, next);
-    label.textContent = next ? "Correction: " + next + "° clockwise" : "No correction";
+    label.textContent = next ? next + "°" : "";
+    label.hidden = !next;
     renderSingleMergePreview(page, canvas, next);
 }
 
@@ -288,28 +289,43 @@ async function renderMergePreviews() {
             controls.className = "pm-merge-page-controls";
             let previewPage = null;
             const label = document.createElement("span");
+            label.className = "pm-merge-rotation-badge";
             const correction = getMergePageRotation(file, pageNumber);
-            label.textContent = correction ? "Correction: " + correction + "° clockwise" : "No correction";
+            label.textContent = correction ? correction + "°" : "";
+            label.hidden = !correction;
 
             const left = document.createElement("button");
             left.type = "button";
-            left.textContent = "↶ Rotate left";
+            left.className = "pm-merge-icon-button";
+            left.textContent = "↶";
+            left.title = "Rotate left";
+            left.setAttribute("aria-label", "Rotate page " + pageNumber + " left");
             left.addEventListener("click", () => rotateMergePage(file, pageNumber, 270, previewPage, canvas, label));
             const right = document.createElement("button");
             right.type = "button";
-            right.textContent = "↷ Rotate right";
+            right.className = "pm-merge-icon-button";
+            right.textContent = "↷";
+            right.title = "Rotate right";
+            right.setAttribute("aria-label", "Rotate page " + pageNumber + " right");
             right.addEventListener("click", () => rotateMergePage(file, pageNumber, 90, previewPage, canvas, label));
             const reset = document.createElement("button");
             reset.type = "button";
-            reset.textContent = "Reset";
+            reset.className = "pm-merge-icon-button";
+            reset.textContent = "⟲";
+            reset.title = "Reset rotation";
+            reset.setAttribute("aria-label", "Reset rotation for page " + pageNumber);
             reset.addEventListener("click", () => {
                 mergePageRotations.delete(mergePageKey(file, pageNumber));
-                label.textContent = "No correction";
+                label.textContent = "";
+                label.hidden = true;
                 renderSingleMergePreview(previewPage, canvas, 0);
             });
             const deleteButton = document.createElement("button");
             deleteButton.type = "button";
-            deleteButton.textContent = "Delete page";
+            deleteButton.className = "pm-merge-icon-button pm-merge-delete-page";
+            deleteButton.textContent = "×";
+            deleteButton.title = "Delete page";
+            deleteButton.setAttribute("aria-label", "Delete page " + pageNumber);
             deleteButton.addEventListener("click", () => removeMergePage(file, pageNumber, pdf.numPages));
             controls.append(label, left, right, reset, deleteButton);
             card.append(heading, canvas, controls);
@@ -366,12 +382,50 @@ function displayPDFs() {
 
     selectedPDFs.forEach(function(file, index) {
         const item = document.createElement("div");
+        item.className = "pm-merge-file-card";
+        item.draggable = true;
+        item.addEventListener("dragstart", event => {
+            event.dataTransfer.setData("text/plain", String(index));
+            event.dataTransfer.effectAllowed = "move";
+            item.classList.add("is-dragging");
+        });
+        item.addEventListener("dragend", () => item.classList.remove("is-dragging"));
+        item.addEventListener("dragover", event => {
+            event.preventDefault();
+            item.classList.add("is-drop-target");
+        });
+        item.addEventListener("dragleave", () => item.classList.remove("is-drop-target"));
+        item.addEventListener("drop", event => {
+            event.preventDefault();
+            item.classList.remove("is-drop-target");
+            const from = Number(event.dataTransfer.getData("text/plain"));
+            if (!Number.isInteger(from) || from === index || from < 0 || from >= selectedPDFs.length) return;
+            selectedPDFs.splice(index, 0, selectedPDFs.splice(from, 1)[0]);
+            displayPDFs();
+            renderMergePreviews();
+        });
+
+        const handle = document.createElement("span");
+        handle.className = "pm-merge-file-handle";
+        handle.textContent = "⋮⋮";
+        handle.title = "Drag to reorder files";
+        handle.setAttribute("aria-hidden", "true");
+
+        const icon = document.createElement("span");
+        icon.className = "pm-merge-file-icon";
+        icon.textContent = "PDF";
+
         const name = document.createElement("span");
+        name.className = "pm-merge-file-name";
         name.textContent = file.name;
 
         const removeButton = document.createElement("button");
-        removeButton.textContent = "Remove";
+        removeButton.className = "pm-merge-file-remove";
+        removeButton.textContent = "×";
         removeButton.type = "button";
+        removeButton.title = "Remove " + file.name;
+        removeButton.setAttribute("aria-label", "Remove " + file.name);
+        removeButton.draggable = false;
 
         removeButton.onclick = function() {
             selectedPDFs.splice(index, 1);
@@ -379,8 +433,7 @@ function displayPDFs() {
             renderMergePreviews();
         };
 
-        item.appendChild(name);
-        item.appendChild(removeButton);
+        item.append(handle, icon, name, removeButton);
         pdfList.appendChild(item);
     });
 }
