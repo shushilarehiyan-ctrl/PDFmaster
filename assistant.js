@@ -782,7 +782,7 @@
       const restoredContent = legacyImagePlaceholder
         ? "This image was generated before PDFMaster added image history saving, so the original image is unavailable."
         : item.content;
-      if (!legacyImagePlaceholder) addMessage(restoredContent, item.role, item.sources || [], { persist:false, imageId:item.imageId });
+      if (!legacyImagePlaceholder) addMessage(restoredContent, item.role, item.sources || [], { persist:false, imageId:item.imageId, originalImageId:item.originalImageId });
       else addMessage(restoredContent, item.role, [], { persist:false });
     });
     restoringChat = false;
