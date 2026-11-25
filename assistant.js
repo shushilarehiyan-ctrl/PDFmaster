@@ -97,7 +97,6 @@
   let imageTurnstileToken = "";
   let pendingImagePrompt = "";
   let imageTurnstileWidgetId = null;
-  let turnstileLoadPromise = null;
   let researchMode = false;
   let pookieHistory = [];
   const HISTORY_KEY = "pdfmaster_assistant_chats_v1";
