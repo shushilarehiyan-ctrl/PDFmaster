@@ -12,6 +12,17 @@ const ALLOWED_ORIGINS = new Set([
 ]);
 const POOKIE_MODEL = "@cf/zai-org/glm-4.7-flash";
 
+function isWorkersAIQuotaError(error) {
+  const details = [
+    typeof error === "string" ? error : "",
+    error && typeof error.message === "string" ? error.message : "",
+    error && error.code !== undefined ? String(error.code) : "",
+    error && error.cause && typeof error.cause.message === "string" ? error.cause.message : "",
+    error && typeof error.details === "string" ? error.details : ""
+  ].join(" ");
+  return /\\b4006\\b|used up your daily free allocation|daily (?:free )?allocation (?:is )?exhausted/i.test(details);
+}
+
 async function verifyTurnstile(token, request, env) {
   if (!env.TURNSTILE_SECRET_KEY) {
     return { success: false, status: 503, error: "Image verification is not configured. Please contact the site administrator." };
@@ -184,13 +195,20 @@ export default {
           modelDurationMs: Date.now() - pookieStartedAt
         }, 200, allowedOrigin);
       } catch (error) {
-        // Temporary diagnostics: keep detailed provider errors in Cloudflare Worker logs, not in public API responses.
+        const errorMessage = error && error.message ? error.message : String(error);
         console.error("PDFMASTER /api/chat Workers AI failure:", {
           name: error && error.name ? error.name : "Error",
-          message: error && error.message ? error.message : String(error),
-          stack: error && error.stack ? error.stack : ""
+          code: error && error.code !== undefined ? error.code : null,
+          message: errorMessage
         });
-        return json({ error: "PDFMASTER ASSISTANT is temporarily unavailable. Check Worker logs for the underlying AI error." }, 502, allowedOrigin);
+        if (isWorkersAIQuotaError(error)) {
+          return json({
+            error: "PDFMaster's daily Workers AI free allocation is exhausted. Assistant and image generation can resume when the allocation resets."
+          }, 429, allowedOrigin);
+        }
+        return json({
+          error: "PDFMASTER ASSISTANT reached the Worker, but the AI provider could not complete the request. Please try again later."
+        }, 502, allowedOrigin);
       }
     }
 
@@ -275,7 +293,7 @@ export default {
         } catch (promptError) {
           const promptErrorMessage = promptError && promptError.message ? promptError.message : String(promptError);
           console.warn("PDFMASTER image prompt enhancement unavailable; using original prompt.", promptErrorMessage);
-          if (/4006|used up your daily free allocation|daily free allocation/i.test(promptErrorMessage)) {
+          if (isWorkersAIQuotaError(promptError)) {
             return json({
               error: "PDFMaster's daily Workers AI free allocation is exhausted. Image generation can resume when the allocation resets."
             }, 429, allowedOrigin);
@@ -325,7 +343,7 @@ export default {
           name: error && error.name ? error.name : "Error",
           message: errorMessage
         });
-        if (/4006|used up your daily free allocation|daily free allocation/i.test(errorMessage)) {
+        if (isWorkersAIQuotaError(error)) {
           return json({
             error: "PDFMaster's daily Workers AI free allocation is exhausted. Image generation can resume when the allocation resets."
           }, 429, allowedOrigin);
