@@ -152,7 +152,32 @@ const pdfInput = document.getElementById("pdfInput");
 
 // Manual corrections are applied to the merged copy only.
 const mergePageRotations = new Map();
+const mergePageOrders = new Map();
 let mergePreviewRenderId = 0;
+
+function getMergePageOrder(file, pageCount) {
+    const key = mergePageKey(file, 0);
+    if (!mergePageOrders.has(key)) mergePageOrders.set(key, Array.from({ length: pageCount }, (_, i) => i + 1));
+    return mergePageOrders.get(key).filter(page => page >= 1 && page <= pageCount);
+}
+function removeMergePage(file, pageNumber, pageCount) {
+    const key = mergePageKey(file, 0);
+    const order = getMergePageOrder(file, pageCount);
+    if (order.length <= 1) { alert("Keep at least one page in each selected PDF."); return; }
+    mergePageOrders.set(key, order.filter(page => page !== pageNumber));
+    mergePageRotations.delete(mergePageKey(file, pageNumber));
+    renderMergePreviews();
+}
+function moveMergePage(file, fromPage, toPage, pageCount) {
+    if (fromPage === toPage) return;
+    const key = mergePageKey(file, 0);
+    const order = getMergePageOrder(file, pageCount);
+    const from = order.indexOf(fromPage), to = order.indexOf(toPage);
+    if (from < 0 || to < 0) return;
+    order.splice(to, 0, order.splice(from, 1)[0]);
+    mergePageOrders.set(key, order);
+    renderMergePreviews();
+}
 
 function mergePageKey(file, pageNumber) {
     return [file.name, file.size, file.lastModified, pageNumber].join("::");
@@ -230,10 +255,29 @@ async function renderMergePreviews() {
             continue;
         }
 
-        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+        const pageOrder = getMergePageOrder(file, pdf.numPages);
+        for (const pageNumber of pageOrder) {
             if (renderId !== mergePreviewRenderId) return;
             const card = document.createElement("div");
             card.className = "pm-merge-page-card";
+            card.draggable = true;
+            card.addEventListener("dragstart", event => {
+                event.dataTransfer.setData("text/plain", String(pageNumber));
+                event.dataTransfer.effectAllowed = "move";
+                card.classList.add("pm-merge-page-dragging");
+            });
+            card.addEventListener("dragend", () => card.classList.remove("pm-merge-page-dragging"));
+            card.addEventListener("dragover", event => {
+                event.preventDefault();
+                event.dataTransfer.dropEffect = "move";
+                card.classList.add("pm-merge-page-drop-target");
+            });
+            card.addEventListener("dragleave", () => card.classList.remove("pm-merge-page-drop-target"));
+            card.addEventListener("drop", event => {
+                event.preventDefault();
+                card.classList.remove("pm-merge-page-drop-target");
+                moveMergePage(file, Number(event.dataTransfer.getData("text/plain")), pageNumber, pdf.numPages);
+            });
             const heading = document.createElement("div");
             heading.className = "pm-merge-page-heading";
             heading.textContent = "Page " + pageNumber;
@@ -263,7 +307,11 @@ async function renderMergePreviews() {
                 label.textContent = "No correction";
                 renderSingleMergePreview(previewPage, canvas, 0);
             });
-            controls.append(label, left, right, reset);
+            const deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.textContent = "Delete page";
+            deleteButton.addEventListener("click", () => removeMergePage(file, pageNumber, pdf.numPages));
+            controls.append(label, left, right, reset, deleteButton);
             card.append(heading, canvas, controls);
             container.appendChild(card);
 
@@ -407,7 +455,10 @@ async function mergePDFs() {
                 throw new Error("Not all pages could be copied from '" + file.name + "'.");
             }
 
-            sourcePages.forEach(function(sourcePage, index) {
+            const pageOrder = getMergePageOrder(file, sourcePages.length);
+            pageOrder.forEach(function(originalPageNumber) {
+                const index = originalPageNumber - 1;
+                const sourcePage = sourcePages[index];
                 const mediaBox = sourcePage.getMediaBox();
                 const cropBox = sourcePage.getCropBox();
                 const rotation = normalizeRotation(sourcePage.getRotation().angle);
@@ -425,7 +476,7 @@ async function mergePDFs() {
                         width: cropBox.width,
                         height: cropBox.height
                     },
-                    rotation: normalizeRotation(rotation + getMergePageRotation(file, index + 1))
+                    rotation: normalizeRotation(rotation + getMergePageRotation(file, originalPageNumber))
                 });
 
                 const correction = getMergePageRotation(file, index + 1);
