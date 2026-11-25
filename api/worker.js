@@ -52,6 +52,12 @@ async function verifyTurnstile(token, request, env) {
     ]);
     const hostname = String(result.hostname || "").toLowerCase();
     if (!result.success || !allowedHostnames.has(hostname) || result.action !== "image_generation") {
+      console.warn("PDFMASTER Turnstile verification rejected:", {
+        success: Boolean(result.success),
+        errorCodes: Array.isArray(result["error-codes"]) ? result["error-codes"] : [],
+        hostname,
+        action: String(result.action || "")
+      });
       return { success: false, status: 403, error: "Verification failed or expired. Please complete the check again." };
     }
     return { success: true };
