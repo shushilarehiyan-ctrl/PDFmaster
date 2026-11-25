@@ -302,6 +302,7 @@ function displayPDFs() {
         removeButton.onclick = function() {
             selectedPDFs.splice(index, 1);
             displayPDFs();
+            renderMergePreviews();
         };
 
         item.appendChild(name);
