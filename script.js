@@ -178,7 +178,7 @@ function getMergePageOrder(file, pageCount) {
     if (!mergePageOrders.has(key)) mergePageOrders.set(key, Array.from({ length: pageCount }, (_, i) => i + 1));
     return mergePageOrders.get(key).filter(page => page >= 1 && page <= pageCount);
 }
-async function removeMergePage(file, pageNumber, pageCount) {
+function removeMergePage(file, pageNumber, pageCount, card) {
     const key = mergePageKey(file, 0);
     const order = getMergePageOrder(file, pageCount);
     if (order.length <= 1) {
@@ -186,12 +186,22 @@ async function removeMergePage(file, pageNumber, pageCount) {
         return;
     }
 
-    // Preserve the user's viewport while the preview grid is rebuilt.
-    const scrollY = window.scrollY;
+    // Update only the selected page in the DOM; preserve every other card and the viewport.
     mergePageOrders.set(key, order.filter(page => page !== pageNumber));
     mergePageRotations.delete(mergePageKey(file, pageNumber));
-    await renderMergePreviews();
-    window.scrollTo(0, scrollY);
+    if (card) card.remove();
+
+    const remainingPages = order.length - 1;
+    const remainingCards = document.querySelectorAll("#mergePagePreviews .pm-merge-page-card");
+    remainingCards.forEach(remainingCard => {
+        const deleteControl = remainingCard.querySelector(".pm-merge-delete-page");
+        if (!deleteControl) return;
+        const cannotDelete = remainingPages <= 1;
+        deleteControl.classList.toggle("is-disabled", cannotDelete);
+        deleteControl.setAttribute("aria-disabled", String(cannotDelete));
+        deleteControl.title = cannotDelete ? "Keep at least one page in each selected PDF" : "Delete page";
+        deleteControl.setAttribute("aria-label", cannotDelete ? "Cannot delete the last remaining page" : "Delete page");
+    });
 }
 function moveMergePage(file, fromPage, toPage, pageCount) {
     if (fromPage === toPage) return;
@@ -350,15 +360,47 @@ async function renderMergePreviews() {
             deleteButton.className = "pm-merge-icon-button pm-merge-delete-page";
             deleteButton.textContent = "×";
             const canDeletePage = pageOrder.length > 1;
-            // Keep the button clickable so the last-page guard can explain why deletion is blocked.
             deleteButton.classList.toggle("is-disabled", !canDeletePage);
             deleteButton.setAttribute("aria-disabled", String(!canDeletePage));
             deleteButton.title = canDeletePage ? "Delete page" : "Keep at least one page in each selected PDF";
             deleteButton.setAttribute("aria-label", canDeletePage ? "Delete page " + pageNumber : "Cannot delete the last remaining page");
-            deleteButton.addEventListener("click", () => removeMergePage(file, pageNumber, pdf.numPages));
+
+            const confirmation = document.createElement("div");
+            confirmation.className = "pm-merge-delete-confirm";
+            confirmation.hidden = true;
+            confirmation.setAttribute("role", "group");
+            confirmation.setAttribute("aria-label", "Confirm page deletion");
+            const confirmText = document.createElement("span");
+            confirmText.className = "pm-merge-delete-confirm-text";
+            confirmText.textContent = "Delete this page?";
+            const cancelDelete = document.createElement("button");
+            cancelDelete.type = "button";
+            cancelDelete.className = "pm-merge-confirm-cancel";
+            cancelDelete.textContent = "Cancel";
+            const confirmDelete = document.createElement("button");
+            confirmDelete.type = "button";
+            confirmDelete.className = "pm-merge-confirm-delete";
+            confirmDelete.textContent = "Delete";
+            deleteButton.addEventListener("click", () => {
+                if (deleteButton.getAttribute("aria-disabled") === "true") {
+                    showToast("Keep at least one page in each selected PDF.");
+                    return;
+                }
+                confirmation.hidden = false;
+                deleteButton.setAttribute("aria-expanded", "true");
+                confirmDelete.focus();
+            });
+            cancelDelete.addEventListener("click", () => {
+                confirmation.hidden = true;
+                deleteButton.setAttribute("aria-expanded", "false");
+                deleteButton.focus();
+            });
+            confirmDelete.addEventListener("click", () => removeMergePage(file, pageNumber, pdf.numPages, card));
+            confirmation.append(confirmText, cancelDelete, confirmDelete);
+
             heading.appendChild(label);
             controls.append(left, right, reset, deleteButton);
-            card.append(heading, canvas, controls);
+            card.append(heading, canvas, controls, confirmation);
             container.appendChild(card);
 
             try {
