@@ -1516,8 +1516,8 @@
         const detail = typeof data.error === "string" && data.error.trim()
           ? data.error.trim()
           : "The server returned an empty or invalid response.";
-        addMessage("PDFMASTER ASSISTANT request failed (HTTP " + response.status + "): " + detail, "assistant");
-        return true;
+        console.warn("PDFMASTER AI unavailable:", response.status, detail);
+        return false;
       }
 
       pookieHistory = conversation.concat([{ role: "assistant", content: data.answer }]).slice(-12);
@@ -1527,9 +1527,9 @@
       loading.remove();
       const reason = error && error.name === "AbortError"
         ? "The request timed out."
-        : "The browser could not reach the AI server. Check the internet connection, Worker availability, and allowed website origin.";
-      addMessage("PDFMASTER ASSISTANT connection error: " + reason, "assistant");
-      return true;
+        : "The browser could not reach the AI server.";
+      console.warn("PDFMASTER AI connection error:", reason);
+      return false;
     }
   }
 
