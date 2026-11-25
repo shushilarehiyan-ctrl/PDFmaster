@@ -267,7 +267,13 @@ export default {
             : (typeof promptResult?.choices?.[0]?.message?.content === "string" ? promptResult.choices[0].message.content : "");
           if (candidate.trim()) enhancedPrompt = candidate.trim().slice(0, 1500);
         } catch (promptError) {
-          console.warn("PDFMASTER image prompt enhancement unavailable; using original prompt.", promptError);
+          const promptErrorMessage = promptError && promptError.message ? promptError.message : String(promptError);
+          console.warn("PDFMASTER image prompt enhancement unavailable; using original prompt.", promptErrorMessage);
+          if (/4006|used up your daily free allocation|daily free allocation/i.test(promptErrorMessage)) {
+            return json({
+              error: "PDFMaster's daily Workers AI free allocation is exhausted. Image generation can resume when the allocation resets."
+            }, 429, allowedOrigin);
+          }
         }
       }
 
@@ -308,10 +314,16 @@ export default {
           outputFormat: "image/jpeg"
         }, 200, allowedOrigin);
       } catch (error) {
+        const errorMessage = error && error.message ? error.message : String(error);
         console.error("PDFMASTER /api/image Workers AI failure:", {
           name: error && error.name ? error.name : "Error",
-          message: error && error.message ? error.message : String(error)
+          message: errorMessage
         });
+        if (/4006|used up your daily free allocation|daily free allocation/i.test(errorMessage)) {
+          return json({
+            error: "PDFMaster's daily Workers AI free allocation is exhausted. Image generation can resume when the allocation resets."
+          }, 429, allowedOrigin);
+        }
         return json({ error: "Image generation is temporarily unavailable. Please try again shortly." }, 502, allowedOrigin);
       }
     }
