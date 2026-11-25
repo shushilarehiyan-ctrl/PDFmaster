@@ -100,6 +100,10 @@ export default {
       return json({ error: "Not found." }, 404, allowedOrigin);
     }
 
+    // Fail closed: disable every usage-based AI/search endpoint until billing is reviewed.
+    // This guard runs before request parsing, external fetches, or any model invocation.
+    return json({ error: "PDFMaster AI, image generation, and research are temporarily disabled to prevent usage-based charges. No AI or search model was called." }, 503, allowedOrigin);
+
     let body;
     try { body = await request.json(); }
     catch { return json({ error: "Please send valid JSON." }, 400, allowedOrigin); }
