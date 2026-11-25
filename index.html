@@ -985,6 +985,53 @@
     </script>
 
     <script src="script.js"></script>
+    <script>
+      // Load Cloudflare Turnstile exactly once for all PDFMaster features.
+      (function (window, document) {
+        let loadPromise = null;
+        window.PDFMASTER_TURNSTILE = {
+          load: function () {
+            if (window.turnstile && typeof window.turnstile.render === "function") {
+              return Promise.resolve(window.turnstile);
+            }
+            if (loadPromise) return loadPromise;
+            loadPromise = new Promise(function (resolve, reject) {
+              let script = document.getElementById("pdfmaster-turnstile-api");
+              if (!script) {
+                script = document.createElement("script");
+                script.id = "pdfmaster-turnstile-api";
+                script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+                script.async = true;
+                script.defer = true;
+                script.onload = function () {
+                  if (window.turnstile && typeof window.turnstile.render === "function") {
+                    resolve(window.turnstile);
+                  } else {
+                    reject(new Error("Cloudflare Turnstile loaded without its API."));
+                  }
+                };
+                script.onerror = function () {
+                  reject(new Error("Could not load Cloudflare Turnstile."));
+                };
+                document.head.appendChild(script);
+                return;
+              }
+              script.addEventListener("load", function () {
+                if (window.turnstile && typeof window.turnstile.render === "function") resolve(window.turnstile);
+                else reject(new Error("Cloudflare Turnstile loaded without its API."));
+              }, { once: true });
+              script.addEventListener("error", function () {
+                reject(new Error("Could not load Cloudflare Turnstile."));
+              }, { once: true });
+            }).catch(function (error) {
+              loadPromise = null;
+              throw error;
+            });
+            return loadPromise;
+          }
+        };
+      })(window, document);
+    </script>
     <script src="advanced-tools.js?v=20261124-2"></script>
 
 
