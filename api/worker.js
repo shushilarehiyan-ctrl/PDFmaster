@@ -1,5 +1,5 @@
 /*
- * PDFMaster Smart Research + Assistant API
+ * PDFMaster Assistant + Image API
  * Deploy as a Cloudflare Worker.
  * Add an AI binding named AI in Worker Settings > Bindings.
  */
@@ -95,16 +95,10 @@ export default {
     if (!allowedOrigin) return json({ error: "Origin not allowed." }, 403, "https://shushilarehiyan-ctrl.github.io");
 
     const url = new URL(request.url);
-    if (request.method !== "POST" || !["/api/research", "/api/chat", "/api/image"].includes(url.pathname)) {
+    if (request.method !== "POST" || !["/api/chat", "/api/image"].includes(url.pathname)) {
       return json({ error: "Not found." }, 404, allowedOrigin);
     }
 
-    // Keep paid external web research disabled. Workers AI chat and image generation
-    // are enabled on the Workers Free plan and stop when the 10,000-Neuron daily
-    // free allocation is exhausted; no automatic paid overage is used on Free.
-    if (url.pathname === "/api/research") {
-      return json({ error: "Web Research is temporarily disabled. Chat and image generation use the Workers AI free daily allocation." }, 503, allowedOrigin);
-    }
 
     let body;
     try { body = await request.json(); }
