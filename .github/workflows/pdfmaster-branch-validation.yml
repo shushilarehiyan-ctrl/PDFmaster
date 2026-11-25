@@ -1,0 +1,68 @@
+name: PDFMaster branch validation
+
+on:
+  push:
+    branches:
+      - fix/turnstile-mobile-diagnostics
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out test branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check advanced-tools.js
+          node --check assistant.js
+          node --input-type=module --check < api/worker.js
+
+      - name: Check shared Turnstile loader wiring
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const vm = require('node:vm');
+          const assert = require('node:assert/strict');
+
+          const html = fs.readFileSync('index.html', 'utf8');
+          const advanced = fs.readFileSync('advanced-tools.js', 'utf8');
+          const assistant = fs.readFileSync('assistant.js', 'utf8');
+          const worker = fs.readFileSync('api/worker.js', 'utf8');
+
+          assert.equal((html.match(/window\\.PDFMASTER_TURNSTILE\\s*=/g) || []).length, 1,
+            'index.html must define the shared Turnstile loader exactly once');
+
+          const loaderStart = html.indexOf('// Load Cloudflare Turnstile exactly once');
+          assert.notEqual(loaderStart, -1, 'shared loader comment is missing');
+          const scriptStart = html.lastIndexOf('<script', loaderStart);
+          const scriptEnd = html.indexOf('</script>', loaderStart);
+          assert.ok(scriptStart >= 0 && scriptEnd > loaderStart, 'shared loader script tag is incomplete');
+          const loaderCode = html.slice(html.indexOf('>', scriptStart) + 1, scriptEnd);
+          new vm.Script(loaderCode, { filename: 'index.html inline Turnstile loader' });
+
+          const mainScript = html.indexOf('<script src="script.js"></script>');
+          const advancedScript = html.indexOf('advanced-tools.js?v=20261125-1-shared-turnstile');
+          assert.ok(mainScript >= 0 && mainScript < loaderStart && loaderStart < advancedScript,
+            'shared loader must load after script.js and before advanced-tools.js');
+
+          assert.match(advanced, /window\\.PDFMASTER_TURNSTILE\\.load\\(\\)/,
+            'advanced tools must use the shared loader');
+          assert.match(assistant, /window\\.PDFMASTER_TURNSTILE\\.load\\(\\)/,
+            'assistant must use the shared loader');
+          assert.doesNotMatch(advanced + assistant, /turnstile\\/v0\\/api\\.js/,
+            'feature files must not inject their own Turnstile API script');
+          assert.match(worker, /action/,
+            'Worker must retain server-side action validation');
+
+          console.log('PASS: JavaScript syntax and shared Turnstile wiring checks');
+          NODE
