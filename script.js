@@ -327,7 +327,8 @@ async function renderMergePreviews() {
             deleteButton.title = "Delete page";
             deleteButton.setAttribute("aria-label", "Delete page " + pageNumber);
             deleteButton.addEventListener("click", () => removeMergePage(file, pageNumber, pdf.numPages));
-            controls.append(label, left, right, reset, deleteButton);
+            heading.appendChild(label);
+            controls.append(left, right, reset, deleteButton);
             card.append(heading, canvas, controls);
             container.appendChild(card);
 
