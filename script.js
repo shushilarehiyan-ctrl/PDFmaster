@@ -344,37 +344,42 @@ async function renderMergePreviews() {
 }
 
 
-pdfInput.addEventListener("change", function() {
-    const newFiles = Array.from(pdfInput.files);
+function addPDFsToMerge(newFiles) {
     let invalidFiles = 0;
-
-    newFiles.forEach(function(file) {
-        const validPDF =
-            file.type === "application/pdf" ||
-            file.name.toLowerCase().endsWith(".pdf");
-
-        if (!validPDF) {
-            invalidFiles++;
-            return;
-        }
-
+    Array.from(newFiles || []).forEach(function(file) {
+        const validPDF = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+        if (!validPDF) { invalidFiles++; return; }
         const duplicate = selectedPDFs.some(function(existing) {
-            return existing.name === file.name &&
-                existing.size === file.size &&
-                existing.lastModified === file.lastModified;
+            return existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified;
         });
-
         if (!duplicate) selectedPDFs.push(file);
     });
-
     pdfInput.value = "";
     displayPDFs();
     renderMergePreviews();
+    if (invalidFiles > 0) alert("Please select valid PDF files only!");
+}
 
-    if (invalidFiles > 0) {
-        alert("Please select valid PDF files only!");
-    }
+pdfInput.addEventListener("change", function() {
+    addPDFsToMerge(pdfInput.files);
 });
+
+const pdfDropZone = document.getElementById("pdfDropZone");
+if (pdfDropZone) {
+    ["dragenter", "dragover"].forEach(type => pdfDropZone.addEventListener(type, event => {
+        event.preventDefault();
+        event.stopPropagation();
+        pdfDropZone.classList.add("is-dragover");
+    }));
+    ["dragleave", "drop"].forEach(type => pdfDropZone.addEventListener(type, event => {
+        event.preventDefault();
+        event.stopPropagation();
+        pdfDropZone.classList.remove("is-dragover");
+    }));
+    pdfDropZone.addEventListener("drop", event => {
+        addPDFsToMerge(event.dataTransfer && event.dataTransfer.files);
+    });
+}
 
 function displayPDFs() {
     const pdfList = document.getElementById("pdfList");
