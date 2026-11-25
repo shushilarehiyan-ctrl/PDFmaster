@@ -1283,25 +1283,10 @@
   }
 
   function loadImageTurnstile() {
-    if (window.turnstile && typeof window.turnstile.render === "function") return Promise.resolve();
-    if (turnstileLoadPromise) return turnstileLoadPromise;
-    turnstileLoadPromise = new Promise((resolve, reject) => {
-      const existing = document.querySelector('script[data-pm-turnstile="true"]');
-      if (existing) {
-        existing.addEventListener("load", resolve, { once:true });
-        existing.addEventListener("error", reject, { once:true });
-        return;
-      }
-      const script = document.createElement("script");
-      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-      script.async = true;
-      script.defer = true;
-      script.dataset.pmTurnstile = "true";
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.appendChild(script);
-    });
-    return turnstileLoadPromise;
+    if (!window.PDFMASTER_TURNSTILE || typeof window.PDFMASTER_TURNSTILE.load !== "function") {
+      return Promise.reject(new Error("Shared Cloudflare verification loader is unavailable."));
+    }
+    return window.PDFMASTER_TURNSTILE.load();
   }
 
   async function ensureImageTurnstile() {
@@ -1322,7 +1307,21 @@
           }
         },
         "expired-callback": () => { imageTurnstileToken = ""; },
-        "error-callback": () => { imageTurnstileToken = ""; }
+        "error-callback": errorCode => {
+          imageTurnstileToken = "";
+          console.warn("PDFMaster assistant Turnstile challenge failed:", errorCode || "unknown");
+          imageVerification.hidden = false;
+          imageVerification.textContent = "Verification failed" + (errorCode ? " (code " + errorCode + ")" : "") + ". Please retry once or refresh the page.";
+        },
+        "timeout-callback": () => {
+          imageTurnstileToken = "";
+          console.warn("PDFMaster assistant Turnstile challenge timed out.");
+        },
+        "unsupported-callback": () => {
+          imageTurnstileToken = "";
+          console.warn("PDFMaster assistant Turnstile is unsupported in this browser.");
+          imageVerification.textContent = "This browser could not complete security verification. Please try an updated browser.";
+        }
       });
     } catch (error) {
       imageVerification.textContent = "Image verification could not load. Please refresh and try again.";
