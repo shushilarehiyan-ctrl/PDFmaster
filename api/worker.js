@@ -283,13 +283,13 @@ export default {
           editForm.append("height", "1024");
           editForm.append("guidance", "4");
           const formResponse = new Response(editForm);
-          generated = await env.AI.run("@cf/black-forest-labs/flux-2-klein-9b", {
+          generated = await env.AI.run("@cf/black-forest-labs/flux-2-klein-4b", {
             multipart: {
               body: formResponse.body,
               contentType: formResponse.headers.get("content-type")
             }
           });
-          modelUsed = "@cf/black-forest-labs/flux-2-klein-9b";
+          modelUsed = "@cf/black-forest-labs/flux-2-klein-4b";
         } else {
           generated = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", {
             prompt: enhancedPrompt,
