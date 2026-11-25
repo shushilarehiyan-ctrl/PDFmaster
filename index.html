@@ -419,12 +419,11 @@
                         into one single file.
                     </p>
 
-                    <input
-                        type="file"
-                        id="pdfInput"
-                        accept="application/pdf"
-                        multiple
-                    >
+                    <label class="pm-merge-upload-zone" id="pdfDropZone" for="pdfInput">
+                        <span class="pm-merge-upload-icon" aria-hidden="true">⇧</span>
+                        <span class="pm-merge-upload-copy"><strong>Drag &amp; drop PDFs here</strong><span>or <u>Browse files</u></span></span>
+                        <input type="file" id="pdfInput" accept="application/pdf" multiple>
+                    </label>
 
                     <div id="pdfList" aria-live="polite"></div>
 
