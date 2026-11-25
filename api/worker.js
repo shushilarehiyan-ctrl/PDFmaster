@@ -62,6 +62,16 @@ async function verifyTurnstile(token, request, env) {
   }
 }
 
+function bytesToBase64(bytes) {
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    const chunk = bytes.subarray(offset, Math.min(offset + chunkSize, bytes.length));
+    binary += String.fromCharCode(...chunk);
+  }
+  return btoa(binary);
+}
+
 function json(data, status, origin) {
   return new Response(JSON.stringify(data), {
     status,
@@ -204,6 +214,12 @@ export default {
         return json({ error: verification.error }, verification.status, allowedOrigin);
       }
 
+      const userAskedRemoveBackground = /(?:remove|erase|delete|clear)\s+(?:the\s+)?background|background\s+(?:remove|hatao)|(?:background\s+hata\s*o)|(?:hata\s*o\s+background)|पृष्ठभूमि\s*(?:हटाओ|हटा\s*दो)/i.test(userPrompt);
+      const hasUploadedImage = typeof body.imageDataUrl === "string" && body.imageDataUrl.length > 0;
+      if (userAskedRemoveBackground && !hasUploadedImage) {
+        return json({ error: "Background remove karne ke liye pehle ek JPG, PNG, ya WebP photo upload karein." }, 400, allowedOrigin);
+      }
+
       const styleNames = {
         auto: "Choose the visual treatment that best fits the user's request.",
         photorealistic: "photorealistic photography",
@@ -217,8 +233,11 @@ export default {
       };
       const requestedStyle = String(body.style || "auto").toLowerCase();
       const styleInstruction = styleNames[requestedStyle] || styleNames.auto;
-      const imageDataUrl = typeof body.imageDataUrl === "string" ? body.imageDataUrl : "";
+      const submittedImageDataUrl = typeof body.imageDataUrl === "string" ? body.imageDataUrl : "";
+      const originalImageDataUrl = typeof body.originalImageDataUrl === "string" ? body.originalImageDataUrl : "";
+      const imageDataUrl = userAskedRemoveBackground && originalImageDataUrl ? originalImageDataUrl : submittedImageDataUrl;
       const isImageEdit = imageDataUrl.length > 0;
+      const isBackgroundRemoval = userAskedRemoveBackground && isImageEdit;
       let sourceImageBytes = null;
       let sourceImageType = "image/jpeg";
       if (isImageEdit) {
@@ -267,7 +286,35 @@ export default {
         enhancedPrompt += "\\n\\nMandatory visual style: " + styleInstruction + ". Follow this style consistently; do not substitute another style.";
         let generated;
         let modelUsed = "@cf/black-forest-labs/flux-1-schnell";
-        if (isImageEdit) {
+        if (isBackgroundRemoval) {
+          generated = await env.AI.run("bria/remove-background", {
+            image: imageDataUrl,
+            preserve_alpha: true
+          });
+          modelUsed = "bria/remove-background";
+          const resultImage = generated?.image || generated?.result?.image || "";
+          if (typeof resultImage !== "string" || !resultImage) {
+            console.error("PDFMASTER background-removal model returned an unexpected response.");
+            return json({ error: "Background removal did not return a PNG. Please try again." }, 502, allowedOrigin);
+          }
+          let pngDataUrl = resultImage;
+          if (/^https:\/\//i.test(resultImage)) {
+            const pngResponse = await fetch(resultImage);
+            if (!pngResponse.ok) throw new Error("Could not retrieve the transparent PNG from the background-removal service.");
+            const pngBytes = new Uint8Array(await pngResponse.arrayBuffer());
+            const contentType = (pngResponse.headers.get("Content-Type") || "").split(";")[0].toLowerCase();
+            if (contentType && contentType !== "image/png") throw new Error("Background-removal service returned an unexpected image format.");
+            pngDataUrl = "data:image/png;base64," + bytesToBase64(pngBytes);
+          } else if (!/^data:image\/png;base64,/i.test(resultImage)) {
+            throw new Error("Background-removal service returned an unsupported image URL format.");
+          }
+          return json({
+            image: pngDataUrl,
+            promptUsed: "Remove the background and preserve the foreground subject with transparency.",
+            model: modelUsed,
+            outputFormat: "image/png"
+          }, 200, allowedOrigin);
+        } else if (isImageEdit) {
           const editForm = new FormData();
           editForm.append("prompt", "Edit input image 0 according to this instruction: " + enhancedPrompt + " Preserve the main subject's identity, face, pose, clothing, and defining details unless the user explicitly requests changing them. Change only the requested elements. Treat the uploaded image as the source of truth.");
           editForm.append("input_image_0", new Blob([sourceImageBytes], { type: sourceImageType }), "source-image");
@@ -296,7 +343,8 @@ export default {
         return json({
           image: "data:image/jpeg;base64," + generated.image,
           promptUsed: enhancedPrompt,
-          model: modelUsed
+          model: modelUsed,
+          outputFormat: "image/jpeg"
         }, 200, allowedOrigin);
       } catch (error) {
         console.error("PDFMASTER /api/image Workers AI failure:", {
