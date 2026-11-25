@@ -1519,8 +1519,9 @@
         const detail = typeof data.error === "string" && data.error.trim()
           ? data.error.trim()
           : "The server returned an empty or invalid response.";
-        console.warn("PDFMASTER AI unavailable:", response.status, detail);
-        return false;
+        console.warn("PDFMASTER AI request failed:", response.status, detail);
+        addMessage(detail, "assistant");
+        return true;
       }
 
       pookieHistory = conversation.concat([{ role: "assistant", content: data.answer }]).slice(-12);
