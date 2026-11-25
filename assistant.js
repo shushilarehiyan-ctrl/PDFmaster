@@ -15,6 +15,28 @@
   imageVerification.hidden = true;
   if (quick) {
     const verificationLabel = document.createElement("span");
+    const stylePicker = document.createElement("label");
+    stylePicker.className = "pm-assistant-image-style-picker";
+    const styleLabel = document.createElement("span");
+    styleLabel.textContent = "Image style";
+    const styleSelect = document.createElement("select");
+    styleSelect.className = "pm-assistant-image-style-select";
+    styleSelect.setAttribute("aria-label", "Choose image generation style");
+    [
+      ["photorealistic", "Realistic"],
+      ["3d", "3D Art"],
+      ["anime", "Anime"],
+      ["cinematic", "Cinematic"]
+    ].forEach(([value, label]) => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = label;
+      styleSelect.appendChild(option);
+    });
+    styleSelect.value = selectedImageStyle;
+    styleSelect.addEventListener("change", () => { selectedImageStyle = styleSelect.value; });
+    stylePicker.append(styleLabel, styleSelect);
+    quick.appendChild(stylePicker);
     verificationLabel.textContent = "Verify once to create images:";
     imageVerification.appendChild(verificationLabel);
     quick.appendChild(imageVerification);
@@ -26,6 +48,7 @@
   const TURNSTILE_SITE_KEY = "0x4AAAAAAGQ802svQx32R_BB";
   let imageTurnstileToken = "";
   let pendingImagePrompt = "";
+  let selectedImageStyle = "photorealistic";
   let imageTurnstileWidgetId = null;
   let turnstileLoadPromise = null;
   let researchMode = false;
@@ -335,6 +358,9 @@
     .pm-assistant-form input{min-height:52px;padding:14px 17px;border:1px solid #505050;border-radius:18px;background:#303030;font-size:14px}
     .pm-assistant-form button{width:44px;height:44px;border-radius:50%}
     .pm-assistant-footer{grid-column:2;grid-row:5;padding:5px 12px 12px;color:#858585;font-size:10px}
+    .pm-assistant-image-style-picker{display:flex;align-items:center;gap:9px;width:100%;padding:7px 0;color:#aaa;font-size:11px}
+    .pm-assistant-image-style-select{min-width:130px;padding:7px 30px 7px 10px;border:1px solid #484848;border-radius:9px;background:#292929;color:#eee;font:inherit;font-size:11px;outline:none}
+    .pm-assistant-image-style-select:focus{border-color:#c5a15b}
     .pm-assistant-image-verification{display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%;padding:6px 0;color:#a8a8a8;font-size:10px}
     .pm-assistant-image-verification[hidden]{display:none!important}
     .pm-assistant-image-verification:empty{display:none}
@@ -1312,7 +1338,7 @@
       const response = await fetch(IMAGE_API_URL.replace(/\/$/, "") + "/api/image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, style: "auto", turnstileToken: token })
+        body: JSON.stringify({ prompt, style: selectedImageStyle, turnstileToken: token })
       });
       const data = await response.json().catch(() => ({}));
       loading.remove();
