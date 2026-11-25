@@ -66,7 +66,7 @@
         const image = new Image();
         image.onload = () => {
           selectedImageOriginalDataUrl = original;
-          const scale = Math.min(1, 512 / Math.max(image.naturalWidth, image.naturalHeight));
+          const scale = Math.min(1, 510 / Math.max(image.naturalWidth, image.naturalHeight));
           const canvas = document.createElement("canvas");
           canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
           canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
@@ -1599,7 +1599,7 @@
     if (!researchMode) pookieHistory = pookieHistory.concat([{ role: "user", content: value }]).slice(-12);
     input.value = "";
 
-    if (isImageGenerationRequest(value)) {
+    if (selectedImageDataUrl || isImageGenerationRequest(value)) {
       await createAssistantImage(value);
       return;
     }
