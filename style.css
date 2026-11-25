@@ -6897,3 +6897,108 @@ body:not(.tool-page-active) .topbar-badge:hover {
 .pm-merge-page-controls button:hover { background: rgba(217, 183, 126, .18); }
 
 .pm-merge-page-card[draggable="true"]{cursor:grab}.pm-merge-page-dragging{opacity:.45}.pm-merge-page-drop-target{outline:2px dashed rgba(217,183,126,.85);outline-offset:2px}
+
+
+/* =========================================================
+   MERGE PDF WORKSPACE — COMPACT RESPONSIVE UI
+   Keeps the existing PDF processing and page-order logic intact.
+========================================================= */
+#pdfList { display:grid; gap:8px; }
+#pdfList > * { margin:0; }
+.pm-merge-file-card {
+  display:flex; align-items:center; gap:10px; min-width:0;
+  padding:9px 10px; border:1px solid rgba(217,183,126,.2);
+  border-radius:9px; background:rgba(8,10,16,.58);
+  transition:border-color .18s ease,background .18s ease,opacity .18s ease;
+}
+.pm-merge-file-card:hover { border-color:rgba(217,183,126,.48); background:rgba(255,255,255,.035); }
+.pm-merge-file-card.is-dragging { opacity:.42; }
+.pm-merge-file-card.is-drop-target { outline:2px dashed rgba(217,183,126,.8); outline-offset:2px; }
+.pm-merge-file-handle { flex:0 0 auto; color:#8f96a6; font-size:15px; letter-spacing:-3px; cursor:grab; user-select:none; }
+.pm-merge-file-icon {
+  display:grid; place-items:center; flex:0 0 34px; height:36px;
+  border:1px solid rgba(217,95,95,.32); border-radius:7px;
+  color:#ff9b9b; background:rgba(217,95,95,.1); font-size:9px; font-weight:800;
+}
+.pm-merge-file-name { flex:1; min-width:0; overflow:hidden; color:#e7e9ef; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
+.pm-merge-file-remove {
+  display:grid !important; place-items:center; flex:0 0 34px;
+  width:34px; min-height:34px !important; height:34px; padding:0 !important;
+  border:1px solid transparent !important; border-radius:8px !important;
+  color:#aeb5c3 !important; background:transparent !important;
+  font-size:21px !important; line-height:1; cursor:pointer;
+}
+.pm-merge-file-remove:hover { color:#ff7777 !important; border-color:rgba(255,100,100,.25) !important; background:rgba(255,80,80,.1) !important; }
+
+.pm-merge-upload-zone {
+  display:flex; align-items:center; justify-content:center; gap:13px;
+  min-height:112px; margin-top:12px; padding:17px;
+  border:1px dashed rgba(217,183,126,.48); border-radius:12px;
+  background:rgba(217,183,126,.045); color:#e9dfcd;
+  cursor:pointer; transition:min-height .2s ease,border-color .2s ease,background .2s ease;
+}
+.pm-merge-upload-zone:hover,.pm-merge-upload-zone.is-dragover {
+  border-color:#d9b77e; background:rgba(217,183,126,.1);
+}
+.pm-merge-upload-icon { display:grid; place-items:center; width:42px; height:42px; flex:0 0 42px; border-radius:12px; background:rgba(217,183,126,.13); color:#e5c78f; font-size:25px; }
+.pm-merge-upload-copy { display:flex; flex-direction:column; gap:5px; font-size:12px; line-height:1.4; }
+.pm-merge-upload-copy strong { color:#f0d7a8; font-size:13px; }
+.pm-merge-upload-copy u { color:#e6c58d; text-underline-offset:3px; }
+.pm-merge-upload-zone input[type="file"] {
+  position:absolute !important; width:1px !important; height:1px !important;
+  padding:0 !important; margin:-1px !important; overflow:hidden !important;
+  clip:rect(0,0,0,0) !important; white-space:nowrap !important; border:0 !important;
+}
+.pm-merge-upload-zone:focus-within { outline:2px solid rgba(217,183,126,.65); outline-offset:3px; }
+#merge-pdf:has(#pdfList .pm-merge-file-card) .pm-merge-upload-zone { min-height:66px; padding:10px 14px; }
+#merge-pdf:has(#pdfList .pm-merge-file-card) .pm-merge-upload-icon { width:32px; height:32px; flex-basis:32px; font-size:19px; }
+
+#mergePagePreviews {
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:11px;
+}
+#mergePagePreviews > h4 { margin-top:8px; }
+.pm-merge-page-card { padding:8px; gap:0; }
+.pm-merge-page-heading { display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:7px; font-size:11px; }
+.pm-merge-page-thumbnail { width:100% !important; height:auto !important; max-height:220px; margin-bottom:8px; }
+.pm-merge-page-controls { display:flex; align-items:center; justify-content:center; flex-wrap:nowrap; gap:5px; padding-top:7px; border-top:1px solid rgba(217,183,126,.12); }
+.pm-merge-page-controls .pm-merge-rotation-badge { margin-right:auto; padding:3px 6px; border-radius:5px; color:#f1d49d; background:rgba(217,183,126,.13); font-size:10px; font-weight:700; }
+.pm-merge-page-controls .pm-merge-rotation-badge[hidden] { display:none !important; }
+.pm-merge-page-controls button.pm-merge-icon-button {
+  display:grid !important; place-items:center; flex:0 0 31px;
+  width:31px; min-width:31px; min-height:31px !important; height:31px;
+  padding:0 !important; border:1px solid rgba(217,183,126,.24) !important;
+  border-radius:7px !important; color:#e5d2ad !important;
+  background:rgba(217,183,126,.07) !important; font-size:17px !important; line-height:1;
+}
+.pm-merge-page-controls button.pm-merge-icon-button:hover { border-color:rgba(217,183,126,.65) !important; background:rgba(217,183,126,.17) !important; }
+.pm-merge-page-controls button.pm-merge-delete-page:hover { color:#ff8585 !important; border-color:rgba(255,100,100,.45) !important; background:rgba(255,80,80,.1) !important; }
+
+@media (max-width:1050px) {
+  #mergePagePreviews { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media (max-width:760px) {
+  #mergePagePreviews { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+  .pm-merge-preview-section { padding:11px; }
+  .pm-merge-page-card { padding:7px; }
+  .pm-merge-page-thumbnail { max-height:210px; }
+  .pm-merge-page-controls { gap:7px; }
+  .pm-merge-page-controls button.pm-merge-icon-button { flex-basis:35px; width:35px; min-width:35px; min-height:35px !important; height:35px; }
+  #merge-pdf > .tool-actions {
+    position:sticky; bottom:0; z-index:20;
+    margin:16px -16px -16px; padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    border-top:1px solid rgba(217,183,126,.2);
+    background:rgba(16,17,22,.96); backdrop-filter:blur(14px);
+    box-shadow:0 -8px 24px rgba(0,0,0,.24);
+  }
+  #merge-pdf > .tool-actions button { min-height:44px; }
+}
+@media (max-width:390px) {
+  #mergePagePreviews { gap:7px; }
+  .pm-merge-page-card { padding:6px; }
+  .pm-merge-page-controls { gap:5px; }
+  .pm-merge-page-controls button.pm-merge-icon-button { flex-basis:32px; width:32px; min-width:32px; min-height:36px !important; height:36px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .pm-merge-file-card,.pm-merge-upload-zone { transition:none; }
+}
