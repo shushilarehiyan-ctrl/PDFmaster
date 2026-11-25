@@ -49,6 +49,69 @@
       localStorage.setItem(HISTORY_KEY, JSON.stringify(chatHistory));
     } catch (error) { console.warn("PDFMaster chat history could not be saved in this browser.", error); }
   }
+
+  // Keep generated image binaries in IndexedDB; localStorage is too small for image data.
+  const IMAGE_DB_NAME = "pdfmaster_assistant_media_v1";
+  const IMAGE_STORE_NAME = "generated_images";
+  let imageDbPromise = null;
+  function openImageDatabase() {
+    if (!window.indexedDB) return Promise.reject(new Error("IndexedDB is unavailable."));
+    if (imageDbPromise) return imageDbPromise;
+    imageDbPromise = new Promise((resolve, reject) => {
+      const request = window.indexedDB.open(IMAGE_DB_NAME, 1);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(IMAGE_STORE_NAME)) db.createObjectStore(IMAGE_STORE_NAME, { keyPath: "id" });
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error("Could not open image history storage."));
+    });
+    return imageDbPromise;
+  }
+  function saveGeneratedImage(dataUrl) {
+    return openImageDatabase().then(db => new Promise((resolve, reject) => {
+      const id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : "img-" + Date.now() + "-" + Math.random().toString(16).slice(2);
+      const transaction = db.transaction(IMAGE_STORE_NAME, "readwrite");
+      transaction.objectStore(IMAGE_STORE_NAME).put({ id, dataUrl, createdAt: Date.now() });
+      transaction.oncomplete = () => resolve(id);
+      transaction.onerror = () => reject(transaction.error || new Error("Could not save generated image."));
+      transaction.onabort = () => reject(transaction.error || new Error("Image history save was interrupted."));
+    }));
+  }
+  function loadGeneratedImage(id) {
+    return openImageDatabase().then(db => new Promise((resolve, reject) => {
+      const request = db.transaction(IMAGE_STORE_NAME, "readonly").objectStore(IMAGE_STORE_NAME).get(id);
+      request.onsuccess = () => resolve(request.result && request.result.dataUrl ? request.result.dataUrl : "");
+      request.onerror = () => reject(request.error || new Error("Could not load generated image."));
+    }));
+  }
+  function appendGeneratedImage(content, dataUrl) {
+    if (!content || !dataUrl) return;
+    const image = document.createElement("img");
+    image.className = "pm-assistant-generated-image";
+    image.src = dataUrl;
+    image.alt = "AI-generated image";
+    image.loading = "lazy";
+    const download = document.createElement("a");
+    download.className = "pm-assistant-image-download";
+    download.href = dataUrl;
+    download.download = "PDFMaster_AI_Image.jpg";
+    download.textContent = "↓ Download image";
+    content.append(image, download);
+  }
+  function restoreGeneratedImage(bubble, imageId) {
+    const content = bubble && bubble.querySelector(".pm-assistant-content");
+    if (!content || !imageId) return;
+    loadGeneratedImage(imageId).then(dataUrl => {
+      if (dataUrl && content.isConnected) appendGeneratedImage(content, dataUrl);
+      else if (content.isConnected) {
+        const note = document.createElement("p");
+        note.className = "pm-assistant-image-history-note";
+        note.textContent = "This generated image is no longer available in this browser.";
+        content.appendChild(note);
+      }
+    }).catch(error => console.warn("PDFMaster could not restore an image from chat history.", error));
+  }
   function getCurrentChat() {
     let chat = chatHistory.find(item => item.id === currentChatId);
     if (!chat) {
@@ -57,12 +120,14 @@
     }
     return chat;
   }
-  function recordChatMessage(text, who, sources) {
+  function recordChatMessage(text, who, sources, options) {
     if (restoringChat || !["user", "assistant"].includes(who)) return;
     const clean = String(text || "").trim();
     if (!clean || /^(Thinking…|Searching free knowledge sources…|Searching reliable web sources…|Reading article summaries and research abstracts…)$/.test(clean)) return;
     const chat = getCurrentChat();
-    chat.messages.push({ role: who, content: clean.slice(0, 4000), sources: Array.isArray(sources) ? sources.slice(0, 8) : [] });
+    const savedMessage = { role: who, content: clean.slice(0, 4000), sources: Array.isArray(sources) ? sources.slice(0, 8) : [] };
+    if (options && options.imageId) savedMessage.imageId = options.imageId;
+    chat.messages.push(savedMessage);
     chat.messages = chat.messages.slice(-MAX_MESSAGES_PER_CHAT);
     if (chat.title === "New chat" && who === "user") chat.title = clean.replace(/\s+/g, " ").slice(0, 48) || "New chat";
     chat.updatedAt = Date.now(); saveChatHistory(); renderChatHistory();
@@ -179,6 +244,7 @@
     } else {
       bubble.appendChild(document.createTextNode(text));
     }
+    if (options && options.imageId && who === "assistant") restoreGeneratedImage(bubble, options.imageId);
     if (Array.isArray(sources) && sources.length) {
       const list = document.createElement("div");
       list.className = "pm-assistant-sources";
@@ -202,7 +268,7 @@
     }
     messages.appendChild(bubble);
     messages.scrollTop = messages.scrollHeight;
-    if (!options || options.persist !== false) recordChatMessage(text, who, sources);
+    if (!options || options.persist !== false) recordChatMessage(text, who, sources, options);
     return bubble;
   }
 
@@ -273,6 +339,19 @@
     .pm-assistant-image-verification[hidden]{display:none!important}
     .pm-assistant-image-verification:empty{display:none}
     .pm-assistant-generated-image{display:block;width:min(100%,640px);height:auto;max-height:520px;object-fit:contain;margin-top:12px;border:1px solid #454545;border-radius:12px;background:#171717}
+    .pm-assistant-image-history-note{color:#aaa;font-size:12px}
+    .pm-assistant-image-loading{display:flex;align-items:center;gap:14px;min-height:76px;padding:14px 17px;border:1px solid #3c3c3c;border-radius:16px;background:linear-gradient(120deg,#292929,#202020,#292929);background-size:220% 100%;animation:pmImageShimmer 2.4s ease-in-out infinite}
+    .pm-image-loader-orbit{position:relative;display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border:2px solid #555;border-top-color:#e7d2a5;border-right-color:#c4a66d;border-radius:50%;animation:pmImageSpin 1.1s linear infinite}
+    .pm-image-loader-orbit:before,.pm-image-loader-orbit:after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:#ead7ad;box-shadow:0 0 12px #d9bd83}
+    .pm-image-loader-orbit:before{top:-3px;left:8px}
+    .pm-image-loader-orbit:after{right:-3px;bottom:8px;background:#9ec9f2;box-shadow:0 0 12px #9ec9f2}
+    .pm-image-loader-copy{display:grid;gap:5px;color:#eee;font-size:13px;font-weight:600}
+    .pm-image-loader-copy small{color:#999;font-size:11px;font-weight:400}
+    .pm-image-loader-dots:after{content:"";display:inline-block;width:18px;text-align:left;animation:pmImageDots 1.3s steps(4,end) infinite}
+    @keyframes pmImageSpin{to{transform:rotate(360deg)}}
+    @keyframes pmImageShimmer{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+    @keyframes pmImageDots{0%{content:""}25%{content:"."}50%{content:".."}75%,100%{content:"..."}}
+    @media(prefers-reduced-motion:reduce){.pm-assistant-image-loading,.pm-image-loader-orbit,.pm-image-loader-dots:after{animation:none!important}}
     .pm-assistant-image-download{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:9px 14px;border:1px solid #555;border-radius:9px;background:#303030;color:#f5f5f5;text-decoration:none;font-size:12px;font-weight:600}
     .pm-assistant-image-download:hover{background:#414141}
     .pm-assistant-header-actions{display:none!important}
@@ -571,7 +650,7 @@
     pookieHistory = chat.messages.filter(item => item && ["user","assistant"].includes(item.role) && typeof item.content === "string").map(item => ({ role:item.role, content:item.content })).slice(-12);
     restoringChat = true;
     messages.replaceChildren();
-    chat.messages.forEach(item => addMessage(item.content, item.role, item.sources || [], { persist:false }));
+    chat.messages.forEach(item => addMessage(item.content, item.role, item.sources || [], { persist:false, imageId:item.imageId }));
     restoringChat = false;
     messages.scrollTop = messages.scrollHeight;
   }
@@ -1117,10 +1196,26 @@
       pendingImagePrompt = prompt;
       imageVerification.hidden = false;
       await ensureImageTurnstile();
-      addMessage("Image banane ke liye upar Cloudflare verification complete karo. Verification ke baad image automatically ban jayegi.", "assistant");
+      addMessage("Your image will be generated once verification is complete.", "assistant");
       return true;
     }
-    const loading = addMessage("Creating your image…", "assistant");
+    const loading = addMessage("", "assistant");
+    loading.classList.add("pm-assistant-image-loading");
+    const loadingContent = loading.querySelector(".pm-assistant-content");
+    const loader = document.createElement("span");
+    loader.className = "pm-image-loader-orbit";
+    loader.setAttribute("aria-hidden", "true");
+    const loadingCopy = document.createElement("span");
+    loadingCopy.className = "pm-image-loader-copy";
+    loadingCopy.setAttribute("role", "status");
+    loadingCopy.setAttribute("aria-live", "polite");
+    const loadingTitle = document.createElement("span");
+    loadingTitle.className = "pm-image-loader-dots";
+    loadingTitle.textContent = "Creating your image";
+    const loadingHint = document.createElement("small");
+    loadingHint.textContent = "This may take a few moments";
+    loadingCopy.append(loadingTitle, loadingHint);
+    loadingContent.append(loader, loadingCopy);
     const token = imageTurnstileToken;
     imageTurnstileToken = "";
     try {
@@ -1135,19 +1230,14 @@
         addMessage("Image create nahi ho payi: " + (data.error || "Please try again."), "assistant");
         return true;
       }
-      const bubble = addMessage("Your image is ready.", "assistant");
-      const content = bubble.querySelector(".pm-assistant-content");
-      const image = document.createElement("img");
-      image.className = "pm-assistant-generated-image";
-      image.src = data.image;
-      image.alt = "AI-generated image";
-      image.loading = "lazy";
-      const download = document.createElement("a");
-      download.className = "pm-assistant-image-download";
-      download.href = data.image;
-      download.download = "PDFMaster_AI_Image.jpg";
-      download.textContent = "↓ Download image";
-      content.append(image, download);
+      try {
+        const imageId = await saveGeneratedImage(data.image);
+        addMessage("Your image is ready.", "assistant", [], { imageId });
+      } catch (storageError) {
+        console.warn("PDFMaster could not save this image to persistent chat history.", storageError);
+        const bubble = addMessage("Your image is ready.", "assistant");
+        appendGeneratedImage(bubble.querySelector(".pm-assistant-content"), data.image);
+      }
       return true;
     } catch (error) {
       loading.remove();
