@@ -6895,3 +6895,5 @@ body:not(.tool-page-active) .topbar-badge:hover {
   color: inherit; cursor: pointer; font: inherit; font-size: .82rem;
 }
 .pm-merge-page-controls button:hover { background: rgba(217, 183, 126, .18); }
+
+.pm-merge-page-card[draggable="true"]{cursor:grab}.pm-merge-page-dragging{opacity:.45}.pm-merge-page-drop-target{outline:2px dashed rgba(217,183,126,.85);outline-offset:2px}
