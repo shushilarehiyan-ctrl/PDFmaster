@@ -650,7 +650,14 @@
     pookieHistory = chat.messages.filter(item => item && ["user","assistant"].includes(item.role) && typeof item.content === "string").map(item => ({ role:item.role, content:item.content })).slice(-12);
     restoringChat = true;
     messages.replaceChildren();
-    chat.messages.forEach(item => addMessage(item.content, item.role, item.sources || [], { persist:false, imageId:item.imageId }));
+    chat.messages.forEach(item => {
+      const legacyImagePlaceholder = item.role === "assistant" && /^(?:creating your image(?:…|\.\.\.)?|your image is creating\.?|your image is being created\.?|image is generating\.?|creating image\.\.\.)$/i.test(String(item.content || "").trim());
+      const restoredContent = legacyImagePlaceholder
+        ? "This image was generated before PDFMaster added image history saving, so the original image is unavailable."
+        : item.content;
+      if (!legacyImagePlaceholder) addMessage(restoredContent, item.role, item.sources || [], { persist:false, imageId:item.imageId });
+      else addMessage(restoredContent, item.role, [], { persist:false });
+    });
     restoringChat = false;
     messages.scrollTop = messages.scrollHeight;
   }
@@ -1199,7 +1206,7 @@
       addMessage("Your image will be generated once verification is complete.", "assistant");
       return true;
     }
-    const loading = addMessage("", "assistant");
+    const loading = addMessage("", "assistant", [], { persist:false });
     loading.classList.add("pm-assistant-image-loading");
     const loadingContent = loading.querySelector(".pm-assistant-content");
     const loader = document.createElement("span");
