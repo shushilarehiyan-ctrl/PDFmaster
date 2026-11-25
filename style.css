@@ -7167,3 +7167,66 @@ body:not(.tool-page-active) .topbar-badge:hover {
   color:#ffc0b8;
 }
 .pm-merge-delete-confirm button:focus-visible { outline:2px solid #d4af37; outline-offset:2px; }
+
+
+/* Merge PDF file removal: visible X and compact inline confirmation. */
+#pdfList .pm-merge-file-remove {
+  color: #f0d7a8 !important;
+  background: rgba(217,183,126,.10) !important;
+  border: 1px solid rgba(217,183,126,.38) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  font-weight: 700 !important;
+}
+#pdfList .pm-merge-file-remove:hover,
+#pdfList .pm-merge-file-remove:focus-visible {
+  color: #fff !important;
+  border-color: rgba(255,112,112,.65) !important;
+  background: rgba(190,55,55,.22) !important;
+  outline: 2px solid rgba(217,183,126,.45);
+  outline-offset: 2px;
+}
+.pm-merge-file-confirm {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 8px;
+  padding: 9px 10px;
+  border: 1px solid rgba(217,183,126,.30);
+  border-radius: 8px;
+  background: rgba(217,183,126,.075);
+  color: #f0dfc0;
+  font-size: 12px;
+}
+.pm-merge-file-confirm[hidden] { display: none !important; }
+.pm-merge-file-confirm-text { flex: 1 1 100%; font-weight: 600; }
+.pm-merge-file-confirm button {
+  min-height: 32px !important;
+  padding: 6px 11px !important;
+  border: 1px solid rgba(217,183,126,.30) !important;
+  border-radius: 6px !important;
+  background: rgba(255,255,255,.045) !important;
+  color: #ead9ba !important;
+  font: inherit;
+  font-size: 12px !important;
+  cursor: pointer;
+}
+.pm-merge-file-confirm .pm-merge-file-confirm-delete {
+  border-color: rgba(255,112,112,.5) !important;
+  background: rgba(180,48,48,.2) !important;
+  color: #ffc0b8 !important;
+}
+.pm-merge-file-confirm button:focus-visible {
+  outline: 2px solid #d4af37;
+  outline-offset: 2px;
+}
+@media (max-width: 480px) {
+  .pm-merge-file-confirm { justify-content: stretch; }
+  .pm-merge-file-confirm button { flex: 1 1 0; }
+}
