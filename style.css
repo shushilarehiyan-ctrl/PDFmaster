@@ -7002,3 +7002,11 @@ body:not(.tool-page-active) .topbar-badge:hover {
 @media (prefers-reduced-motion:reduce) {
   .pm-merge-file-card,.pm-merge-upload-zone { transition:none; }
 }
+
+/* Final compact-control alignment refinements */
+.pm-merge-upload-zone { position:relative; }
+.pm-merge-page-controls .pm-merge-rotation-badge { flex:0 0 auto !important; }
+@media (max-width:760px) {
+  #merge-pdf > .tool-actions { flex-direction:row !important; }
+  #merge-pdf > .tool-actions button { flex:1 1 0; width:auto; }
+}
