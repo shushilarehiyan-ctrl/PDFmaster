@@ -229,40 +229,80 @@ export default {
       };
       const requestedStyle = String(body.style || "auto").toLowerCase();
       const styleInstruction = styleNames[requestedStyle] || styleNames.auto;
-      if (body.imageDataUrl || body.originalImageDataUrl) {
-        return json({ error: "Image upload and image editing have been removed. You can still generate new images from text prompts." }, 410, allowedOrigin);
+      const imageDataUrl = typeof body.imageDataUrl === "string" ? body.imageDataUrl : "";
+      const isImageEdit = imageDataUrl.length > 0;
+      let sourceImageBytes = null;
+      let sourceImageType = "image/jpeg";
+      if (isImageEdit) {
+        const match = imageDataUrl.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
+        if (!match || imageDataUrl.length > 8 * 1024 * 1024) {
+          return json({ error: "Please upload a JPG, PNG, or WebP image smaller than 5 MB." }, 400, allowedOrigin);
+        }
+        sourceImageType = match[1];
+        try {
+          const binary = atob(match[2]);
+          sourceImageBytes = new Uint8Array(binary.length);
+          for (let index = 0; index < binary.length; index++) sourceImageBytes[index] = binary.charCodeAt(index);
+        } catch (_) {
+          return json({ error: "The uploaded image could not be read. Please try another image." }, 400, allowedOrigin);
+        }
+        if (sourceImageBytes.byteLength > 5 * 1024 * 1024) {
+          return json({ error: "Please upload an image smaller than 5 MB." }, 413, allowedOrigin);
+        }
       }
+
       let enhancedPrompt = userPrompt;
-      try {
-        const promptResult = await env.AI.run(POOKIE_MODEL, {
-          max_completion_tokens: 350,
-          temperature: 0.25,
-          messages: [
-            {
-              role: "system",
-              content: "You are PDFMaster's image-prompt editor. Convert the user's image idea into one clear, vivid, model-ready English prompt. Preserve the user's actual subject, requested details, intended mood, and composition. The selected visual style is authoritative. For photorealistic photography, explicitly describe a believable real-world photograph with natural skin and material textures, physically plausible anatomy, realistic environmental details, natural cinematic lighting, DSLR photography, sharp subject focus, and high detail; use quality descriptors such as 8K-detail only as an aesthetic target, never as a claim about the model output resolution. Do not turn religious figures or people into cartoons when photorealistic is selected. For 3D, anime, cinematic, illustration, watercolor, pixel-art, or minimalist styles, follow that selected style instead and do not append photorealistic wording. Preserve the user's actual subject, requested details, intended mood, and composition. Add only useful visual details that support the request; never replace the subject or invent important objects. Resolve minor ambiguity with sensible defaults rather than asking questions. Avoid text inside the image unless the user explicitly requests it. Keep the prompt under 220 words. Do not add explanations, headings, quotation marks, or markdown. Keep content non-graphic and age-appropriate."
-            },
-            {
-              role: "user",
-              content: "User's image idea: " + userPrompt + "\nVisual style: " + styleInstruction
-            }
-          ]
-        });
-        const candidate = typeof promptResult?.response === "string"
-          ? promptResult.response
-          : (typeof promptResult?.choices?.[0]?.message?.content === "string" ? promptResult.choices[0].message.content : "");
-        if (candidate.trim()) enhancedPrompt = candidate.trim().slice(0, 1500);
-      } catch (promptError) {
-        console.warn("PDFMASTER image prompt enhancement unavailable; using original prompt.", promptError);
+      // Image edits skip the extra prompt-enhancement model call to conserve the shared free Neuron allowance.
+      if (!isImageEdit) {
+        try {
+          const promptResult = await env.AI.run(POOKIE_MODEL, {
+            max_completion_tokens: 350,
+            temperature: 0.25,
+            messages: [
+              {
+                role: "system",
+                content: "You are PDFMaster's image-prompt editor. Convert the user's image idea into one clear, vivid, model-ready English prompt. Preserve the user's actual subject, requested details, intended mood, and composition. The selected visual style is authoritative. For photorealistic photography, explicitly describe a believable real-world photograph with natural skin and material textures, physically plausible anatomy, realistic environmental details, natural cinematic lighting, DSLR photography, sharp subject focus, and high detail; use quality descriptors such as 8K-detail only as an aesthetic target, never as a claim about the model output resolution. Do not turn religious figures or people into cartoons when photorealistic is selected. For 3D, anime, cinematic, illustration, watercolor, pixel-art, or minimalist styles, follow that selected style instead and do not append photorealistic wording. Preserve the user's actual subject, requested details, intended mood, and composition. Add only useful visual details that support the request; never replace the subject or invent important objects. Resolve minor ambiguity with sensible defaults rather than asking questions. Avoid text inside the image unless the user explicitly requests it. Keep the prompt under 220 words. Do not add explanations, headings, quotation marks, or markdown. Keep content non-graphic and age-appropriate."
+              },
+              {
+                role: "user",
+                content: "User's image idea: " + userPrompt + "\nVisual style: " + styleInstruction
+              }
+            ]
+          });
+          const candidate = typeof promptResult?.response === "string"
+            ? promptResult.response
+            : (typeof promptResult?.choices?.[0]?.message?.content === "string" ? promptResult.choices[0].message.content : "");
+          if (candidate.trim()) enhancedPrompt = candidate.trim().slice(0, 1500);
+        } catch (promptError) {
+          console.warn("PDFMASTER image prompt enhancement unavailable; using original prompt.", promptError);
+        }
       }
 
       try {
-        enhancedPrompt += "\\n\\nMandatory visual style: " + styleInstruction + ". Follow this style consistently; do not substitute another style.";
-        const generated = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", {
-          prompt: enhancedPrompt,
-          steps: 4
-        });
-        const modelUsed = "@cf/black-forest-labs/flux-1-schnell";
+        enhancedPrompt += "\n\nMandatory visual style: " + styleInstruction + ". Follow this style consistently; do not substitute another style.";
+        let generated;
+        let modelUsed = "@cf/black-forest-labs/flux-1-schnell";
+        if (isImageEdit) {
+          const editForm = new FormData();
+          editForm.append("prompt", "Edit input image 0 according to this instruction: " + enhancedPrompt + " Preserve the main subject's identity, face, pose, clothing, and defining details unless the user explicitly requests changing them. Change only the requested elements. Treat the uploaded image as the source of truth.");
+          editForm.append("input_image_0", new Blob([sourceImageBytes], { type: sourceImageType }), "source-image");
+          editForm.append("width", "1024");
+          editForm.append("height", "1024");
+          editForm.append("guidance", "4");
+          const formResponse = new Response(editForm);
+          generated = await env.AI.run("@cf/black-forest-labs/flux-2-klein-9b", {
+            multipart: {
+              body: formResponse.body,
+              contentType: formResponse.headers.get("content-type")
+            }
+          });
+          modelUsed = "@cf/black-forest-labs/flux-2-klein-9b";
+        } else {
+          generated = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", {
+            prompt: enhancedPrompt,
+            steps: 4
+          });
+        }
         if (!generated || typeof generated.image !== "string" || !generated.image) {
           console.error("PDFMASTER image model returned an unexpected response.");
           return json({ error: "The image model did not return an image. Please try a clearer description." }, 502, allowedOrigin);
