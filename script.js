@@ -479,7 +479,7 @@ async function mergePDFs() {
                     rotation: normalizeRotation(rotation + getMergePageRotation(file, originalPageNumber))
                 });
 
-                const correction = getMergePageRotation(file, index + 1);
+                const correction = getMergePageRotation(file, originalPageNumber);
                 if (correction) {
                     const current = normalizeRotation(copiedPages[index].getRotation().angle);
                     copiedPages[index].setRotation(PDFLib.degrees(normalizeRotation(current + correction)));
