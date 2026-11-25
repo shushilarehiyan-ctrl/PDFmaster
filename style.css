@@ -6838,3 +6838,32 @@ body:not(.tool-page-active) .topbar-badge:hover {
   color: #d9b77e;
   font-weight: 600;
 }
+
+
+/* Merge PDF: per-page preview and manual orientation correction */
+.pm-merge-preview-section {
+  margin-top: 16px; padding: 14px;
+  border: 1px solid rgba(217, 183, 126, .22); border-radius: 12px;
+  background: rgba(255, 255, 255, .025);
+}
+.pm-merge-preview-section > h4 { margin: 0 0 6px; }
+.pm-merge-preview-section > p { margin: 0 0 12px; font-size: .88rem; opacity: .78; }
+#mergePagePreviews { display: grid; gap: 12px; }
+#mergePagePreviews > h4 { margin: 8px 0 0; overflow-wrap: anywhere; }
+.pm-merge-page-card {
+  min-width: 0; padding: 10px; border: 1px solid rgba(217, 183, 126, .18);
+  border-radius: 10px; background: rgba(0, 0, 0, .12);
+}
+.pm-merge-page-heading { margin-bottom: 8px; font-weight: 600; }
+.pm-merge-page-thumbnail {
+  display: block; max-width: 100%; max-height: 260px; width: auto; height: auto;
+  margin: 0 auto 10px; object-fit: contain; background: #fff; border-radius: 4px;
+}
+.pm-merge-page-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+.pm-merge-page-controls span { flex: 1 1 100%; font-size: .82rem; opacity: .8; }
+.pm-merge-page-controls button {
+  padding: 7px 10px; border: 1px solid rgba(217, 183, 126, .35);
+  border-radius: 7px; background: rgba(217, 183, 126, .08);
+  color: inherit; cursor: pointer; font: inherit; font-size: .82rem;
+}
+.pm-merge-page-controls button:hover { background: rgba(217, 183, 126, .18); }
