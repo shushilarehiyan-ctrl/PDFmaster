@@ -7132,3 +7132,38 @@ body:not(.tool-page-active) .topbar-badge:hover {
 @media (max-width: 600px) {
   .pm-toast { right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); left: 16px; max-width: none; }
 }
+
+
+/* Inline page deletion confirmation — no modal and no preview-list rerender. */
+.pm-merge-delete-confirm {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:9px;
+  padding:9px 10px;
+  border:1px solid rgba(217,183,126,.28);
+  border-radius:8px;
+  background:rgba(217,183,126,.075);
+  color:#f0dfc0;
+  font-size:12px;
+}
+.pm-merge-delete-confirm[hidden] { display:none !important; }
+.pm-merge-delete-confirm-text { flex:1 1 100%; font-weight:600; }
+.pm-merge-delete-confirm button {
+  min-height:32px;
+  padding:6px 11px;
+  border:1px solid rgba(217,183,126,.28);
+  border-radius:6px;
+  background:rgba(255,255,255,.045);
+  color:#ead9ba;
+  font:inherit;
+  cursor:pointer;
+}
+.pm-merge-delete-confirm .pm-merge-confirm-delete {
+  border-color:rgba(255,112,112,.48);
+  background:rgba(180,48,48,.2);
+  color:#ffc0b8;
+}
+.pm-merge-delete-confirm button:focus-visible { outline:2px solid #d4af37; outline-offset:2px; }
