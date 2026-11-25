@@ -401,7 +401,8 @@
     .pm-assistant-history-item button{width:100%;padding:9px 10px;border:0;border-radius:8px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.055);color:#d1c7b7;text-align:left;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;min-width:0;display:block}
     .pm-assistant-history-item{display:flex;align-items:center;min-width:0;position:relative}
     .pm-assistant-history-item .pm-chat-open{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .pm-assistant-history-item.active .pm-chat-open{background:#d4af37!important;color:#140c0c!important;border-color:#d4af37!important;font-weight:600}
+    .pm-assistant-history-item:not(.active) > .pm-chat-open{background:rgba(255,255,255,.035)!important;color:#d1c7b7!important;border-color:rgba(255,255,255,.055)!important;font-weight:400!important}
+    .pm-assistant-history-item.active > .pm-chat-open{background:#d4af37!important;color:#140c0c!important;border-color:#d4af37!important;font-weight:600!important}
     .pm-assistant-history-item .pm-chat-open{flex:1;min-width:0;padding-right:42px}
     .pm-assistant-history-item .pm-chat-menu-toggle{position:absolute;right:5px;top:50%;transform:translateY(-50%);display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;padding:0;border:0;border-radius:8px;background:transparent!important;color:#bdbdbd!important;font-size:21px;line-height:1;opacity:0;pointer-events:none;transition:opacity .14s ease,background .14s ease}
     .pm-assistant-history-item:hover .pm-chat-menu-toggle,.pm-assistant-history-item:focus-within .pm-chat-menu-toggle,.pm-assistant-history-item .pm-chat-menu-toggle[aria-expanded="true"]{opacity:1;pointer-events:auto}
