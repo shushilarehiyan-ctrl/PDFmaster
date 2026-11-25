@@ -216,31 +216,144 @@ async function mergePDFs() {
         return;
     }
 
+    // Work from a stable snapshot so changes to the selection cannot
+    // silently change which files are included during an active merge.
+    const filesToMerge = selectedPDFs.slice();
+    const expectedPages = [];
+
+    function normalizeRotation(angle) {
+        return ((angle % 360) + 360) % 360;
+    }
+
+    function sameNumber(first, second) {
+        return Number.isFinite(first) &&
+            Number.isFinite(second) &&
+            Math.abs(first - second) <= 0.01;
+    }
+
+    function samePageBox(first, second) {
+        return sameNumber(first.x, second.x) &&
+            sameNumber(first.y, second.y) &&
+            sameNumber(first.width, second.width) &&
+            sameNumber(first.height, second.height);
+    }
+
     try {
-        if (typeof PDFLib === "undefined") {
-            throw new Error("PDFLib library not found!");
+        if (typeof PDFLib === "undefined" ||
+            !PDFLib.PDFDocument ||
+            typeof PDFLib.PDFDocument.create !== "function") {
+            throw new Error("PDFLib library not found or unavailable.");
         }
 
         const mergedPDF = await PDFLib.PDFDocument.create();
 
-        for (const file of selectedPDFs) {
+        // Read and copy each file sequentially to avoid loading every
+        // source PDF into memory at the same time.
+        for (const file of filesToMerge) {
             const arrayBuffer = await file.arrayBuffer();
+
+            if (!arrayBuffer || arrayBuffer.byteLength < 5) {
+                throw new Error("The file '" + file.name + "' is empty or too small to be a valid PDF.");
+            }
+
             const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+            const sourcePages = pdf.getPages();
+
+            if (!sourcePages.length) {
+                throw new Error("The file '" + file.name + "' does not contain any pages.");
+            }
 
             const copiedPages = await mergedPDF.copyPages(
                 pdf,
                 pdf.getPageIndices()
             );
 
-            copiedPages.forEach(function(page) {
-                mergedPDF.addPage(page);
+            if (copiedPages.length !== sourcePages.length) {
+                throw new Error("Not all pages could be copied from '" + file.name + "'.");
+            }
+
+            sourcePages.forEach(function(sourcePage, index) {
+                const mediaBox = sourcePage.getMediaBox();
+                const cropBox = sourcePage.getCropBox();
+                const rotation = normalizeRotation(sourcePage.getRotation().angle);
+
+                expectedPages.push({
+                    mediaBox: {
+                        x: mediaBox.x,
+                        y: mediaBox.y,
+                        width: mediaBox.width,
+                        height: mediaBox.height
+                    },
+                    cropBox: {
+                        x: cropBox.x,
+                        y: cropBox.y,
+                        width: cropBox.width,
+                        height: cropBox.height
+                    },
+                    rotation: rotation
+                });
+
+                mergedPDF.addPage(copiedPages[index]);
             });
         }
 
+        if (mergedPDF.getPageCount() !== expectedPages.length) {
+            throw new Error("The merged page count is inconsistent. Please try again with different files.");
+        }
+
         const mergedBytes = await mergedPDF.save();
+
+        // Check the PDF signature before attempting a full reload.
+        const hasPDFHeader =
+            mergedBytes &&
+            mergedBytes.length > 5 &&
+            mergedBytes[0] === 0x25 &&
+            mergedBytes[1] === 0x50 &&
+            mergedBytes[2] === 0x44 &&
+            mergedBytes[3] === 0x46 &&
+            mergedBytes[4] === 0x2D;
+
+        if (!hasPDFHeader) {
+            throw new Error("The merged output did not pass the PDF file signature check.");
+        }
+
+        // Re-open the generated file and verify page count, page boxes,
+        // and rotation. This checks structural integrity; it does not
+        // perform OCR or determine whether scanned text is visually upside down.
+        const verifiedPDF = await PDFLib.PDFDocument.load(mergedBytes);
+        const verifiedPages = verifiedPDF.getPages();
+
+        if (verifiedPages.length !== expectedPages.length) {
+            throw new Error("Output verification failed: the final page count does not match the source files.");
+        }
+
+        for (let index = 0; index < verifiedPages.length; index++) {
+            const actualPage = verifiedPages[index];
+            const expectedPage = expectedPages[index];
+
+            const actualMediaBox = actualPage.getMediaBox();
+            const actualCropBox = actualPage.getCropBox();
+            const actualRotation = normalizeRotation(actualPage.getRotation().angle);
+
+            if (
+                !samePageBox(actualMediaBox, expectedPage.mediaBox) ||
+                !samePageBox(actualCropBox, expectedPage.cropBox) ||
+                actualRotation !== expectedPage.rotation
+            ) {
+                throw new Error(
+                    "Output verification failed on page " + (index + 1) +
+                    ": page size, crop area, or rotation changed during merging."
+                );
+            }
+        }
+
         const blob = new Blob([mergedBytes], {
             type: "application/pdf"
         });
+
+        if (!blob.size) {
+            throw new Error("The merged PDF output is empty.");
+        }
 
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
@@ -257,8 +370,40 @@ async function mergePDFs() {
         }, 5000);
 
     } catch (error) {
-        console.error(error);
-        alert("Unable to merge PDFs. Please check your files!");
+        console.error("Merge PDF Error:", error);
+
+        const message = error && error.message
+            ? String(error.message)
+            : "";
+
+        const lowerMessage = message.toLowerCase();
+        let userMessage = "Unable to merge these PDFs. Please check that each file is a valid, readable PDF.";
+
+        if (
+            lowerMessage.includes("encrypt") ||
+            lowerMessage.includes("password") ||
+            lowerMessage.includes("encrypted")
+        ) {
+            userMessage = "One of the PDFs may be password-protected. PDFMaster cannot merge it unless it can be opened with the correct password.";
+        } else if (
+            lowerMessage.includes("memory") ||
+            lowerMessage.includes("allocation") ||
+            lowerMessage.includes("out of memory")
+        ) {
+            userMessage = "Your browser ran out of memory while merging these files. Try fewer or smaller PDFs at a time.";
+        } else if (
+            lowerMessage.includes("verification failed") ||
+            lowerMessage.includes("signature check") ||
+            lowerMessage.includes("inconsistent")
+        ) {
+            userMessage = message;
+        } else if (lowerMessage.includes("pdflib library")) {
+            userMessage = "The PDF processing library did not load. Refresh the page and try again.";
+        } else if (message.includes("does not contain any pages")) {
+            userMessage = message;
+        }
+
+        alert(userMessage);
     }
 }
 
