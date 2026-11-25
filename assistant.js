@@ -1311,7 +1311,7 @@
           imageTurnstileToken = "";
           console.warn("PDFMaster assistant Turnstile challenge failed:", errorCode || "unknown");
           imageVerification.hidden = false;
-          imageVerification.textContent = "Verification failed" + (errorCode ? " (code " + errorCode + ")" : "") + ". Please retry once or refresh the page.";
+          addMessage("Image verification failed" + (errorCode ? " (code " + errorCode + ")" : "") + ". Please retry once.", "assistant");
         },
         "timeout-callback": () => {
           imageTurnstileToken = "";
@@ -1320,7 +1320,7 @@
         "unsupported-callback": () => {
           imageTurnstileToken = "";
           console.warn("PDFMaster assistant Turnstile is unsupported in this browser.");
-          imageVerification.textContent = "This browser could not complete security verification. Please try an updated browser.";
+          addMessage("This browser could not complete image security verification. Please try an updated browser.", "assistant");
         }
       });
     } catch (error) {
