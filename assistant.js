@@ -292,7 +292,7 @@
     .pm-assistant-history-item .pm-chat-menu-toggle{position:absolute;right:5px;top:50%;transform:translateY(-50%);display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;padding:0;border:0;border-radius:8px;background:transparent!important;color:#bdbdbd!important;font-size:21px;line-height:1;opacity:0;pointer-events:none;transition:opacity .14s ease,background .14s ease}
     .pm-assistant-history-item:hover .pm-chat-menu-toggle,.pm-assistant-history-item:focus-within .pm-chat-menu-toggle,.pm-assistant-history-item .pm-chat-menu-toggle[aria-expanded="true"]{opacity:1;pointer-events:auto}
     .pm-assistant-history-item .pm-chat-menu-toggle:hover,.pm-assistant-history-item .pm-chat-menu-toggle[aria-expanded="true"]{background:#303030!important;color:#fff!important}
-    .pm-chat-actions{position:absolute;right:4px;top:calc(100% - 2px);z-index:20;width:220px;min-width:220px;padding:6px;background:#2b2b2b;border:1px solid #414141;border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.42)}
+    .pm-chat-actions{position:fixed;z-index:100010;width:220px;min-width:220px;padding:6px;background:#2b2b2b;border:1px solid #414141;border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.42)}
     .pm-chat-actions button{display:flex;align-items:center;gap:12px;width:100%;min-height:36px;padding:8px 11px;border:0;border-radius:7px;background:transparent!important;color:#ececec!important;text-align:left;font-size:13px;font-weight:400;cursor:pointer}
     .pm-chat-actions button:hover{background:#3a3a3a!important}
     .pm-chat-actions .pm-chat-delete{color:#ececec!important}
@@ -636,6 +636,18 @@
         historyList.querySelectorAll(".pm-chat-menu-toggle").forEach(other => other.setAttribute("aria-expanded", "false"));
         menu.hidden = !willOpen;
         menuToggle.setAttribute("aria-expanded", String(willOpen));
+        if (willOpen) {
+          // Open the options panel beside the history row, not below it.
+          const anchor = menuToggle.getBoundingClientRect();
+          const menuWidth = menu.offsetWidth || 220;
+          const menuHeight = menu.offsetHeight || 240;
+          const gap = 10;
+          const left = Math.min(anchor.right + gap, Math.max(8, window.innerWidth - menuWidth - 8));
+          const top = Math.min(Math.max(8, anchor.top - 4), Math.max(8, window.innerHeight - menuHeight - 8));
+          menu.style.left = left + "px";
+          menu.style.top = top + "px";
+          menu.style.right = "auto";
+        }
       });
       if (chat.locked) openButton.title = (chat.title || "Chat") + " · Locked";
       row.append(openButton, menuToggle, menu);
