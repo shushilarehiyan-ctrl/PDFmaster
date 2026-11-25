@@ -217,6 +217,27 @@ export default {
       };
       const requestedStyle = String(body.style || "auto").toLowerCase();
       const styleInstruction = styleNames[requestedStyle] || styleNames.auto;
+      const imageDataUrl = typeof body.imageDataUrl === "string" ? body.imageDataUrl : "";
+      const isImageEdit = imageDataUrl.length > 0;
+      let sourceImageBytes = null;
+      let sourceImageType = "image/jpeg";
+      if (isImageEdit) {
+        const match = imageDataUrl.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
+        if (!match || imageDataUrl.length > 8 * 1024 * 1024) {
+          return json({ error: "Please upload a JPG, PNG, or WebP image smaller than 6 MB." }, 400, allowedOrigin);
+        }
+        sourceImageType = match[1];
+        try {
+          const binary = atob(match[2]);
+          sourceImageBytes = new Uint8Array(binary.length);
+          for (let index = 0; index < binary.length; index++) sourceImageBytes[index] = binary.charCodeAt(index);
+        } catch (_) {
+          return json({ error: "The uploaded image could not be read. Please try another image." }, 400, allowedOrigin);
+        }
+        if (sourceImageBytes.byteLength > 5 * 1024 * 1024) {
+          return json({ error: "Please upload an image smaller than 5 MB." }, 413, allowedOrigin);
+        }
+      }
 
       let enhancedPrompt = userPrompt;
       try {
@@ -237,16 +258,36 @@ export default {
         const candidate = typeof promptResult?.response === "string"
           ? promptResult.response
           : (typeof promptResult?.choices?.[0]?.message?.content === "string" ? promptResult.choices[0].message.content : "");
-        if (candidate.trim()) enhancedPrompt = candidate.trim().slice(0, 1800);
+        if (candidate.trim()) enhancedPrompt = candidate.trim().slice(0, 1500);
       } catch (promptError) {
         console.warn("PDFMASTER image prompt enhancement unavailable; using original prompt.", promptError);
       }
 
       try {
-        const generated = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", {
-          prompt: enhancedPrompt,
-          steps: 4
-        });
+        enhancedPrompt += "\\n\\nMandatory visual style: " + styleInstruction + ". Follow this style consistently; do not substitute another style.";
+        let generated;
+        let modelUsed = "@cf/black-forest-labs/flux-1-schnell";
+        if (isImageEdit) {
+          const editForm = new FormData();
+          editForm.append("prompt", "Edit input image 0 according to this instruction: " + enhancedPrompt + " Preserve the main subject's identity, face, pose, clothing, and defining details unless the user explicitly requests changing them. Change only the requested elements. Treat the uploaded image as the source of truth.");
+          editForm.append("input_image_0", new Blob([sourceImageBytes], { type: sourceImageType }), "source-image");
+          editForm.append("width", "1024");
+          editForm.append("height", "1024");
+          editForm.append("guidance", "4");
+          const formResponse = new Response(editForm);
+          generated = await env.AI.run("@cf/black-forest-labs/flux-2-klein-9b", {
+            multipart: {
+              body: formResponse.body,
+              contentType: formResponse.headers.get("content-type")
+            }
+          });
+          modelUsed = "@cf/black-forest-labs/flux-2-klein-9b";
+        } else {
+          generated = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", {
+            prompt: enhancedPrompt,
+            steps: 4
+          });
+        }
         if (!generated || typeof generated.image !== "string" || !generated.image) {
           console.error("PDFMASTER image model returned an unexpected response.");
           return json({ error: "The image model did not return an image. Please try a clearer description." }, 502, allowedOrigin);
@@ -255,7 +296,7 @@ export default {
         return json({
           image: "data:image/jpeg;base64," + generated.image,
           promptUsed: enhancedPrompt,
-          model: "@cf/black-forest-labs/flux-1-schnell"
+          model: modelUsed
         }, 200, allowedOrigin);
       } catch (error) {
         console.error("PDFMASTER /api/image Workers AI failure:", {
