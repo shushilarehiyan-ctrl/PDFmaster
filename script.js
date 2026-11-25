@@ -162,12 +162,41 @@ function getMergePageRotation(file, pageNumber) {
     return mergePageRotations.get(mergePageKey(file, pageNumber)) || 0;
 }
 
-function rotateMergePage(file, pageNumber, delta) {
+function rotateMergePage(file, pageNumber, delta, page, canvas, label) {
     const key = mergePageKey(file, pageNumber);
     const next = (getMergePageRotation(file, pageNumber) + delta + 360) % 360;
     if (next === 0) mergePageRotations.delete(key);
     else mergePageRotations.set(key, next);
-    renderMergePreviews();
+    label.textContent = next ? "Correction: " + next + "° clockwise" : "No correction";
+    renderSingleMergePreview(page, canvas, next);
+}
+
+async function renderSingleMergePreview(page, canvas, correction) {
+    if (!page || !canvas) return;
+    if (canvas._pdfRenderTask) {
+        try { canvas._pdfRenderTask.cancel(); } catch (error) {}
+    }
+    const rotation = ((page.rotate + correction) % 360 + 360) % 360;
+    const viewport = page.getViewport({ scale: 0.8, rotation });
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    const context = canvas.getContext("2d");
+    canvas.width = Math.ceil(viewport.width * pixelRatio);
+    canvas.height = Math.ceil(viewport.height * pixelRatio);
+    canvas.style.width = viewport.width + "px";
+    canvas.style.height = viewport.height + "px";
+    const task = page.render({
+        canvasContext: context,
+        viewport: viewport,
+        transform: pixelRatio === 1 ? null : [pixelRatio, 0, 0, pixelRatio, 0, 0]
+    });
+    canvas._pdfRenderTask = task;
+    try {
+        await task.promise;
+    } catch (error) {
+        if (error && error.name !== "RenderingCancelledException") throw error;
+    } finally {
+        if (canvas._pdfRenderTask === task) canvas._pdfRenderTask = null;
+    }
 }
 
 async function renderMergePreviews() {
@@ -213,6 +242,7 @@ async function renderMergePreviews() {
             canvas.setAttribute("aria-label", file.name + ", page " + pageNumber + " preview");
             const controls = document.createElement("div");
             controls.className = "pm-merge-page-controls";
+            let previewPage = null;
             const label = document.createElement("span");
             const correction = getMergePageRotation(file, pageNumber);
             label.textContent = correction ? "Correction: " + correction + "° clockwise" : "No correction";
@@ -220,30 +250,26 @@ async function renderMergePreviews() {
             const left = document.createElement("button");
             left.type = "button";
             left.textContent = "↶ Rotate left";
-            left.addEventListener("click", () => rotateMergePage(file, pageNumber, 270));
+            left.addEventListener("click", () => rotateMergePage(file, pageNumber, 270, previewPage, canvas, label));
             const right = document.createElement("button");
             right.type = "button";
             right.textContent = "↷ Rotate right";
-            right.addEventListener("click", () => rotateMergePage(file, pageNumber, 90));
+            right.addEventListener("click", () => rotateMergePage(file, pageNumber, 90, previewPage, canvas, label));
             const reset = document.createElement("button");
             reset.type = "button";
             reset.textContent = "Reset";
             reset.addEventListener("click", () => {
                 mergePageRotations.delete(mergePageKey(file, pageNumber));
-                renderMergePreviews();
+                label.textContent = "No correction";
+                renderSingleMergePreview(previewPage, canvas, 0);
             });
             controls.append(label, left, right, reset);
             card.append(heading, canvas, controls);
             container.appendChild(card);
 
             try {
-                const page = await pdf.getPage(pageNumber);
-                const rotation = ((page.rotate + correction) % 360 + 360) % 360;
-                const viewport = page.getViewport({ scale: 0.42, rotation });
-                const context = canvas.getContext("2d");
-                canvas.width = Math.ceil(viewport.width);
-                canvas.height = Math.ceil(viewport.height);
-                await page.render({ canvasContext: context, viewport }).promise;
+                previewPage = await pdf.getPage(pageNumber);
+                await renderSingleMergePreview(previewPage, canvas, correction);
             } catch (error) {
                 const warning = document.createElement("p");
                 warning.textContent = "This page preview could not be rendered.";
