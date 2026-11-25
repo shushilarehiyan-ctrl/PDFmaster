@@ -1007,10 +1007,12 @@
                   if (window.turnstile && typeof window.turnstile.render === "function") {
                     resolve(window.turnstile);
                   } else {
+                    script.remove();
                     reject(new Error("Cloudflare Turnstile loaded without its API."));
                   }
                 };
                 script.onerror = function () {
+                  script.remove();
                   reject(new Error("Could not load Cloudflare Turnstile."));
                 };
                 document.head.appendChild(script);
@@ -1018,9 +1020,13 @@
               }
               script.addEventListener("load", function () {
                 if (window.turnstile && typeof window.turnstile.render === "function") resolve(window.turnstile);
-                else reject(new Error("Cloudflare Turnstile loaded without its API."));
+                else {
+                  script.remove();
+                  reject(new Error("Cloudflare Turnstile loaded without its API."));
+                }
               }, { once: true });
               script.addEventListener("error", function () {
+                script.remove();
                 reject(new Error("Could not load Cloudflare Turnstile."));
               }, { once: true });
             }).catch(function (error) {
