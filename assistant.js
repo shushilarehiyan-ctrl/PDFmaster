@@ -10,6 +10,9 @@
   const quick = document.getElementById("pmAssistantQuick");
   const researchToggle = document.getElementById("pmAssistantResearchToggle");
   let selectedImageStyle = "photorealistic";
+  let imageStyleSelect = null;
+  let selectedImageDataUrl = "";
+  let selectedImageOriginalDataUrl = "";
   const imageVerification = document.createElement("div");
   imageVerification.className = "pm-assistant-image-verification";
   imageVerification.setAttribute("aria-label", "Image generation verification");
@@ -21,6 +24,7 @@
     const styleLabel = document.createElement("span");
     styleLabel.textContent = "Image style";
     const styleSelect = document.createElement("select");
+    imageStyleSelect = styleSelect;
     styleSelect.className = "pm-assistant-image-style-select";
     styleSelect.setAttribute("aria-label", "Choose image generation style");
     [
@@ -37,7 +41,50 @@
     styleSelect.value = selectedImageStyle;
     styleSelect.addEventListener("change", () => { selectedImageStyle = styleSelect.value; });
     stylePicker.append(styleLabel, styleSelect);
+    const uploadButton = document.createElement("button");
+    uploadButton.type = "button";
+    uploadButton.className = "pm-assistant-image-upload";
+    uploadButton.textContent = "＋ Upload image";
+    const uploadInput = document.createElement("input");
+    uploadInput.type = "file";
+    uploadInput.accept = "image/png,image/jpeg,image/webp";
+    uploadInput.hidden = true;
+    const uploadPreview = document.createElement("span");
+    uploadPreview.className = "pm-assistant-image-upload-preview";
+    uploadButton.addEventListener("click", () => uploadInput.click());
+    uploadInput.addEventListener("change", () => {
+      const file = uploadInput.files && uploadInput.files[0];
+      if (!file) return;
+      if (!["image/png", "image/jpeg", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) {
+        addMessage("Please choose a JPG, PNG, or WebP image smaller than 5 MB.", "assistant");
+        uploadInput.value = "";
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const original = String(reader.result || "");
+        const image = new Image();
+        image.onload = () => {
+          selectedImageOriginalDataUrl = original;
+          const scale = Math.min(1, 512 / Math.max(image.naturalWidth, image.naturalHeight));
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+          canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+          canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+          selectedImageDataUrl = canvas.toDataURL("image/jpeg", 0.88);
+          uploadPreview.textContent = "Image ready: " + file.name;
+          uploadButton.textContent = "✓ Image selected";
+          input.placeholder = "Describe what to edit in the uploaded image...";
+        };
+        image.onerror = () => addMessage("This image could not be opened. Please choose another file.", "assistant");
+        image.src = original;
+      };
+      reader.onerror = () => addMessage("The selected image could not be read.", "assistant");
+      reader.readAsDataURL(file);
+    });
+    stylePicker.append(uploadButton, uploadInput);
     quick.appendChild(stylePicker);
+    quick.appendChild(uploadPreview);
     verificationLabel.textContent = "Verify once to create images:";
     imageVerification.appendChild(verificationLabel);
     quick.appendChild(imageVerification);
@@ -360,6 +407,8 @@
     .pm-assistant-footer{grid-column:2;grid-row:5;padding:5px 12px 12px;color:#858585;font-size:10px}
     .pm-assistant-image-style-picker{display:flex;align-items:center;gap:9px;width:100%;padding:7px 0;color:#aaa;font-size:11px}
     .pm-assistant-image-style-select{min-width:130px;padding:7px 30px 7px 10px;border:1px solid #484848;border-radius:9px;background:#292929;color:#eee;font:inherit;font-size:11px;outline:none}
+    .pm-assistant-image-upload{padding:7px 11px;border:1px solid #8b754e;border-radius:9px;background:#30291f;color:#f2d7a0;font:inherit;font-size:11px;cursor:pointer}
+    .pm-assistant-image-upload-preview{display:block;width:100%;color:#d8bd85;font-size:11px}
     .pm-assistant-image-style-select:focus{border-color:#c5a15b}
     .pm-assistant-image-verification{display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%;padding:6px 0;color:#a8a8a8;font-size:10px}
     .pm-assistant-image-verification[hidden]{display:none!important}
@@ -1304,6 +1353,7 @@
   }
 
   async function createAssistantImage(prompt) {
+    if (imageStyleSelect) selectedImageStyle = imageStyleSelect.value;
     if (!imageTurnstileToken) {
       pendingImagePrompt = prompt;
       imageVerification.hidden = false;
@@ -1338,7 +1388,7 @@
       const response = await fetch(IMAGE_API_URL.replace(/\/$/, "") + "/api/image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, style: selectedImageStyle, turnstileToken: token })
+        body: JSON.stringify({ prompt, style: imageStyleSelect ? imageStyleSelect.value : selectedImageStyle, imageDataUrl: selectedImageDataUrl || "", turnstileToken: token })
       });
       const data = await response.json().catch(() => ({}));
       loading.remove();
