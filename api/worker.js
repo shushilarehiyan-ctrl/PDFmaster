@@ -2,7 +2,6 @@
  * PDFMaster Smart Research + Assistant API
  * Deploy as a Cloudflare Worker.
  * Add an AI binding named AI in Worker Settings > Bindings.
- * Keep BRAVE_SEARCH_API_KEY as a Worker secret for /api/research.
  */
 const ALLOWED_ORIGINS = new Set([
   "https://shushilarehiyan-ctrl.github.io",
@@ -323,58 +322,7 @@ export default {
       }
     }
 
-    // Existing Smart Web Research route remains separate and unchanged in purpose.
-    if (!env.BRAVE_SEARCH_API_KEY) {
-      return json({ error: "Research service is not configured yet." }, 503, allowedOrigin);
-    }
-    const question = String(body.question || "").trim();
-    if (question.length < 3 || question.length > 600) {
-      return json({ error: "Question must be between 3 and 600 characters." }, 400, allowedOrigin);
-    }
-
-    try {
-      const upstream = await fetch("https://api.search.brave.com/res/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Subscription-Token": env.BRAVE_SEARCH_API_KEY
-        },
-        body: JSON.stringify({
-          model: "brave",
-          stream: false,
-          messages: [
-            {
-              role: "system",
-              content: "You are PDFMaster Smart Research Assistant. Answer clearly in simple Hindi or Hinglish when the user uses Hindi/Hinglish, otherwise use the user's language. Research the question using current web sources. Distinguish verified facts from uncertainty, prefer official and primary sources, avoid inventing details, and include source citations/links in the response. For educational questions, explain step by step."
-            },
-            { role: "user", content: question }
-          ]
-        })
-      });
-
-      const result = await upstream.json().catch(() => ({}));
-      if (!upstream.ok) {
-        return json({ error: "The research provider could not complete this search. Please try again later." }, 502, allowedOrigin);
-      }
-
-      const choice = result.choices && result.choices[0];
-      const answer = choice && choice.message && choice.message.content;
-      if (!answer) return json({ error: "No answer was returned. Please try another question." }, 502, allowedOrigin);
-
-      const rawSources = result.citations || result.sources ||
-        (choice.message && (choice.message.citations || choice.message.sources)) || [];
-      const sources = Array.isArray(rawSources) ? rawSources.map((item) => {
-        if (typeof item === "string") return { url: item, title: item };
-        return {
-          url: item.url || item.link || item.uri || "",
-          title: item.title || item.name || item.url || "Source",
-          snippet: item.snippet || item.description || ""
-        };
-      }).filter((item) => /^https?:\/\//i.test(item.url)).slice(0, 8) : [];
-
-      return json({ answer, sources }, 200, allowedOrigin);
-    } catch (error) {
-      return json({ error: "Could not reach the research service. Please try again later." }, 502, allowedOrigin);
-    }
+    // Fail closed: no external AI provider or paid web-research fallback is configured.
+    return json({ error: "Web Research is disabled. PDFMaster uses Cloudflare Workers AI for chat and image generation." }, 503, allowedOrigin);
   }
 };
