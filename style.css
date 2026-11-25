@@ -7117,14 +7117,17 @@ body:not(.tool-page-active) .topbar-badge:hover {
   pointer-events: none;
 }
 .pm-toast.show { opacity: 1; visibility: visible; transform: translateY(0); }
-#mergePagePreviews .pm-merge-delete-page:disabled,
-#mergePagePreviews .pm-merge-delete-page:disabled:hover {
-  opacity: .35 !important;
+/* The final-page delete control is intentionally clickable for its explanatory toast. */
+.tool-page-active .tool-workspace-body #mergePagePreviews .pm-merge-page-controls button.pm-merge-delete-page.is-disabled,
+.tool-page-active .tool-workspace-body #mergePagePreviews .pm-merge-page-controls button.pm-merge-delete-page.is-disabled:hover,
+.tool-page-active .tool-workspace-body #mergePagePreviews .pm-merge-page-controls button.pm-merge-delete-page.is-disabled:focus-visible {
+  opacity: .38 !important;
   cursor: not-allowed !important;
   filter: grayscale(.35);
   border-color: rgba(217,183,126,.12) !important;
   background: rgba(217,183,126,.035) !important;
   color: #9b927f !important;
+  box-shadow: none !important;
 }
 @media (max-width: 600px) {
   .pm-toast { right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); left: 16px; max-width: none; }
