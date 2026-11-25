@@ -146,8 +146,113 @@ async function convertImagesToPDF() {
 // MERGE PDF
 // =================================
 
+
 const selectedPDFs = [];
 const pdfInput = document.getElementById("pdfInput");
+
+// Manual corrections are applied to the merged copy only.
+const mergePageRotations = new Map();
+let mergePreviewRenderId = 0;
+
+function mergePageKey(file, pageNumber) {
+    return [file.name, file.size, file.lastModified, pageNumber].join("::");
+}
+
+function getMergePageRotation(file, pageNumber) {
+    return mergePageRotations.get(mergePageKey(file, pageNumber)) || 0;
+}
+
+function rotateMergePage(file, pageNumber, delta) {
+    const key = mergePageKey(file, pageNumber);
+    const next = (getMergePageRotation(file, pageNumber) + delta + 360) % 360;
+    if (next === 0) mergePageRotations.delete(key);
+    else mergePageRotations.set(key, next);
+    renderMergePreviews();
+}
+
+async function renderMergePreviews() {
+    const container = document.getElementById("mergePagePreviews");
+    if (!container) return;
+    const renderId = ++mergePreviewRenderId;
+    container.innerHTML = "";
+
+    if (!selectedPDFs.length) {
+        container.textContent = "Add PDFs to preview and rotate individual pages.";
+        return;
+    }
+    if (!window.pdfjsLib || typeof pdfjsLib.getDocument !== "function") {
+        container.textContent = "Page preview is unavailable because the PDF preview library did not load.";
+        return;
+    }
+
+    for (const file of selectedPDFs.slice()) {
+        if (renderId !== mergePreviewRenderId) return;
+        const fileHeading = document.createElement("h4");
+        fileHeading.textContent = file.name;
+        container.appendChild(fileHeading);
+
+        let pdf;
+        try {
+            pdf = await pdfjsLib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+        } catch (error) {
+            const warning = document.createElement("p");
+            warning.textContent = "Preview could not be loaded for this PDF. It may still be merged if valid.";
+            container.appendChild(warning);
+            continue;
+        }
+
+        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+            if (renderId !== mergePreviewRenderId) return;
+            const card = document.createElement("div");
+            card.className = "pm-merge-page-card";
+            const heading = document.createElement("div");
+            heading.className = "pm-merge-page-heading";
+            heading.textContent = "Page " + pageNumber;
+            const canvas = document.createElement("canvas");
+            canvas.className = "pm-merge-page-thumbnail";
+            canvas.setAttribute("aria-label", file.name + ", page " + pageNumber + " preview");
+            const controls = document.createElement("div");
+            controls.className = "pm-merge-page-controls";
+            const label = document.createElement("span");
+            const correction = getMergePageRotation(file, pageNumber);
+            label.textContent = correction ? "Correction: " + correction + "° clockwise" : "No correction";
+
+            const left = document.createElement("button");
+            left.type = "button";
+            left.textContent = "↶ Rotate left";
+            left.addEventListener("click", () => rotateMergePage(file, pageNumber, 270));
+            const right = document.createElement("button");
+            right.type = "button";
+            right.textContent = "↷ Rotate right";
+            right.addEventListener("click", () => rotateMergePage(file, pageNumber, 90));
+            const reset = document.createElement("button");
+            reset.type = "button";
+            reset.textContent = "Reset";
+            reset.addEventListener("click", () => {
+                mergePageRotations.delete(mergePageKey(file, pageNumber));
+                renderMergePreviews();
+            });
+            controls.append(label, left, right, reset);
+            card.append(heading, canvas, controls);
+            container.appendChild(card);
+
+            try {
+                const page = await pdf.getPage(pageNumber);
+                const rotation = ((page.rotate + correction) % 360 + 360) % 360;
+                const viewport = page.getViewport({ scale: 0.42, rotation });
+                const context = canvas.getContext("2d");
+                canvas.width = Math.ceil(viewport.width);
+                canvas.height = Math.ceil(viewport.height);
+                await page.render({ canvasContext: context, viewport }).promise;
+            } catch (error) {
+                const warning = document.createElement("p");
+                warning.textContent = "This page preview could not be rendered.";
+                card.appendChild(warning);
+            }
+        }
+    }
+}
+
 
 pdfInput.addEventListener("change", function() {
     const newFiles = Array.from(pdfInput.files);
@@ -174,6 +279,7 @@ pdfInput.addEventListener("change", function() {
 
     pdfInput.value = "";
     displayPDFs();
+    renderMergePreviews();
 
     if (invalidFiles > 0) {
         alert("Please select valid PDF files only!");
@@ -206,8 +312,10 @@ function displayPDFs() {
 
 function clearPDFs() {
     selectedPDFs.length = 0;
+    mergePageRotations.clear();
     pdfInput.value = "";
     displayPDFs();
+    renderMergePreviews();
 }
 
 async function mergePDFs() {
@@ -290,9 +398,14 @@ async function mergePDFs() {
                         width: cropBox.width,
                         height: cropBox.height
                     },
-                    rotation: rotation
+                    rotation: normalizeRotation(rotation + getMergePageRotation(file, index + 1))
                 });
 
+                const correction = getMergePageRotation(file, index + 1);
+                if (correction) {
+                    const current = normalizeRotation(copiedPages[index].getRotation().angle);
+                    copiedPages[index].setRotation(PDFLib.degrees(normalizeRotation(current + correction)));
+                }
                 mergedPDF.addPage(copiedPages[index]);
             });
         }
