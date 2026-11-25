@@ -340,18 +340,15 @@
     .pm-assistant-image-verification:empty{display:none}
     .pm-assistant-generated-image{display:block;width:min(100%,640px);height:auto;max-height:520px;object-fit:contain;margin-top:12px;border:1px solid #454545;border-radius:12px;background:#171717}
     .pm-assistant-image-history-note{color:#aaa;font-size:12px}
-    .pm-assistant-image-loading{display:flex;align-items:center;gap:14px;min-height:76px;padding:14px 17px;border:1px solid #3c3c3c;border-radius:16px;background:linear-gradient(120deg,#292929,#202020,#292929);background-size:220% 100%;animation:pmImageShimmer 2.4s ease-in-out infinite}
-    .pm-image-loader-orbit{position:relative;display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border:2px solid #555;border-top-color:#e7d2a5;border-right-color:#c4a66d;border-radius:50%;animation:pmImageSpin 1.1s linear infinite}
-    .pm-image-loader-orbit:before,.pm-image-loader-orbit:after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:#ead7ad;box-shadow:0 0 12px #d9bd83}
-    .pm-image-loader-orbit:before{top:-3px;left:8px}
-    .pm-image-loader-orbit:after{right:-3px;bottom:8px;background:#9ec9f2;box-shadow:0 0 12px #9ec9f2}
-    .pm-image-loader-copy{display:grid;gap:5px;color:#eee;font-size:13px;font-weight:600}
-    .pm-image-loader-copy small{color:#999;font-size:11px;font-weight:400}
+    .pm-assistant-message.assistant.pm-assistant-image-loading{display:block;width:min(100%,560px);max-width:560px;margin:0 auto;padding:0;background:transparent;border:0;border-radius:0}
+    .pm-assistant-image-loading .pm-assistant-content{width:100%;margin:0}
+    .pm-image-loader-stage{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;border:1px solid #3b3426;border-radius:16px;background:radial-gradient(ellipse at 50% 46%,#30291d 0%,#24221e 42%,#1d1d1d 100%);isolation:isolate}
+    .pm-image-loader-particles{position:absolute;inset:0;width:100%;height:100%;display:block}
+    .pm-image-loader-copy{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:18px;text-align:center;color:#f1e4c7;font-size:clamp(14px,2vw,18px);font-weight:600;text-shadow:0 1px 12px rgba(0,0,0,.8);pointer-events:none}
+    .pm-image-loader-copy small{color:#b9ad97;font-size:clamp(10px,1.4vw,12px);font-weight:400}
     .pm-image-loader-dots:after{content:"";display:inline-block;width:18px;text-align:left;animation:pmImageDots 1.3s steps(4,end) infinite}
-    @keyframes pmImageSpin{to{transform:rotate(360deg)}}
-    @keyframes pmImageShimmer{0%,100%{background-position:100% 0}50%{background-position:0 0}}
     @keyframes pmImageDots{0%{content:""}25%{content:"."}50%{content:".."}75%,100%{content:"..."}}
-    @media(prefers-reduced-motion:reduce){.pm-assistant-image-loading,.pm-image-loader-orbit,.pm-image-loader-dots:after{animation:none!important}}
+    @media(prefers-reduced-motion:reduce){.pm-image-loader-dots:after{animation:none!important}}
     .pm-assistant-image-download{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:9px 14px;border:1px solid #555;border-radius:9px;background:#303030;color:#f5f5f5;text-decoration:none;font-size:12px;font-weight:600}
     .pm-assistant-image-download:hover{background:#414141}
     .pm-assistant-header-actions{display:none!important}
@@ -1210,6 +1207,76 @@
     return /(?:\b(?:generate|create|make|draw|design|render)\b.{0,45}\b(?:image|picture|illustration|art|photo|wallpaper|poster|logo)\b|\b(?:image|picture|illustration|photo|wallpaper|poster|logo)\b.{0,35}\b(?:of|showing|with)\b|\b(?:image|picture|photo|tasveer|तस्वीर|चित्र)\s*(?:banao|bana\s*do|बनाओ|बना\s*दो)|\b(?:banao|bana\s*do)\b.{0,35}\b(?:image|picture|photo|tasveer)\b|\b(?:create|generate|make|draw|render)\b.{0,100}\b(?:cat|kitten|dog|puppy|elephant|lion|tiger|bird|rabbit|horse|flower|tree|person|portrait|landscape|sunset|mountain|house|car|robot|dragon|character)\b)/i.test(value);
   }
 
+  function startImageParticleAnimation(canvas) {
+    const context = canvas && canvas.getContext && canvas.getContext("2d");
+    if (!context) return;
+    const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const particles = Array.from({ length: 230 }, (_, index) => ({
+      x: Math.random(), y: Math.random(),
+      radius: 0.65 + Math.random() * (index % 9 === 0 ? 2.5 : 1.25),
+      alpha: 0.22 + Math.random() * 0.62,
+      speedX: (Math.random() - 0.5) * 0.00034,
+      speedY: (Math.random() - 0.5) * 0.00034,
+      phase: Math.random() * Math.PI * 2
+    }));
+    let frame = 0;
+    function draw() {
+      if (!canvas.isConnected) return;
+      const bounds = canvas.getBoundingClientRect();
+      if (!bounds.width || !bounds.height) {
+        if (!reducedMotion) frame = requestAnimationFrame(draw);
+        return;
+      }
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      const width = Math.round(bounds.width * ratio);
+      const height = Math.round(bounds.height * ratio);
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      context.clearRect(0, 0, bounds.width, bounds.height);
+      const time = performance.now() * 0.00045;
+      particles.forEach(particle => {
+        if (!reducedMotion) {
+          particle.x += particle.speedX;
+          particle.y += particle.speedY;
+          if (particle.x < 0) particle.x = 1;
+          if (particle.x > 1) particle.x = 0;
+          if (particle.y < 0) particle.y = 1;
+          if (particle.y > 1) particle.y = 0;
+        }
+        const pulse = 0.72 + Math.sin(time + particle.phase) * 0.22;
+        const x = particle.x * bounds.width;
+        const y = particle.y * bounds.height;
+        context.beginPath();
+        context.fillStyle = "rgba(231, 188, 99, " + (particle.alpha * pulse) + ")";
+        context.shadowColor = "rgba(225, 176, 76, 0.72)";
+        context.shadowBlur = particle.radius > 2 ? 9 : 3;
+        context.arc(x, y, particle.radius, 0, Math.PI * 2);
+        context.fill();
+      });
+      context.shadowBlur = 0;
+      if (!reducedMotion) frame = requestAnimationFrame(draw);
+    }
+    draw();
+    if (window.ResizeObserver) {
+      const observer = new ResizeObserver(() => {
+        if (canvas.isConnected && !reducedMotion && !frame) frame = requestAnimationFrame(draw);
+      });
+      observer.observe(canvas);
+      const cleanup = () => {
+        if (!canvas.isConnected) {
+          if (frame) cancelAnimationFrame(frame);
+          observer.disconnect();
+        } else {
+          requestAnimationFrame(cleanup);
+        }
+      };
+      requestAnimationFrame(cleanup);
+    }
+  }
+
   async function createAssistantImage(prompt) {
     if (!imageTurnstileToken) {
       pendingImagePrompt = prompt;
@@ -1221,9 +1288,11 @@
     const loading = addMessage("", "assistant", [], { persist:false });
     loading.classList.add("pm-assistant-image-loading");
     const loadingContent = loading.querySelector(".pm-assistant-content");
-    const loader = document.createElement("span");
-    loader.className = "pm-image-loader-orbit";
-    loader.setAttribute("aria-hidden", "true");
+    const loaderStage = document.createElement("div");
+    loaderStage.className = "pm-image-loader-stage";
+    const particleCanvas = document.createElement("canvas");
+    particleCanvas.className = "pm-image-loader-particles";
+    particleCanvas.setAttribute("aria-hidden", "true");
     const loadingCopy = document.createElement("span");
     loadingCopy.className = "pm-image-loader-copy";
     loadingCopy.setAttribute("role", "status");
@@ -1232,9 +1301,11 @@
     loadingTitle.className = "pm-image-loader-dots";
     loadingTitle.textContent = "Creating your image";
     const loadingHint = document.createElement("small");
-    loadingHint.textContent = "This may take a few moments";
+    loadingHint.textContent = "Turning imagination into reality...";
     loadingCopy.append(loadingTitle, loadingHint);
-    loadingContent.append(loader, loadingCopy);
+    loaderStage.append(particleCanvas, loadingCopy);
+    loadingContent.appendChild(loaderStage);
+    startImageParticleAnimation(particleCanvas);
     const token = imageTurnstileToken;
     imageTurnstileToken = "";
     try {
