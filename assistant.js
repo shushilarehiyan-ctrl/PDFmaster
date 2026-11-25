@@ -165,8 +165,8 @@
     const download = document.createElement("a");
     download.className = "pm-assistant-image-download";
     download.href = dataUrl;
-    download.download = "PDFMaster_AI_Image.jpg";
-    download.textContent = "↓ Download image";
+    download.download = dataUrl.startsWith("data:image/png") ? "PDFMaster_Edited_Image.png" : "PDFMaster_Edited_Image.jpg";
+    download.textContent = "↓ Download Edited Image";
     content.append(image, download);
   }
   function restoreGeneratedImage(bubble, imageId, originalImageId) {
@@ -202,7 +202,12 @@
       editedImage.alt = "AI-edited image";
       editedImage.loading = "lazy";
       before.append(beforeLabel, originalImage);
-      after.append(afterLabel, editedImage);
+      const editedDownload = document.createElement("a");
+      editedDownload.className = "pm-assistant-image-download";
+      editedDownload.href = editedDataUrl;
+      editedDownload.download = editedDataUrl.startsWith("data:image/png") ? "PDFMaster_Edited_Image.png" : "PDFMaster_Edited_Image.jpg";
+      editedDownload.textContent = "↓ Download Edited Image";
+      after.append(afterLabel, editedImage, editedDownload);
       comparison.append(before, after);
       const restoreButton = document.createElement("button");
       restoreButton.type = "button";
@@ -1431,7 +1436,7 @@
       const response = await fetch(IMAGE_API_URL.replace(/\/$/, "") + "/api/image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, style: imageStyleSelect ? imageStyleSelect.value : selectedImageStyle, imageDataUrl: selectedImageDataUrl || "", turnstileToken: token })
+        body: JSON.stringify({ prompt, style: imageStyleSelect ? imageStyleSelect.value : selectedImageStyle, imageDataUrl: selectedImageDataUrl || "", originalImageDataUrl: selectedImageOriginalDataUrl || "", turnstileToken: token })
       });
       const data = await response.json().catch(() => ({}));
       loading.remove();
