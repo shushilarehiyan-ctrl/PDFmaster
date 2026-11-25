@@ -1,0 +1,438 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PDFMaster Disclaimer - Tools, Results & Limitations</title>
+
+    <meta name="description"
+        content="Read the PDFMaster Disclaimer to understand the limitations of our free online PDF and image tools, file processing results, third-party libraries, and website availability.">
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="canonical"
+        href="https://shushilarehiyan-ctrl.github.io/PDFmaster/disclaimer.html">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="PDFMaster Disclaimer">
+    <meta property="og:description"
+        content="Understand PDFMaster tool limitations, processing results, third-party services, and website usage information.">
+    <meta property="og:url"
+        content="https://shushilarehiyan-ctrl.github.io/PDFmaster/disclaimer.html">
+    <meta property="og:site_name" content="PDFMaster">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .disclaimer-page {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 55px 25px 75px;
+            color: var(--text, #f4f4f5);
+        }
+
+        .disclaimer-back {
+            display: inline-block;
+            color: #a99aff;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 32px;
+            transition: 0.2s;
+        }
+
+        .disclaimer-back:hover {
+            color: #ffffff;
+            transform: translateX(-3px);
+        }
+
+        .disclaimer-hero {
+            padding: 45px 35px;
+            border-radius: 23px;
+            border: 1px solid rgba(139, 124, 255, 0.22);
+            background:
+                radial-gradient(circle at 85% 15%, rgba(124, 92, 255, 0.20), transparent 35%),
+                linear-gradient(135deg, #191e30, #111522);
+            margin-bottom: 28px;
+        }
+
+        .disclaimer-label {
+            display: inline-block;
+            padding: 7px 13px;
+            border-radius: 30px;
+            background: rgba(139, 124, 255, 0.13);
+            border: 1px solid rgba(139, 124, 255, 0.25);
+            color: #b4a6ff;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 18px;
+        }
+
+        .disclaimer-hero h1 {
+            font-size: clamp(32px, 5vw, 45px);
+            letter-spacing: -1px;
+            margin-bottom: 14px;
+        }
+
+        .disclaimer-hero h1 span {
+            color: #a99aff;
+        }
+
+        .disclaimer-hero p {
+            max-width: 720px;
+            color: #b8bdca;
+            line-height: 1.8;
+            font-size: 14px;
+        }
+
+        .disclaimer-date {
+            display: inline-block;
+            margin-top: 18px;
+            padding: 8px 13px;
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #c3c9d7;
+            font-size: 12px;
+        }
+
+        .disclaimer-card {
+            padding: 27px 30px;
+            margin-top: 17px;
+            border-radius: 17px;
+            background: linear-gradient(145deg, #191e2d, #131824);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            transition: border-color 0.25s, transform 0.25s;
+        }
+
+        .disclaimer-card:hover {
+            border-color: rgba(139, 124, 255, 0.30);
+            transform: translateY(-2px);
+        }
+
+        .disclaimer-card h2 {
+            font-size: 19px;
+            margin-bottom: 15px;
+            color: #f0efff;
+        }
+
+        .disclaimer-card p {
+            color: #b8bdca;
+            font-size: 14px;
+            line-height: 1.9;
+            margin-bottom: 12px;
+        }
+
+        .disclaimer-card p:last-child {
+            margin-bottom: 0;
+        }
+
+        .disclaimer-card a {
+            color: #a99aff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .disclaimer-card a:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
+        .disclaimer-footer {
+            text-align: center;
+            padding: 35px 20px;
+            background: #10131d;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .disclaimer-footer .logo {
+            display: inline-block;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 800;
+            text-decoration: none;
+            margin-bottom: 10px;
+        }
+
+        .disclaimer-footer .logo span {
+            color: #a99aff;
+        }
+
+        .disclaimer-footer > p {
+            color: #9299aa;
+            font-size: 13px;
+            margin: 8px 0 20px;
+        }
+
+        .disclaimer-footer .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 22px;
+        }
+
+        .disclaimer-footer .footer-links a {
+            color: #aeb5c5;
+            font-size: 13px;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .disclaimer-footer .footer-links a:hover {
+            color: #a99aff;
+        }
+
+        .disclaimer-footer .copyright {
+            color: #72798a;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        @media(max-width: 600px) {
+            .disclaimer-page {
+                padding: 30px 17px 45px;
+            }
+
+            .disclaimer-hero {
+                padding: 30px 22px;
+                border-radius: 18px;
+            }
+
+            .disclaimer-card {
+                padding: 22px 20px;
+            }
+
+            .disclaimer-card h2 {
+                font-size: 17px;
+            }
+
+            .disclaimer-footer .footer-links {
+                gap: 13px;
+            }
+        }
+
+        /* Disclaimer page: coordinated blue theme */
+        body:has(.disclaimer-page) {
+            background: #080F1D !important;
+            color: #EAF2FF !important;
+        }
+        .disclaimer-page {
+            background: transparent !important;
+            color: #EAF2FF !important;
+        }
+        .disclaimer-back,
+        .disclaimer-card a {
+            color: #60A5FA !important;
+        }
+        .disclaimer-back:hover,
+        .disclaimer-card a:hover {
+            color: #BFDBFE !important;
+        }
+        .disclaimer-hero {
+            background: radial-gradient(circle at 85% 15%, rgba(59,130,246,.22), transparent 38%), linear-gradient(135deg, #142746, #0C172B) !important;
+            border: 1px solid rgba(96,165,250,.38) !important;
+        }
+        .disclaimer-label {
+            background: rgba(59,130,246,.16) !important;
+            border: 1px solid rgba(96,165,250,.34) !important;
+            color: #93C5FD !important;
+        }
+        .disclaimer-hero h1,
+        .disclaimer-hero h1 span {
+            color: #93C5FD !important;
+        }
+        .disclaimer-hero p,
+        .disclaimer-card p {
+            color: #C5D4E8 !important;
+        }
+        .disclaimer-date {
+            background: rgba(96,165,250,.10) !important;
+            color: #DCEBFF !important;
+            border: 1px solid rgba(96,165,250,.22) !important;
+        }
+        .disclaimer-card {
+            background: linear-gradient(145deg, #14243D, #101B2E) !important;
+            border: 1px solid rgba(96,165,250,.24) !important;
+            color: #EAF2FF !important;
+        }
+        .disclaimer-card:hover {
+            border-color: rgba(96,165,250,.72) !important;
+            box-shadow: 0 12px 30px rgba(37,99,235,.16) !important;
+        }
+        .disclaimer-card h2 {
+            color: #BFDBFE !important;
+        }
+        .disclaimer-footer {
+            background: #080F1D !important;
+            border-top: 1px solid rgba(96,165,250,.24) !important;
+        }
+        .disclaimer-footer .logo,
+        .disclaimer-footer .logo span {
+            color: #93C5FD !important;
+        }
+        .disclaimer-footer > p {
+            color: #AFC2DC !important;
+        }
+        .disclaimer-footer .footer-links a {
+            color: #B8CBE4 !important;
+        }
+        .disclaimer-footer .footer-links a:hover {
+            color: #60A5FA !important;
+        }
+        .disclaimer-footer .copyright {
+            color: #8298B5 !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="disclaimer-page">
+
+        <a href="index.html" class="disclaimer-back">
+            ← Back to PDFMaster
+        </a>
+
+        <section class="disclaimer-hero">
+
+            <span class="disclaimer-label">IMPORTANT INFORMATION</span>
+
+            <h1><span>Disclaimer</span></h1>
+
+            <p>
+                Please review the following information about
+                PDFMaster, its tools, processing results,
+                and limitations before using the website.
+            </p>
+
+            <span class="disclaimer-date">
+                Last Updated: November 20, 2026
+            </span>
+
+        </section>
+
+        <section class="disclaimer-card">
+
+            <h2>01. General Information</h2>
+
+            <p>
+                PDFMaster provides PDF and image processing
+                utilities. The website is provided on an
+                "as available" basis.
+            </p>
+
+            <p>
+                We do not guarantee that every tool will work
+                perfectly with every file, browser, or device.
+            </p>
+
+        </section>
+
+        <section class="disclaimer-card">
+
+            <h2>02. File Processing Results</h2>
+
+            <p>
+                Processing results may vary depending on file
+                format, file size, document structure, browser
+                capabilities, and other technical factors.
+            </p>
+
+            <p>
+                Always review downloaded files and keep your
+                original documents as backups.
+            </p>
+
+        </section>
+
+        <section class="disclaimer-card">
+
+            <h2>03. No Professional Advice</h2>
+
+            <p>
+                PDFMaster does not provide legal, financial,
+                medical, or other professional advice.
+                Do not rely on the website as a replacement
+                for professional guidance.
+            </p>
+
+        </section>
+
+        <section class="disclaimer-card">
+
+            <h2>04. Third-Party Libraries</h2>
+
+            <p>
+                Some website features depend on third-party
+                software libraries and services. Their
+                availability and behavior may affect the
+                operation of PDFMaster.
+            </p>
+
+        </section>
+
+        <section class="disclaimer-card">
+
+            <h2>05. Limitation of Liability</h2>
+
+            <p>
+                To the extent permitted by applicable law,
+                PDFMaster is not responsible for damages or
+                losses arising from the use of the website,
+                including unexpected processing results
+                or temporary service interruptions.
+            </p>
+
+        </section>
+
+        <section class="disclaimer-card">
+
+            <h2>06. Updates</h2>
+
+            <p>
+                This Disclaimer may be updated as the website
+                and its features change. Please check this
+                page periodically.
+            </p>
+
+        </section>
+
+        <section class="disclaimer-card">
+
+            <h2>07. Contact</h2>
+
+            <p>
+                If you have questions, please visit our
+                <a href="contact.html">Contact Us</a> page.
+            </p>
+
+        </section>
+
+    </main>
+
+    <footer class="disclaimer-footer">
+
+        <a href="index.html" class="logo">
+            PDF<span>Master</span>
+        </a>
+
+        <p>Free, Fast and Easy PDF & Image Tools.</p>
+
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="contact.html">Contact Us</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms & Conditions</a>
+        </div>
+
+        <p class="copyright">
+            © 2026 PDFMaster. All Rights Reserved.
+        </p>
+
+    </footer>
+
+</body>
+</html>
