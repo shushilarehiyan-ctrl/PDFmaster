@@ -7230,3 +7230,13 @@ body:not(.tool-page-active) .topbar-badge:hover {
   .pm-merge-file-confirm { justify-content: stretch; }
   .pm-merge-file-confirm button { flex: 1 1 0; }
 }
+
+
+/* Let the file-level confirmation occupy its own full-width row. */
+#pdfList .pm-merge-file-card {
+  display: flex;
+  flex-wrap: wrap;
+}
+#pdfList .pm-merge-file-confirm {
+  flex: 1 0 100%;
+}
