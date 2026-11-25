@@ -503,14 +503,54 @@ function displayPDFs() {
         removeButton.title = "Remove " + file.name;
         removeButton.setAttribute("aria-label", "Remove " + file.name);
         removeButton.draggable = false;
+        removeButton.setAttribute("aria-expanded", "false");
 
-        removeButton.onclick = function() {
-            selectedPDFs.splice(index, 1);
+        const confirmBar = document.createElement("div");
+        confirmBar.className = "pm-merge-file-confirm";
+        confirmBar.hidden = true;
+
+        const confirmText = document.createElement("span");
+        confirmText.className = "pm-merge-file-confirm-text";
+        confirmText.textContent = "Remove this PDF from the list?";
+
+        const cancelRemove = document.createElement("button");
+        cancelRemove.type = "button";
+        cancelRemove.className = "pm-merge-file-confirm-cancel";
+        cancelRemove.textContent = "Cancel";
+
+        const confirmRemove = document.createElement("button");
+        confirmRemove.type = "button";
+        confirmRemove.className = "pm-merge-file-confirm-delete";
+        confirmRemove.textContent = "Remove PDF";
+
+        removeButton.addEventListener("click", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            confirmBar.hidden = !confirmBar.hidden;
+            removeButton.setAttribute("aria-expanded", String(!confirmBar.hidden));
+            if (!confirmBar.hidden) cancelRemove.focus();
+        });
+
+        cancelRemove.addEventListener("click", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            confirmBar.hidden = true;
+            removeButton.setAttribute("aria-expanded", "false");
+            removeButton.focus();
+        });
+
+        confirmRemove.addEventListener("click", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const currentIndex = selectedPDFs.indexOf(file);
+            if (currentIndex === -1) return;
+            selectedPDFs.splice(currentIndex, 1);
             displayPDFs();
             renderMergePreviews();
-        };
+        });
 
-        item.append(handle, icon, name, removeButton);
+        confirmBar.append(confirmText, cancelRemove, confirmRemove);
+        item.append(handle, icon, name, removeButton, confirmBar);
         pdfList.appendChild(item);
     });
 }
