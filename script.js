@@ -1,3 +1,21 @@
+// Reusable, accessible PDFMaster toast notifications.
+let pmToastTimer = null;
+function showToast(message) {
+    let toast = document.querySelector(".pm-toast");
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.className = "pm-toast";
+        toast.setAttribute("role", "status");
+        toast.setAttribute("aria-live", "polite");
+        toast.setAttribute("aria-atomic", "true");
+        document.body.appendChild(toast);
+    }
+    toast.textContent = String(message || "");
+    toast.classList.add("show");
+    window.clearTimeout(pmToastTimer);
+    pmToastTimer = window.setTimeout(() => toast.classList.remove("show"), 3000);
+}
+
 
 // =================================
 // PDFMASTER - SEARCH TOOLS
@@ -163,7 +181,7 @@ function getMergePageOrder(file, pageCount) {
 function removeMergePage(file, pageNumber, pageCount) {
     const key = mergePageKey(file, 0);
     const order = getMergePageOrder(file, pageCount);
-    if (order.length <= 1) { alert("Keep at least one page in each selected PDF."); return; }
+    if (order.length <= 1) { showToast("Keep at least one page in each selected PDF."); return; }
     mergePageOrders.set(key, order.filter(page => page !== pageNumber));
     mergePageRotations.delete(mergePageKey(file, pageNumber));
     renderMergePreviews();
@@ -324,8 +342,10 @@ async function renderMergePreviews() {
             deleteButton.type = "button";
             deleteButton.className = "pm-merge-icon-button pm-merge-delete-page";
             deleteButton.textContent = "×";
-            deleteButton.title = "Delete page";
-            deleteButton.setAttribute("aria-label", "Delete page " + pageNumber);
+            const canDeletePage = pageOrder.length > 1;
+            deleteButton.disabled = !canDeletePage;
+            deleteButton.title = canDeletePage ? "Delete page" : "Keep at least one page in each selected PDF";
+            deleteButton.setAttribute("aria-label", canDeletePage ? "Delete page " + pageNumber : "Cannot delete the last remaining page");
             deleteButton.addEventListener("click", () => removeMergePage(file, pageNumber, pdf.numPages));
             heading.appendChild(label);
             controls.append(left, right, reset, deleteButton);
