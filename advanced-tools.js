@@ -57,27 +57,12 @@
   };
 
   const TURNSTILE_SITE_KEY = "0x4AAAAAAGQ802svQx32R_BB";
-  let turnstileScriptPromise = null;
 
   function loadTurnstile() {
-    if (window.turnstile && typeof window.turnstile.render === "function") return Promise.resolve();
-    if (turnstileScriptPromise) return turnstileScriptPromise;
-    turnstileScriptPromise = new Promise(function (resolve, reject) {
-      const script = document.createElement("script");
-      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-      script.async = true;
-      script.defer = true;
-      script.onload = function () {
-        if (window.turnstile && typeof window.turnstile.render === "function") resolve();
-        else reject(new Error("Cloudflare verification could not be initialized. Please refresh the page."));
-      };
-      script.onerror = function () {
-        turnstileScriptPromise = null;
-        reject(new Error("Could not load Cloudflare verification. Check your internet connection."));
-      };
-      document.head.appendChild(script);
-    });
-    return turnstileScriptPromise;
+    if (!window.PDFMASTER_TURNSTILE || typeof window.PDFMASTER_TURNSTILE.load !== "function") {
+      return Promise.reject(new Error("Shared Cloudflare verification loader is unavailable."));
+    }
+    return window.PDFMASTER_TURNSTILE.load();
   }
 
   function mountImageTurnstile(target, controls, output) {
@@ -95,9 +80,20 @@
           controls.turnstileToken = "";
           status(output, "Verification expired. Please wait for the check to refresh, then try again.", true);
         },
-        "error-callback": function () {
+        "error-callback": function (errorCode) {
           controls.turnstileToken = "";
-          status(output, "Verification could not load. Please refresh the page and try again.", true);
+          console.warn("PDFMaster advanced-tool Turnstile challenge failed:", errorCode || "unknown");
+          status(output, "Verification failed" + (errorCode ? " (code " + errorCode + ")" : "") + ". Please retry once or refresh the page.", true);
+        },
+        "timeout-callback": function () {
+          controls.turnstileToken = "";
+          console.warn("PDFMaster advanced-tool Turnstile challenge timed out.");
+          status(output, "Verification timed out. Please try again.", true);
+        },
+        "unsupported-callback": function () {
+          controls.turnstileToken = "";
+          console.warn("PDFMaster advanced-tool Turnstile is unsupported in this browser.");
+          status(output, "This browser could not complete security verification. Please try an updated browser.", true);
         }
       });
     }).catch(function (error) {
