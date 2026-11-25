@@ -178,13 +178,20 @@ function getMergePageOrder(file, pageCount) {
     if (!mergePageOrders.has(key)) mergePageOrders.set(key, Array.from({ length: pageCount }, (_, i) => i + 1));
     return mergePageOrders.get(key).filter(page => page >= 1 && page <= pageCount);
 }
-function removeMergePage(file, pageNumber, pageCount) {
+async function removeMergePage(file, pageNumber, pageCount) {
     const key = mergePageKey(file, 0);
     const order = getMergePageOrder(file, pageCount);
-    if (order.length <= 1) { showToast("Keep at least one page in each selected PDF."); return; }
+    if (order.length <= 1) {
+        showToast("Keep at least one page in each selected PDF.");
+        return;
+    }
+
+    // Preserve the user's viewport while the preview grid is rebuilt.
+    const scrollY = window.scrollY;
     mergePageOrders.set(key, order.filter(page => page !== pageNumber));
     mergePageRotations.delete(mergePageKey(file, pageNumber));
-    renderMergePreviews();
+    await renderMergePreviews();
+    window.scrollTo(0, scrollY);
 }
 function moveMergePage(file, fromPage, toPage, pageCount) {
     if (fromPage === toPage) return;
@@ -343,7 +350,9 @@ async function renderMergePreviews() {
             deleteButton.className = "pm-merge-icon-button pm-merge-delete-page";
             deleteButton.textContent = "×";
             const canDeletePage = pageOrder.length > 1;
-            deleteButton.disabled = !canDeletePage;
+            // Keep the button clickable so the last-page guard can explain why deletion is blocked.
+            deleteButton.classList.toggle("is-disabled", !canDeletePage);
+            deleteButton.setAttribute("aria-disabled", String(!canDeletePage));
             deleteButton.title = canDeletePage ? "Delete page" : "Keep at least one page in each selected PDF";
             deleteButton.setAttribute("aria-label", canDeletePage ? "Delete page " + pageNumber : "Cannot delete the last remaining page");
             deleteButton.addEventListener("click", () => removeMergePage(file, pageNumber, pdf.numPages));
