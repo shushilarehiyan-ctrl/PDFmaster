@@ -1323,10 +1323,12 @@
       try {
         const imageId = await saveGeneratedImage(data.image);
         addMessage("Your image is ready.", "assistant", [], { imageId });
+        pookieHistory = pookieHistory.concat([{ role: "assistant", content: "The requested image was generated successfully and is visible in the chat. The user may refer to this image in follow-up messages." }]).slice(-12);
       } catch (storageError) {
         console.warn("PDFMaster could not save this image to persistent chat history.", storageError);
         const bubble = addMessage("Your image is ready.", "assistant");
         appendGeneratedImage(bubble.querySelector(".pm-assistant-content"), data.image);
+        pookieHistory = pookieHistory.concat([{ role: "assistant", content: "The requested image was generated successfully and is visible in the chat. The user may refer to this image in follow-up messages." }]).slice(-12);
       }
       return true;
     } catch (error) {
