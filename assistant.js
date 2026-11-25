@@ -1450,12 +1450,12 @@
         addMessage(selectedImageOriginalDataUrl ? "Your edited image is ready." : "Your image is ready.", "assistant", [], { imageId, originalImageId });
         selectedImageDataUrl = "";
         selectedImageOriginalDataUrl = "";
-        pookieHistory = pookieHistory.concat([{ role: "assistant", content: "The requested image was generated successfully and is visible in the chat. The user may refer to this image in follow-up messages." }]).slice(-12);
+        pookieHistory = pookieHistory.concat([{ role: "assistant", content: "An image was generated and is visible in the chat. Its text description/prompt is: " + String(data.promptUsed || prompt).slice(0, 1500) + ". Use this prompt context to answer follow-up questions about the generated image, while being clear that you cannot inspect visual details that are not stated in the prompt." }]).slice(-12);
       } catch (storageError) {
         console.warn("PDFMaster could not save this image to persistent chat history.", storageError);
         const bubble = addMessage("Your image is ready.", "assistant");
         appendGeneratedImage(bubble.querySelector(".pm-assistant-content"), data.image);
-        pookieHistory = pookieHistory.concat([{ role: "assistant", content: "The requested image was generated successfully and is visible in the chat. The user may refer to this image in follow-up messages." }]).slice(-12);
+        pookieHistory = pookieHistory.concat([{ role: "assistant", content: "An image was generated and is visible in the chat. Its text description/prompt is: " + String(data.promptUsed || prompt).slice(0, 1500) + ". Use this prompt context to answer follow-up questions about the generated image, while being clear that you cannot inspect visual details that are not stated in the prompt." }]).slice(-12);
       }
       return true;
     } catch (error) {
@@ -1592,7 +1592,7 @@
     if (/(?:pdf|document|file|दस्तावेज|पीडीएफ)/.test(q) && /(?:password|protect|lock|encrypt|पासवर्ड|सुरक्षित|लॉक|सुरक्षा)/.test(q)) return "To add password protection to a PDF, open the Protect PDF tool. Keep a secure copy of your password.";
     if (/not open|cannot open|can't open|won't open|error|failed|issue|problem|upload|नहीं खुल|एरर|समस्या/.test(q)) return "First, check whether the file opens on your device outside PDFMaster. Also confirm it is a PDF and the upload has finished.\n\nWhat exact error message do you see?";
     if (/\\b(?:ms\s+)?word\\b|\\bdocx\\b/.test(q) && /pdf|document|docx|convert|format|file/.test(q)) return "PDF and Word documents can have different layouts after conversion. Do you want to convert Word to PDF, convert PDF to Word, or fix formatting?";
-    if (/hello|hi|hey|namaste|नमस्ते|नमस्कार/.test(q)) return "Hello! Main PDFMASTER ASSISTANT hoon. Aap mujhse kisi bhi topic par sawaal poochh sakte hain—Science, Maths, GK, Programming, writing, reasoning, PDF tools aur bahut kuchh. Detailed answers ke liye AI backend connected hona chahiye; latest information ke liye Web Research ON karein.";
+    if (/^(?:hello|hi|hey|namaste|नमस्ते|नमस्कार)[!,.?\\s]*$/i.test(q)) return "Hello! Main PDFMASTER ASSISTANT hoon. Aap mujhse kisi bhi topic par sawaal poochh sakte hain—Science, Maths, GK, Programming, writing, reasoning, PDF tools aur bahut kuchh. Detailed answers ke liye AI backend connected hona chahiye; latest information ke liye Web Research ON karein.";
     return "I don't have a reliable offline answer for that yet. Main kai tarah ke topics mein madad kar sakta hoon, lekin is sawaal ke liye connected AI backend ki zaroorat hai. Connection available na ho to main galat jawab banane ke bajay apni limitation bataunga.";
   }
 
