@@ -39,7 +39,7 @@ jobs:
           const assistant = fs.readFileSync('assistant.js', 'utf8');
           const worker = fs.readFileSync('api/worker.js', 'utf8');
 
-          assert.equal((html.match(/window\\.PDFMASTER_TURNSTILE\\s*=/g) || []).length, 1,
+          assert.equal(html.split('window.PDFMASTER_TURNSTILE =').length - 1, 1,
             'index.html must define the shared Turnstile loader exactly once');
 
           const loaderStart = html.indexOf('// Load Cloudflare Turnstile exactly once');
@@ -55,14 +55,16 @@ jobs:
           assert.ok(mainScript >= 0 && mainScript < loaderStart && loaderStart < advancedScript,
             'shared loader must load after script.js and before advanced-tools.js');
 
-          assert.match(advanced, /window\\.PDFMASTER_TURNSTILE\\.load\\(\\)/,
+          assert.ok(advanced.includes('window.PDFMASTER_TURNSTILE.load()'),
             'advanced tools must use the shared loader');
-          assert.match(assistant, /window\\.PDFMASTER_TURNSTILE\\.load\\(\\)/,
+          assert.ok(assistant.includes('window.PDFMASTER_TURNSTILE.load()'),
             'assistant must use the shared loader');
-          assert.doesNotMatch(advanced + assistant, /turnstile\\/v0\\/api\\.js/,
+          assert.ok(!advanced.includes('turnstile/v0/api.js') && !assistant.includes('turnstile/v0/api.js'),
             'feature files must not inject their own Turnstile API script');
-          assert.match(worker, /action/,
+          assert.ok(worker.includes('image_generation'),
             'Worker must retain server-side action validation');
+          assert.ok(!html.includes('</script>\\n</body>'),
+            'index.html must not contain a literal escaped newline before closing body');
 
           console.log('PASS: JavaScript syntax and shared Turnstile wiring checks');
           NODE
