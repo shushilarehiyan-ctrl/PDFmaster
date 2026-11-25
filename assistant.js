@@ -11,6 +11,8 @@
   const researchToggle = document.getElementById("pmAssistantResearchToggle");
   let selectedImageStyle = "photorealistic";
   let imageStyleSelect = null;
+  let selectedImageDataUrl = "";
+  let selectedImageOriginalDataUrl = "";
   const imageVerification = document.createElement("div");
   imageVerification.className = "pm-assistant-image-verification";
   imageVerification.setAttribute("aria-label", "Image generation verification");
@@ -39,7 +41,52 @@
     styleSelect.value = selectedImageStyle;
     styleSelect.addEventListener("change", () => { selectedImageStyle = styleSelect.value; });
     stylePicker.append(styleLabel, styleSelect);
+    const uploadButton = document.createElement("button");
+    uploadButton.type = "button";
+    uploadButton.className = "pm-assistant-image-upload";
+    uploadButton.textContent = "＋ Upload image";
+    const uploadInput = document.createElement("input");
+    uploadInput.type = "file";
+    uploadInput.accept = "image/png,image/jpeg,image/webp";
+    uploadInput.hidden = true;
+    const uploadPreview = document.createElement("span");
+    uploadPreview.className = "pm-assistant-image-upload-preview";
+    uploadButton.addEventListener("click", () => uploadInput.click());
+    uploadInput.addEventListener("change", () => {
+      const file = uploadInput.files && uploadInput.files[0];
+      if (!file) return;
+      if (!["image/png", "image/jpeg", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) {
+        addMessage("Please choose a JPG, PNG, or WebP image smaller than 5 MB.", "assistant");
+        uploadInput.value = "";
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const original = String(reader.result || "");
+        const image = new Image();
+        image.onload = () => {
+          selectedImageOriginalDataUrl = original;
+          const scale = Math.min(1, 510 / Math.max(image.naturalWidth, image.naturalHeight));
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+          canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+          canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+          selectedImageDataUrl = canvas.toDataURL("image/jpeg", 0.88);
+          uploadPreview.textContent = "Image ready: " + file.name;
+          uploadButton.textContent = "✓ Image selected";
+          input.placeholder = "Describe what to edit in the uploaded image...";
+        };
+        image.onerror = () => addMessage("This image could not be opened. Please choose another file.", "assistant");
+        image.src = original;
+      };
+      reader.onerror = () => addMessage("The selected image could not be read.", "assistant");
+      reader.readAsDataURL(file);
+    });
+    stylePicker.append(uploadButton, uploadInput);
     quick.appendChild(stylePicker);
+    quick.appendChild(uploadPreview);
+    verificationLabel.textContent = "Verify once to create images:";
+    imageVerification.appendChild(verificationLabel);
     quick.appendChild(imageVerification);
   }
 
@@ -1389,7 +1436,7 @@
       const response = await fetch(IMAGE_API_URL.replace(/\/$/, "") + "/api/image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, style: imageStyleSelect ? imageStyleSelect.value : selectedImageStyle, turnstileToken: token })
+        body: JSON.stringify({ prompt, style: imageStyleSelect ? imageStyleSelect.value : selectedImageStyle, imageDataUrl: selectedImageDataUrl || "", turnstileToken: token })
       });
       const data = await response.json().catch(() => ({}));
       loading.remove();
@@ -1399,7 +1446,10 @@
       }
       try {
         const imageId = await saveGeneratedImage(data.image);
-        addMessage("Your image is ready.", "assistant", [], { imageId });
+        const originalImageId = selectedImageOriginalDataUrl ? await saveGeneratedImage(selectedImageOriginalDataUrl) : "";
+        addMessage(selectedImageOriginalDataUrl ? "Your edited image is ready." : "Your image is ready.", "assistant", [], { imageId, originalImageId });
+        selectedImageDataUrl = "";
+        selectedImageOriginalDataUrl = "";
         pookieHistory = pookieHistory.concat([{ role: "assistant", content: "The requested image was generated successfully and is visible in the chat. The user may refer to this image in follow-up messages." }]).slice(-12);
       } catch (storageError) {
         console.warn("PDFMaster could not save this image to persistent chat history.", storageError);
@@ -1554,7 +1604,7 @@
     if (!researchMode) pookieHistory = pookieHistory.concat([{ role: "user", content: value }]).slice(-12);
     input.value = "";
 
-    if (isImageGenerationRequest(value)) {
+    if (selectedImageDataUrl || isImageGenerationRequest(value)) {
       await createAssistantImage(value);
       return;
     }
