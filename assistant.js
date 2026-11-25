@@ -9,6 +9,7 @@
   const messages = document.getElementById("pmAssistantMessages");
   const quick = document.getElementById("pmAssistantQuick");
   const researchToggle = document.getElementById("pmAssistantResearchToggle");
+  let selectedImageStyle = "photorealistic";
   const imageVerification = document.createElement("div");
   imageVerification.className = "pm-assistant-image-verification";
   imageVerification.setAttribute("aria-label", "Image generation verification");
@@ -48,7 +49,6 @@
   const TURNSTILE_SITE_KEY = "0x4AAAAAAGQ802svQx32R_BB";
   let imageTurnstileToken = "";
   let pendingImagePrompt = "";
-  let selectedImageStyle = "photorealistic";
   let imageTurnstileWidgetId = null;
   let turnstileLoadPromise = null;
   let researchMode = false;
