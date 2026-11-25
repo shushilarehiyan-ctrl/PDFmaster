@@ -398,8 +398,10 @@
     .pm-assistant-history{display:block!important;position:static!important;max-height:none!important;flex:1;min-height:0;overflow:auto;padding:0!important;border:0!important;background:transparent!important}
     .pm-assistant-history-top{display:none!important}
     .pm-assistant-history-list{display:grid;gap:3px}
-    .pm-assistant-history-item button{width:100%;padding:9px 10px;border:0;border-radius:8px;background:transparent;color:#d6d6d6;text-align:left;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+    .pm-assistant-history-item button{width:100%;padding:9px 10px;border:0;border-radius:8px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.055);color:#d1c7b7;text-align:left;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;min-width:0;display:block}
     .pm-assistant-history-item{display:flex;align-items:center;min-width:0;position:relative}
+    .pm-assistant-history-item .pm-chat-open{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .pm-assistant-history-item.active .pm-chat-open{background:#d4af37!important;color:#140c0c!important;border-color:#d4af37!important;font-weight:600}
     .pm-assistant-history-item .pm-chat-open{flex:1;min-width:0;padding-right:42px}
     .pm-assistant-history-item .pm-chat-menu-toggle{position:absolute;right:5px;top:50%;transform:translateY(-50%);display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;padding:0;border:0;border-radius:8px;background:transparent!important;color:#bdbdbd!important;font-size:21px;line-height:1;opacity:0;pointer-events:none;transition:opacity .14s ease,background .14s ease}
     .pm-assistant-history-item:hover .pm-chat-menu-toggle,.pm-assistant-history-item:focus-within .pm-chat-menu-toggle,.pm-assistant-history-item .pm-chat-menu-toggle[aria-expanded="true"]{opacity:1;pointer-events:auto}
@@ -707,7 +709,7 @@
     }
     sorted.forEach(chat => {
       const row = document.createElement("div");
-      row.className = "pm-assistant-history-item";
+      row.className = "pm-assistant-history-item" + (chat.id === currentChatId ? " active" : "");
       const openButton = document.createElement("button");
       openButton.type = "button";
       openButton.className = "pm-chat-open";
@@ -779,6 +781,7 @@
     const chat = chatHistory.find(item => item.id === id);
     if (!chat) return;
     currentChatId = chat.id;
+    renderChatHistory();
     pookieHistory = chat.messages.filter(item => item && ["user","assistant"].includes(item.role) && typeof item.content === "string").map(item => ({ role:item.role, content:item.content })).slice(-12);
     restoringChat = true;
     messages.replaceChildren();
@@ -796,6 +799,7 @@
 
   function startNewChat() {
     currentChatId = null;
+    renderChatHistory();
     pookieHistory = [];
     messages.replaceChildren();
     addMessage("Hello! Ask me about science, history, technology, maths, space, programming, documents or almost any topic.", "assistant");
