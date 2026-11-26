@@ -7240,3 +7240,20 @@ body:not(.tool-page-active) .topbar-badge:hover {
 #pdfList .pm-merge-file-confirm {
   flex: 1 0 100%;
 }
+
+/* Keep the signed-out Sign in link golden and rectangular at every width. */
+#pmAuthLink:not(.pm-auth-profile) {
+  min-height: 40px;
+  width: auto;
+  height: auto;
+  padding: 9px 15px !important;
+  border: 1px solid rgba(255, 226, 157, .65);
+  border-radius: 10px;
+  background: linear-gradient(135deg, #f1d18a, #b9852d);
+  color: #211809;
+}
+#pmAuthLink:not(.pm-auth-profile):hover {
+  border-color: #ffe29d;
+  background: linear-gradient(135deg, #f1d18a, #b9852d);
+  color: #211809;
+}
