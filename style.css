@@ -7257,3 +7257,19 @@ body:not(.tool-page-active) .topbar-badge:hover {
   background: linear-gradient(135deg, #f1d18a, #b9852d);
   color: #211809;
 }
+
+/* Let All Tools cards grow when titles need more than one line. */
+.tools-container .tools-directory-grid > .tool-card {
+  height: auto;
+  min-height: 78px;
+}
+.tools-container .tools-directory-grid > .tool-card h3 {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+@media (max-width: 760px) {
+  .tools-container .tools-directory-grid > .tool-card {
+    height: auto;
+    min-height: 70px;
+  }
+}
