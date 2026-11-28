@@ -1,4 +1,4 @@
-/* PDFMaster Advanced Tools
+/* nexora Advanced Tools
    Browser-side processing. Office/PDF conversions extract editable text;
    they do not promise pixel-perfect layout reconstruction. */
 (function () {
@@ -228,7 +228,7 @@
       output.appendChild(preview);
       const downloadLink = make("a", "pm-image-generation-download", "Download image ↓");
       downloadLink.href = result.image;
-      downloadLink.download = "PDFMaster_AI_Image.jpg";
+      downloadLink.download = "nexora_AI_Image.jpg";
       output.appendChild(downloadLink);
       if (result.promptUsed) {
         const details = make("details", "pm-image-generation-prompt");
@@ -256,7 +256,7 @@
       const fontSize = Math.max(8, Math.min(36, Number(controls.size.value || 14)));
       page.drawText(text, { x: 48, y: 90, size: fontSize, maxWidth: page.getWidth() - 96, lineHeight: fontSize * 1.25 });
       const bytes = await doc.save();
-      download(new Blob([bytes], { type: "application/pdf" }), type === "sign" ? "PDFMaster_Signed_Copy.pdf" : "PDFMaster_Edited.pdf");
+      download(new Blob([bytes], { type: "application/pdf" }), type === "sign" ? "nexora_Signed_Copy.pdf" : "nexora_Edited.pdf");
       status(output, "Done. Your edited copy has been downloaded. The original file was not changed.", false);
       return;
     }
@@ -283,7 +283,7 @@
         else pdf.addPage([image.width, image.height], orientation);
         pdf.addImage(dataUrl, imageFile.type === "image/png" ? "PNG" : "JPEG", 0, 0, image.width, image.height);
       }
-      download(pdf.output("blob"), "PDFMaster_Images.pdf");
+      download(pdf.output("blob"), "nexora_Images.pdf");
       status(output, "PDF created successfully.", false);
       return;
     }
@@ -315,7 +315,7 @@
         page.cleanup();
       }
       await pdf.destroy();
-      download(await zip.generateAsync({ type: "blob" }), "PDFMaster_Pages_" + def.format.toUpperCase() + ".zip");
+      download(await zip.generateAsync({ type: "blob" }), "nexora_Pages_" + def.format.toUpperCase() + ".zip");
       status(output, "All pages exported. Downloaded as a ZIP file.", false);
       return;
     }
@@ -330,14 +330,14 @@
           paragraphs.push.apply(paragraphs, page.split(/\n/).map(function (line) { return new docx.Paragraph(line || " "); }));
         });
         const documentFile = new docx.Document({ sections: [{ children: paragraphs }] });
-        download(await docx.Packer.toBlob(documentFile), "PDFMaster_Extracted.docx");
+        download(await docx.Packer.toBlob(documentFile), "nexora_Extracted.docx");
       } else if (type === "pdf-excel") {
         requireLibrary("SheetJS", window.XLSX);
         const rows = [["Page", "Extracted text"]];
         pages.forEach(function (page, i) { rows.push([i + 1, page]); });
         const book = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(book, XLSX.utils.aoa_to_sheet(rows), "PDF Text");
-        download(new Blob([XLSX.write(book, { bookType: "xlsx", type: "array" })], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), "PDFMaster_Extracted.xlsx");
+        download(new Blob([XLSX.write(book, { bookType: "xlsx", type: "array" })], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), "nexora_Extracted.xlsx");
       } else if (type === "pdf-pptx") {
         requireLibrary("PptxGenJS", window.PptxGenJS);
         const pptx = new PptxGenJS();
@@ -348,7 +348,7 @@
           slide.addText(page || "(No selectable text on this page)", { x: 0.6, y: 0.9, w: 12, h: 5.8, fontSize: 12, breakLine: false, valign: "top", fit: "shrink" });
         });
         const blob = await pptx.write({ outputType: "blob" });
-        download(blob, "PDFMaster_Extracted.pptx");
+        download(blob, "nexora_Extracted.pptx");
       } else {
         requireLibrary("JSZip", window.JSZip);
         const zip = new JSZip();
@@ -363,7 +363,7 @@
           const safe = page.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
           zip.file("OEBPS/chapter" + (i + 1) + ".xhtml", '<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Page ' + (i + 1) + '</title></head><body><h1>Page ' + (i + 1) + '</h1><p>' + safe.replace(/\n/g, "</p><p>") + '</p></body></html>');
         });
-        download(await zip.generateAsync({ type: "blob", mimeType: "application/epub+zip" }), "PDFMaster_Converted.epub");
+        download(await zip.generateAsync({ type: "blob", mimeType: "application/epub+zip" }), "nexora_Converted.epub");
       }
       status(output, "Conversion complete. Check the downloaded editable file. Text extraction cannot recover scanned text or original page layout.", false);
       return;
@@ -374,14 +374,14 @@
       requireLibrary("jsPDF", window.jspdf);
       const extracted = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
       if (!extracted.value.trim()) throw new Error("No readable text was found in this DOCX file.");
-      await createPdfFromText([extracted.value], "PDFMaster_Word.pdf");
+      await createPdfFromText([extracted.value], "nexora_Word.pdf");
       status(output, "PDF created from DOCX text. Review formatting before using the result.", false);
       return;
     }
 
     if (type === "epub-pdf") {
       const chapters = await getEpubText(file);
-      await createPdfFromText(chapters, "PDFMaster_EPUB.pdf");
+      await createPdfFromText(chapters, "nexora_EPUB.pdf");
       status(output, "EPUB text converted to PDF.", false);
       return;
     }
@@ -395,7 +395,7 @@
         const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false });
         return "Worksheet: " + name + "\n\n" + rows.map(function (row) { return row.join(" | "); }).join("\n");
       });
-      await createPdfFromText(pages, "PDFMaster_Excel.pdf");
+      await createPdfFromText(pages, "nexora_Excel.pdf");
       status(output, "Workbook cell text converted to PDF. Review page breaks and formatting.", false);
       return;
     }
@@ -414,14 +414,14 @@
         const doc = new DOMParser().parseFromString(xml, "application/xml");
         pages.push(Array.from(doc.getElementsByTagName("a:t")).map(function (node) { return node.textContent; }).join(" "));
       }
-      await createPdfFromText(pages, "PDFMaster_Presentation.pdf");
+      await createPdfFromText(pages, "nexora_Presentation.pdf");
       status(output, "Slide text converted to PDF. Original graphics and animations are not retained.", false);
       return;
     }
 
     if (type === "epub-pdf") {
       const chapters = await getEpubText(file);
-      await createPdfFromText(chapters, "PDFMaster_EPUB.pdf");
+      await createPdfFromText(chapters, "nexora_EPUB.pdf");
       status(output, "EPUB converted to PDF.", false);
       return;
     }
@@ -666,7 +666,7 @@
   const workspaceHeading = make("div", "tool-workspace-heading");
   const workspaceIcon = make("div", "tool-workspace-icon", "PDF");
   const workspaceTitles = make("div", "tool-workspace-titles");
-  const workspaceEyebrow = make("span", "tool-workspace-eyebrow", "PDFMASTER WORKSPACE");
+  const workspaceEyebrow = make("span", "tool-workspace-eyebrow", "nexora workspace");
   const workspaceTitle = make("h3", "", "Select a tool");
   workspaceTitles.appendChild(workspaceEyebrow);
   workspaceTitles.appendChild(workspaceTitle);
