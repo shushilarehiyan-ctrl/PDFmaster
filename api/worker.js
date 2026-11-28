@@ -63,7 +63,7 @@ async function verifyTurnstile(token, request, env) {
 
 // Lightweight structural checks for generated code. This is not a compiler or runtime test.
 function inspectGeneratedCode(answer) {
-  const blocks = Array.from(String(answer || "").matchAll(/```([a-z0-9+#.-]*)[ \\t]*\\r?\\n([\\s\\S]*?)```/gi));
+  const blocks = Array.from(String(answer || "").matchAll(/```([a-z0-9+#.-]*)[ \t]*\r?\n([\s\S]*?)```/gi));
   const problems = [];
   if (!blocks.length) {
     problems.push("The coding answer does not contain a fenced code block.");
@@ -73,23 +73,23 @@ function inspectGeneratedCode(answer) {
   for (const match of blocks) {
     const language = String(match[1] || "").toLowerCase();
     const code = match[2] || "";
-    if (/^(html|htm|xml)$/i.test(language) || /<!doctype\\s+html|<html\\b/i.test(code)) {
-      if (/^\\s*button\\s+[^<\\n]*onclick\\s*=/im.test(code)) {
+    if (/^(html|htm|xml)$/i.test(language) || /<!doctype\s+html|<html\b/i.test(code)) {
+      if (/^\s*button\s+[^<\n]*onclick\s*=/im.test(code)) {
         problems.push("An HTML button appears to be missing its opening < character.");
       }
-      if (/^\\s*HTML\\s*$/m.test(code)) {
+      if (/^\s*HTML\s*$/m.test(code)) {
         problems.push("The stray standalone word HTML appears inside a code block.");
       }
       const htmlOnly = code
-        .replace(/<!--[\\s\\S]*?-->/g, "")
-        .replace(/<(script|style)\\b[^>]*>[\\s\\S]*?<\\/\\1\\s*>/gi, "");
+        .replace(/<!--[\s\S]*?-->/g, "")
+        .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, "");
       const voidTags = new Set(["area","base","br","col","embed","hr","img","input","link","meta","param","source","track","wbr"]);
       const stack = [];
-      for (const tagMatch of htmlOnly.matchAll(/<\\/?([a-z][a-z0-9-]*)\\b[^>]*>/gi)) {
+      for (const tagMatch of htmlOnly.matchAll(/<\/?([a-z][a-z0-9-]*)\b[^>]*>/gi)) {
         const full = tagMatch[0];
         const tag = tagMatch[1].toLowerCase();
-        if (voidTags.has(tag) || /\\/\\s*>$/.test(full)) continue;
-        if (/^<\\//.test(full)) {
+        if (voidTags.has(tag) || /\/\s*>$/.test(full)) continue;
+        if (/^<\//.test(full)) {
           if (stack[stack.length - 1] === tag) stack.pop();
           else problems.push("HTML closing tag </" + tag + "> does not match the expected opening tag.");
         } else {
@@ -98,7 +98,7 @@ function inspectGeneratedCode(answer) {
       }
       if (stack.length) problems.push("HTML has unclosed tag(s): " + stack.slice(-5).map(tag => "<" + tag + ">").join(", ") + ".");
     }
-    if (/^(javascript|js|typescript|ts)$/i.test(language) && /^\\s*HTML\\s*$/m.test(code)) {
+    if (/^(javascript|js|typescript|ts)$/i.test(language) && /^\s*HTML\s*$/m.test(code)) {
       problems.push("The stray standalone word HTML appears inside JavaScript code.");
     }
   }
@@ -271,10 +271,10 @@ export default {
                   },
                   {
                     role: "user",
-                    content: "Original user request:\\n" + latestQuestion +
-                      "\\n\\nYour previous answer:\\n" + answer.slice(0, 14000) +
-                      "\\n\\nStructural validation findings:\\n- " + initialProblems.join("\\n- ") +
-                      "\\n\\nReturn the complete corrected answer, not a patch."
+                    content: "Original user request:\n" + latestQuestion +
+                      "\n\nYour previous answer:\n" + answer.slice(0, 14000) +
+                      "\n\nStructural validation findings:\n- " + initialProblems.join("\n- ") +
+                      "\n\nReturn the complete corrected answer, not a patch."
                   }
                 ]
               });
@@ -305,7 +305,7 @@ export default {
         }
 
         return json({
-          answer: answer.trim() + (validationWarning ? "\\n\\n⚠️ " + validationWarning : ""),
+          answer: answer.trim() + (validationWarning ? "\n\n⚠️ " + validationWarning : ""),
           model: POOKIE_MODEL,
           modelDurationMs: Date.now() - pookieStartedAt,
           codeValidation: isCodingQuestion ? (validationWarning ? "warning" : "passed") : "not_applicable"
