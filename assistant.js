@@ -1609,7 +1609,10 @@
     if (/split|extract.*page|remove.*page|पेज अलग|पेज निकाल/.test(q)) return "Let's split your document.\n\nStep 1: Open the Split PDF tool.\n\nTell me when it’s open, and I’ll guide you through selecting pages.";
     if (/photo|image|jpg|png|फोटो|तस्वीर/.test(q) && /pdf|convert|बनाना/.test(q)) return "Let's turn your photos into a PDF.\n\nStep 1: Open the Photo to PDF tool.\n\nTell me when it’s open.";
     if (/(?:pdf|document|file|दस्तावेज|पीडीएफ)/.test(q) && /(?:password|protect|lock|encrypt|पासवर्ड|सुरक्षित|लॉक|सुरक्षा)/.test(q)) return "To add password protection to a PDF, open the Protect PDF tool. Keep a secure copy of your password.";
-    if (/not open|cannot open|can't open|won't open|error|failed|issue|problem|upload|नहीं खुल|एरर|समस्या/.test(q)) return "First, check whether the file opens on your device outside nexora. Also confirm it is a PDF and the upload has finished.\n\nWhat exact error message do you see?";
+    const hasDocumentContext = /\b(pdf|document|file|upload)\b|पीडीएफ|दस्तावेज/.test(q);
+    const hasCodeContext = /\b(code|coding|program|programming|javascript|typescript|python|java|html|css|calculator|compiler|debug|algorithm|function|script|syntax|condition)\b/i.test(q);
+    const hasFileIssue = /\b(not open|cannot open|can't open|won't open|error|failed|issue|problem|upload)\b|नहीं खुल|एरर|समस्या/.test(q);
+    if (hasDocumentContext && !hasCodeContext && hasFileIssue) return "First, check whether the file opens on your device outside nexora. Also confirm it is a PDF and the upload has finished.\n\nWhat exact error message do you see?";
     if (/\\b(?:ms\s+)?word\\b|\\bdocx\\b/.test(q) && /pdf|document|docx|convert|format|file/.test(q)) return "PDF and Word documents can have different layouts after conversion. Do you want to convert Word to PDF, convert PDF to Word, or fix formatting?";
     if (/^(?:hello|hi|hey|namaste|नमस्ते|नमस्कार)[!,.?\\s]*$/i.test(q)) return "Hello! Main nexora assistant hoon. Aap mujhse kisi bhi topic par sawaal poochh sakte hain—Science, Maths, GK, Programming, writing, reasoning, PDF tools aur bahut kuchh. Detailed answers ke liye AI backend connected hona chahiye; latest information ke liye Web Research ON karein.";
     return "I don't have a reliable offline answer for that yet. Main kai tarah ke topics mein madad kar sakta hoon, lekin is sawaal ke liye connected AI backend ki zaroorat hai. Connection available na ho to main galat jawab banane ke bajay apni limitation bataunga.";
@@ -1638,16 +1641,23 @@
     // Multi-question and natural-chat messages should reach the AI before
     // local one-purpose helpers can accidentally answer only one fragment.
     const explicitQuestionCount = (value.match(/[?؟]/g) || []).length;
+    const hasSequenceCue = /\b(then|after that|next|phir|uske baad|aur|also|plus|saath mein|iske alawa)\b/i.test(value);
     const hasMultipleRequests = explicitQuestionCount > 1 ||
+      (hasSequenceCue && /\b(calculate|compute|try|test|check|explain|tell|show|compare|solve|verify|karo|batao|samjhao)\b/i.test(value)) ||
       (/\b(and also|also tell me|plus|along with)\b|\b(aur|saath mein|iske alawa)\b/i.test(value) &&
        /\b(what|why|how|who|when|where|which|kya|kyun|kaise|kitna|kaun)\b/i.test(value));
+    const isCodingQuestion = /\b(javascript|typescript|python|java|programming|coding|code|calculator|compiler|debug|algorithm|api|html|css|function|script|syntax|condition|loop)\b/i.test(value);
     const isNaturalChat = /^(?:hi|hello|hey|heya|namaste|नमस्ते|नमस्कार)[!,.?\s]*$/i.test(value) ||
       /\b(how are you|are you okay|kya haal|kaise ho|tum thik ho|kya tum|tell me about yourself|joke suna|ek joke)\b/i.test(value);
     const isClearPdfTask = /\b(pdf|document|merge|split|compress|convert|protect)\b|पीडीएफ|दस्तावेज/i.test(value);
 
-    if (hasMultipleRequests || (isNaturalChat && !isClearPdfTask)) {
+    if (hasMultipleRequests || isCodingQuestion || (isNaturalChat && !isClearPdfTask)) {
       const answeredByAssistant = await askNexoraAI(value);
       if (answeredByAssistant) return;
+      if (hasMultipleRequests || isCodingQuestion) {
+        addMessage("Nexora AI se abhi connection nahi ho paaya, isliye main is coding ya multi-part request ka reliable jawab nahi de sakta. Please thodi der baad retry karo.", "assistant");
+        return;
+      }
       addMessage("Nexora AI se abhi connection nahi ho paaya, isliye main tumhare poore message ka reliable jawab nahi de sakta. Please thodi der baad retry karo.", "assistant");
       return;
     }
