@@ -129,12 +129,13 @@ export default {
         return json({ error: "The conversation is too long or the latest message is missing." }, 400, allowedOrigin);
       }
 
-      // Adapt reasoning effort to the question: keep simple facts fast, reserve deeper reasoning for demanding tasks.
+      // Keep ordinary questions responsive. Reserve hidden thinking for clearly multi-step or technical tasks.
       const latestQuestion = messages[messages.length - 1].content;
-      const isComplexQuestion = /\b(derive|prove|solve|calculate|analyze|analyse|compare|reasoning|step by step|numerical|mechanism|debug|algorithm|architecture|why|how does|how do)\b|kyun|kaise|samjhao|siddh|vyutpann|numerical|logic|tark/i.test(latestQuestion);
+      const isComplexQuestion = /\b(derive|prove|solve|calculate|analyze|analyse|compare|step by step|multi[- ]step|numerical|mechanism|debug|algorithm|architecture|design a system|trace this code)\b|siddh|vyutpann|tarkik pramaan/i.test(latestQuestion);
+      const isReasoningQuestion = /\b(why|how|explain|reason|because|difference|concept)\b|kyun|kaise|samjhao|antar|kaaran/i.test(latestQuestion);
       const isAcademicQuestion = /\b(math|mathematics|physics|chemistry|biology|science|calculus|algebra|trigonometry|programming|computer science|concept|explain|difference)\b|ganit|vigyan/i.test(latestQuestion);
-      const reasoningEffort = isComplexQuestion ? "high" : isAcademicQuestion ? "medium" : "low";
-      const maxCompletionTokens = isComplexQuestion ? 1400 : isAcademicQuestion ? 900 : 500;
+      const reasoningEffort = isComplexQuestion ? "high" : (isAcademicQuestion || isReasoningQuestion) ? "medium" : "low";
+      const maxCompletionTokens = isComplexQuestion ? 1200 : (isAcademicQuestion || isReasoningQuestion) ? 750 : 500;
 
       // Measure model time separately from browser/network overhead.
       const pookieStartedAt = Date.now();
