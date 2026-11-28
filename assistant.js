@@ -344,6 +344,11 @@
   function addMessage(text, who, sources, options) {
     const bubble = document.createElement("div");
     bubble.className = "pm-assistant-message " + who;
+    if (who === "assistant" && String(text || "").trim() === "Thinking…") {
+      bubble.classList.add("pm-assistant-thinking");
+      bubble.setAttribute("role", "status");
+      bubble.setAttribute("aria-live", "polite");
+    }
     if (who === "assistant") {
       const label = document.createElement("span");
       label.className = "pm-assistant-message-label";
@@ -435,6 +440,9 @@
     .pm-assistant-history-empty{padding:8px;color:#858585;font-size:11px;line-height:1.5}
     .pm-assistant-sidebar-note{padding:12px 7px 4px;border-top:1px solid #303030;color:#858585;font-size:10px;line-height:1.5}
     .pm-assistant-header{grid-column:2;grid-row:1;min-width:0;padding:10px 22px;background:#212121;border:0;border-bottom:1px solid #303030}
+    .pm-assistant-thinking .pm-assistant-content:after{content:"";display:inline-block;width:18px;height:5px;margin-left:7px;border-radius:5px;background:linear-gradient(90deg,#8b6b37,#e8d09a,#8b6b37);background-size:200% 100%;animation:pmAdaptiveThinking 1.15s linear infinite;vertical-align:middle}
+    @keyframes pmAdaptiveThinking{to{background-position:-200% 0}}
+    @media(prefers-reduced-motion:reduce){.pm-assistant-thinking .pm-assistant-content:after{animation:none;background:#b08d50}}
     .pm-assistant-avatar{width:32px;height:32px;border-radius:50%}
     .pm-assistant-heading strong{font-size:14px;color:#f3f3f3}
     .pm-assistant-heading span{font-size:10px}
@@ -1508,11 +1516,15 @@
       totalChars += content.length;
     }
 
+    // Prevent an indefinitely stuck thinking state if the network or Worker stalls.
+    const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const requestTimeout = controller ? window.setTimeout(() => controller.abort(), 35000) : null;
     try {
       const response = await fetch(RESEARCH_API_URL.replace(/\/$/, "") + "/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: conversation })
+        body: JSON.stringify({ messages: conversation }),
+        ...(controller ? { signal: controller.signal } : {})
       });
       const data = await response.json().catch(() => ({}));
       loading.remove();
@@ -1533,8 +1545,10 @@
       const reason = error && error.name === "AbortError"
         ? "The request timed out."
         : "The browser could not reach the AI server.";
-      console.warn("PDFMASTER AI connection error:", reason);
+      console.warn("NEXORA AI connection error:", reason);
       return false;
+    } finally {
+      if (requestTimeout !== null) window.clearTimeout(requestTimeout);
     }
   }
 
@@ -1621,6 +1635,23 @@
       return;
     }
 
+    // Multi-question and natural-chat messages should reach the AI before
+    // local one-purpose helpers can accidentally answer only one fragment.
+    const explicitQuestionCount = (value.match(/[?؟]/g) || []).length;
+    const hasMultipleRequests = explicitQuestionCount > 1 ||
+      (/\b(and also|also tell me|plus|along with)\b|\b(aur|saath mein|iske alawa)\b/i.test(value) &&
+       /\b(what|why|how|who|when|where|which|kya|kyun|kaise|kitna|kaun)\b/i.test(value));
+    const isNaturalChat = /^(?:hi|hello|hey|heya|namaste|नमस्ते|नमस्कार)[!,.?\s]*$/i.test(value) ||
+      /\b(how are you|are you okay|kya haal|kaise ho|tum thik ho|kya tum|tell me about yourself|joke suna|ek joke)\b/i.test(value);
+    const isClearPdfTask = /\b(pdf|document|merge|split|compress|convert|protect)\b|पीडीएफ|दस्तावेज/i.test(value);
+
+    if (hasMultipleRequests || (isNaturalChat && !isClearPdfTask)) {
+      const answeredByAssistant = await askNexoraAI(value);
+      if (answeredByAssistant) return;
+      addMessage("Nexora AI se abhi connection nahi ho paaya, isliye main tumhare poore message ka reliable jawab nahi de sakta. Please thodi der baad retry karo.", "assistant");
+      return;
+    }
+
     const localReply = answer(value);
     const isFallback = localReply.startsWith("I don't have a reliable offline answer for that yet.");
     if (!isFallback) {
@@ -1629,17 +1660,15 @@
     }
 
     // Unknown questions go to Cloudflare-hosted nexora assistant first.
-    // Web Research must only run when the user explicitly turns it ON.
+    // Web Research runs only when the user explicitly turns it ON.
     const answeredByAssistant = await askNexoraAI(value);
     if (answeredByAssistant) return;
 
-    // If nexora assistant is unavailable, use the offline learning libraries.
     const offlineEducation = window.PDFMASTER_EDUCATION && window.PDFMASTER_EDUCATION.answer(value);
     if (offlineEducation) { addMessage(offlineEducation, "assistant"); return; }
     const offlineKnowledge = window.PDFMASTER_KNOWLEDGE && window.PDFMASTER_KNOWLEDGE.answer(value);
     if (offlineKnowledge) { addMessage(offlineKnowledge, "assistant"); return; }
 
-    // Do not silently switch to source-based research while Web Research is OFF.
     addMessage("nexora assistant se connection nahi ho paya. Web Research OFF hai, isliye maine research search start nahi ki. Please check the Cloudflare /api/chat connection and try again.", "assistant");
   }
 
