@@ -134,8 +134,7 @@ export default {
 
       // Lightweight adaptive profile: choose presentation style from the user's
       // latest request and nearby context; this does not infer sensitive traits.
-      const recentContext = messages.slice(-4).map(item => item.content).join(" ");
-      const adaptiveText = latestQuestion + " " + recentContext;
+      const adaptiveText = latestQuestion;
       const detectedLanguage = /[\u0900-\u097F]/.test(latestQuestion)
         ? "Hindi in Devanagari"
         : /\b(bhai|yaar|kyun|kaise|kya|hai|hain|mujhe|tum|samjhao|batao|accha|theek)\b/i.test(latestQuestion)
