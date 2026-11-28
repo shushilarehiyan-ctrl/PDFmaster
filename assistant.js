@@ -1516,11 +1516,15 @@
       totalChars += content.length;
     }
 
+    // Prevent an indefinitely stuck thinking state if the network or Worker stalls.
+    const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const requestTimeout = controller ? window.setTimeout(() => controller.abort(), 35000) : null;
     try {
       const response = await fetch(RESEARCH_API_URL.replace(/\/$/, "") + "/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: conversation })
+        body: JSON.stringify({ messages: conversation }),
+        ...(controller ? { signal: controller.signal } : {})
       });
       const data = await response.json().catch(() => ({}));
       loading.remove();
@@ -1541,8 +1545,10 @@
       const reason = error && error.name === "AbortError"
         ? "The request timed out."
         : "The browser could not reach the AI server.";
-      console.warn("PDFMASTER AI connection error:", reason);
+      console.warn("NEXORA AI connection error:", reason);
       return false;
+    } finally {
+      if (requestTimeout !== null) window.clearTimeout(requestTimeout);
     }
   }
 
