@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://shushilarehiyan-ctrl.github.io/PDFmaster/sitemap.xml
+Sitemap: https://documentarypoint.github.io/nexora/sitemap.xml
