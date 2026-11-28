@@ -61,6 +61,50 @@ async function verifyTurnstile(token, request, env) {
   }
 }
 
+// Lightweight structural checks for generated code. This is not a compiler or runtime test.
+function inspectGeneratedCode(answer) {
+  const blocks = Array.from(String(answer || "").matchAll(/```([a-z0-9+#.-]*)[ \\t]*\\r?\\n([\\s\\S]*?)```/gi));
+  const problems = [];
+  if (!blocks.length) {
+    problems.push("The coding answer does not contain a fenced code block.");
+    return problems;
+  }
+
+  for (const match of blocks) {
+    const language = String(match[1] || "").toLowerCase();
+    const code = match[2] || "";
+    if (/^(html|htm|xml)$/i.test(language) || /<!doctype\\s+html|<html\\b/i.test(code)) {
+      if (/^\\s*button\\s+[^<\\n]*onclick\\s*=/im.test(code)) {
+        problems.push("An HTML button appears to be missing its opening < character.");
+      }
+      if (/^\\s*HTML\\s*$/m.test(code)) {
+        problems.push("The stray standalone word HTML appears inside a code block.");
+      }
+      const htmlOnly = code
+        .replace(/<!--[\\s\\S]*?-->/g, "")
+        .replace(/<(script|style)\\b[^>]*>[\\s\\S]*?<\\/\\1\\s*>/gi, "");
+      const voidTags = new Set(["area","base","br","col","embed","hr","img","input","link","meta","param","source","track","wbr"]);
+      const stack = [];
+      for (const tagMatch of htmlOnly.matchAll(/<\\/?([a-z][a-z0-9-]*)\\b[^>]*>/gi)) {
+        const full = tagMatch[0];
+        const tag = tagMatch[1].toLowerCase();
+        if (voidTags.has(tag) || /\\/\\s*>$/.test(full)) continue;
+        if (/^<\\//.test(full)) {
+          if (stack[stack.length - 1] === tag) stack.pop();
+          else problems.push("HTML closing tag </" + tag + "> does not match the expected opening tag.");
+        } else {
+          stack.push(tag);
+        }
+      }
+      if (stack.length) problems.push("HTML has unclosed tag(s): " + stack.slice(-5).map(tag => "<" + tag + ">").join(", ") + ".");
+    }
+    if (/^(javascript|js|typescript|ts)$/i.test(language) && /^\\s*HTML\\s*$/m.test(code)) {
+      problems.push("The stray standalone word HTML appears inside JavaScript code.");
+    }
+  }
+  return Array.from(new Set(problems)).slice(0, 8);
+}
+
 function json(data, status, origin) {
   return new Response(JSON.stringify(data), {
     status,
@@ -189,7 +233,7 @@ export default {
           ],
           temperature: isComplexQuestion ? 0.2 : 0.4
         });
-        const answer = typeof result?.response === "string"
+        let answer = typeof result?.response === "string"
           ? result.response
           : (typeof result?.choices?.[0]?.message?.content === "string" ? result.choices[0].message.content : "");
         if (!answer.trim()) {
@@ -207,10 +251,64 @@ export default {
           });
           return json({ error: "nexora assistant did not return an answer. Please try again." }, 502, allowedOrigin);
         }
+
+        // Only run the repair pass for coding requests that fail lightweight checks.
+        let validationWarning = "";
+        if (isCodingQuestion) {
+          const initialProblems = inspectGeneratedCode(answer);
+          if (initialProblems.length) {
+            console.warn("NEXORA coding answer failed structural validation; attempting one repair pass:", initialProblems);
+            try {
+              const repairResult = await env.AI.run(POOKIE_MODEL, {
+                reasoning_effort: "medium",
+                chat_template_kwargs: { enable_thinking: false, clear_thinking: true },
+                max_completion_tokens: Math.max(maxCompletionTokens, 1800),
+                temperature: 0.1,
+                messages: [
+                  {
+                    role: "system",
+                    content: "You are nexora assistant's code repair pass. Return a corrected, complete answer to the user's original coding request. Fix every listed structural issue. Preserve the requested features and language. Do not merely describe the fixes. Do not add a changelog or claim you executed the code. Keep all code inside correctly labelled fenced code blocks, with no stray text inside code fences. Re-check tag nesting, braces, quotes, function names, and event handlers before responding."
+                  },
+                  {
+                    role: "user",
+                    content: "Original user request:\\n" + latestQuestion +
+                      "\\n\\nYour previous answer:\\n" + answer.slice(0, 14000) +
+                      "\\n\\nStructural validation findings:\\n- " + initialProblems.join("\\n- ") +
+                      "\\n\\nReturn the complete corrected answer, not a patch."
+                  }
+                ]
+              });
+              const repairedAnswer = typeof repairResult?.response === "string"
+                ? repairResult.response
+                : (typeof repairResult?.choices?.[0]?.message?.content === "string" ? repairResult.choices[0].message.content : "");
+              if (repairedAnswer.trim()) {
+                const remainingProblems = inspectGeneratedCode(repairedAnswer);
+                if (!remainingProblems.length) {
+                  answer = repairedAnswer.trim();
+                  console.info("NEXORA coding answer passed structural validation after one repair pass.");
+                } else {
+                  validationWarning = "I tried one automatic code correction, but a structural check still found possible issues (" + remainingProblems.join(" ") + "). Please review the code before running it.";
+                  console.warn("NEXORA coding answer still has structural warnings after repair:", remainingProblems);
+                }
+              } else {
+                validationWarning = "Automatic code correction did not return a usable answer. Please ask me to regenerate the code.";
+                console.warn("NEXORA coding repair pass returned an empty answer.");
+              }
+            } catch (repairError) {
+              validationWarning = "Automatic code correction was unavailable, so this code has not passed the structural check. Please ask me to regenerate it.";
+              console.warn("NEXORA coding repair pass failed:", {
+                name: repairError && repairError.name ? repairError.name : "Error",
+                message: repairError && repairError.message ? repairError.message : String(repairError)
+              });
+            }
+          }
+        }
+
         return json({
-          answer: answer.trim(),
+          answer: answer.trim() + (validationWarning ? "\\n\\n⚠️ " + validationWarning : ""),
           model: POOKIE_MODEL,
-          modelDurationMs: Date.now() - pookieStartedAt
+          modelDurationMs: Date.now() - pookieStartedAt,
+          codeValidation: isCodingQuestion ? (validationWarning ? "warning" : "passed") : "not_applicable"
         }, 200, allowedOrigin);
       } catch (error) {
         // Temporary diagnostics: keep detailed provider errors in Cloudflare Worker logs, not in public API responses.
