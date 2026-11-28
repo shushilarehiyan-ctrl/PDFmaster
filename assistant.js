@@ -1633,11 +1633,11 @@
     // local one-purpose helpers can accidentally answer only one fragment.
     const explicitQuestionCount = (value.match(/[?؟]/g) || []).length;
     const hasMultipleRequests = explicitQuestionCount > 1 ||
-      (/\\b(and also|also tell me|plus|along with)\\b|\\b(aur|saath mein|iske alawa)\\b/i.test(value) &&
-       /\\b(what|why|how|who|when|where|which|kya|kyun|kaise|kitna|kaun)\\b/i.test(value));
-    const isNaturalChat = /^(?:hi|hello|hey|heya|namaste|नमस्ते|नमस्कार)[!,.?\\s]*$/i.test(value) ||
-      /\\b(how are you|are you okay|kya haal|kaise ho|tum thik ho|kya tum|tell me about yourself|joke suna|ek joke)\\b/i.test(value);
-    const isClearPdfTask = /\\b(pdf|document|merge|split|compress|convert|protect)\\b|पीडीएफ|दस्तावेज/i.test(value);
+      (/\b(and also|also tell me|plus|along with)\b|\b(aur|saath mein|iske alawa)\b/i.test(value) &&
+       /\b(what|why|how|who|when|where|which|kya|kyun|kaise|kitna|kaun)\b/i.test(value));
+    const isNaturalChat = /^(?:hi|hello|hey|heya|namaste|नमस्ते|नमस्कार)[!,.?\s]*$/i.test(value) ||
+      /\b(how are you|are you okay|kya haal|kaise ho|tum thik ho|kya tum|tell me about yourself|joke suna|ek joke)\b/i.test(value);
+    const isClearPdfTask = /\b(pdf|document|merge|split|compress|convert|protect)\b|पीडीएफ|दस्तावेज/i.test(value);
 
     if (hasMultipleRequests || (isNaturalChat && !isClearPdfTask)) {
       const answeredByAssistant = await askNexoraAI(value);
