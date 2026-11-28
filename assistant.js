@@ -508,7 +508,7 @@
 
   const sidebar = document.createElement("aside");
   sidebar.className = "pm-assistant-sidebar";
-  sidebar.innerHTML = '<div class="pm-assistant-brand"><span class="pm-assistant-brand-mark">✦</span><span>nexora</span></div><button class="pm-assistant-new" type="button"><span>＋</span><span>New chat</span></button><div class="pm-assistant-history-label">Your chats</div><div class="pm-assistant-history" aria-label="Chat history"><div class="pm-assistant-history-list"></div></div><div class="pm-assistant-sidebar-note">Your conversations are saved in this browser on this device.</div>';
+  sidebar.innerHTML = '<div class="pm-assistant-brand"><span class="pm-assistant-brand-mark" aria-hidden="true">N</span><span>nexora</span></div><button class="pm-assistant-new" type="button"><span>＋</span><span>New chat</span></button><div class="pm-assistant-history-label">Your chats</div><div class="pm-assistant-history" aria-label="Chat history"><div class="pm-assistant-history-list"></div></div><div class="pm-assistant-sidebar-note">Your conversations are saved in this browser on this device.</div>';
   panel.insertBefore(sidebar, panel.firstChild);
   const newChatButton = sidebar.querySelector(".pm-assistant-new");
   const historyList = sidebar.querySelector(".pm-assistant-history-list");
