@@ -76,7 +76,7 @@
         if (!alias) continue;
         let score = 0;
         if (query === alias) score = 100;
-        else if (query.includes(alias)) score = 80 + Math.min(alias.length / 100, 0.9);
+        else if (query.startsWith(alias + " ")) score = 80 + Math.min(alias.length / 100, 0.9);
         else if (alias.includes(query) && query.length >= 5) score = 65;
 
         if (score > bestScore) {
