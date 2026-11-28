@@ -136,20 +136,20 @@ export default {
       // latest request and nearby context; this does not infer sensitive traits.
       const recentContext = messages.slice(-4).map(item => item.content).join(" ");
       const adaptiveText = latestQuestion + " " + recentContext;
-      const detectedLanguage = /[\\u0900-\\u097F]/.test(latestQuestion)
+      const detectedLanguage = /[\u0900-\u097F]/.test(latestQuestion)
         ? "Hindi in Devanagari"
-        : /\\b(bhai|yaar|kyun|kaise|kya|hai|hain|mujhe|tum|samjhao|batao|accha|theek)\\b/i.test(latestQuestion)
+        : /\b(bhai|yaar|kyun|kaise|kya|hai|hain|mujhe|tum|samjhao|batao|accha|theek)\b/i.test(latestQuestion)
           ? "Roman Hindi / Hinglish"
           : "English or the language clearly used by the user";
-      const adaptiveMode = /\\b(error|problem|issue|worried|scared|urgent|help me| परेशान|दिक्कत|समस्या|डर)\\b/i.test(adaptiveText)
+      const adaptiveMode = /\b(error|problem|issue|worried|scared|urgent|help me| परेशान|दिक्कत|समस्या|डर)\b/i.test(adaptiveText)
         ? "calm and supportive"
-        : /\\b(code|coding|javascript|python|java|debug|function|api|program|compiler|git|html|css)\\b/i.test(latestQuestion)
+        : /\b(code|coding|javascript|python|java|debug|function|api|program|compiler|git|html|css)\b/i.test(latestQuestion)
           ? "technical and precise"
-          : /\\b(explain|teach|homework|physics|chemistry|biology|math|mathematics|science|derive|prove|solve|class)\\b|samjhao|padhai|formula/i.test(latestQuestion)
+          : /\b(explain|teach|homework|physics|chemistry|biology|math|mathematics|science|derive|prove|solve|class)\b|samjhao|padhai|formula/i.test(latestQuestion)
             ? "patient teacher: build from basics and use a relevant example"
-            : /\\b(write|draft|story|poem|creative|brainstorm|design|idea)\\b/i.test(latestQuestion)
+            : /\b(write|draft|story|poem|creative|brainstorm|design|idea)\b/i.test(latestQuestion)
               ? "creative and collaborative"
-              : /\\b(hi|hello|hey|how are you|kya haal|kaise ho|joke|funny|😂|😄)\\b/i.test(latestQuestion)
+              : /\b(hi|hello|hey|how are you|kya haal|kaise ho|joke|funny|😂|😄)\b/i.test(latestQuestion)
                 ? "friendly and lightly playful when appropriate"
                 : "natural, balanced and conversational";
       const questionCount = (latestQuestion.match(/[?؟]/g) || []).length;
