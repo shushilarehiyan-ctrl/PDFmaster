@@ -166,7 +166,7 @@ export default {
       const isComplexQuestion = isCodingQuestion || /\b(derive|prove|solve|calculate|analyze|analyse|compare|reasoning|step by step|numerical|mechanism|debug|algorithm|architecture|why|how does|how do|equations?|mathematical|mathematically|puzzle|riddle|verify|verification|word problem|count|how many|twice|double|equal|birds?|sheep|group a|group b)\b|kyun|kaise|samjhao|siddh|vyutpann|numerical|logic|tark|ganit|sankhya|kitne|kitani|barabar|do guna|chidiyan?|pashu/i.test(latestQuestion);
       const isAcademicQuestion = /\b(math|mathematics|physics|chemistry|biology|science|calculus|algebra|trigonometry|programming|computer science|concept|explain|difference)\b|ganit|vigyan/i.test(latestQuestion);
       const reasoningEffort = isCodingQuestion ? "medium" : isComplexQuestion ? "high" : isAcademicQuestion ? "medium" : "low";
-      const maxCompletionTokens = isCodingQuestion ? 1800 : isComplexQuestion ? 1400 : isAcademicQuestion ? 900 : 500;
+      const maxCompletionTokens = isCodingQuestion ? 4096 : isComplexQuestion ? 1400 : isAcademicQuestion ? 900 : 500;
 
       // Measure model time separately from browser/network overhead.
       const pookieStartedAt = Date.now();
@@ -175,7 +175,7 @@ export default {
           reasoning_effort: reasoningEffort,
           // Keep hidden reasoning off for ordinary questions so the model can return a visible answer within its token budget.
           // Enable it only for questions that genuinely need multi-step reasoning.
-          chat_template_kwargs: { enable_thinking: isComplexQuestion, clear_thinking: true },
+          chat_template_kwargs: { enable_thinking: isComplexQuestion && !isCodingQuestion, clear_thinking: true },
           max_completion_tokens: Math.max(maxCompletionTokens, isComplexQuestion ? 1800 : 700),
           messages: [
             {
