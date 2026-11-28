@@ -1632,6 +1632,13 @@
     const answeredByAssistant = await askPDFMasterAI(value);
     if (answeredByAssistant) return;
 
+    // Do not let a keyword-only school fallback hijack programming requests.
+    const isCodingRequest = /\b(javascript|typescript|python|java|programming|coding|code|calculator|compiler|debug|algorithm|api|html|css)\b/i.test(value) ||
+      /\b(write|create|build|implement|generate|make)\b.{0,50}\b(code|program|calculator|function|script|app|website)\b/i.test(value);
+    if (isCodingRequest) {
+      addMessage("PDFMASTER ASSISTANT se abhi connection nahi ho paaya, isliye main coding request ka sahi runnable code generate nahi kar saka. Please thodi der baad retry karo; main ise galat offline lesson se answer nahi karunga.", "assistant");
+      return;
+    }
     // If PDFMASTER ASSISTANT is unavailable, use the offline learning libraries.
     const offlineEducation = window.PDFMASTER_EDUCATION && window.PDFMASTER_EDUCATION.answer(value);
     if (offlineEducation) { addMessage(offlineEducation, "assistant"); return; }
