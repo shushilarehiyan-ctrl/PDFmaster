@@ -91,7 +91,7 @@
   }
 
   // Set this only after deploying api/worker.js. Never place an API key here.
-  const RESEARCH_API_URL = window.PDFMASTER_RESEARCH_API || "https://pdfmaster.sherebihar35.workers.dev";
+  const RESEARCH_API_URL = window.NEXORA_API_URL || window.PDFMASTER_RESEARCH_API || "https://nexora.sherebihar35.workers.dev";
   const IMAGE_API_URL = RESEARCH_API_URL;
   const TURNSTILE_SITE_KEY = "0x4AAAAAAGQ802svQx32R_BB";
   let imageTurnstileToken = "";
