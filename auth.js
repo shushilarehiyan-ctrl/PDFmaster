@@ -36,7 +36,7 @@ if (!configReady) {
   provider.setCustomParameters({ prompt: "select_account" });
 
   setPersistence(auth, browserLocalPersistence).catch(error => {
-    console.error("PDFMaster auth persistence error:", error);
+    console.error("nexora auth persistence error:", error);
   });
 
   if (loginButton) {
@@ -48,7 +48,7 @@ if (!configReady) {
         await signInWithPopup(auth, provider);
         window.location.replace("index.html");
       } catch (error) {
-        console.error("PDFMaster Google sign-in error:", error);
+        console.error("nexora Google sign-in error:", error);
         const messages = {
           "auth/popup-closed-by-user": "Sign-in was cancelled. You can try again.",
           "auth/unauthorized-domain": "This website domain is not authorized in Firebase Authentication settings.",
@@ -65,7 +65,7 @@ if (!configReady) {
     if (authLink) {
       if (user) {
         authLink.href = "account.html";
-        authLink.setAttribute("aria-label", "Open your PDFMaster account.");
+        authLink.setAttribute("aria-label", "Open your nexora account.");
         authLink.classList.add("pm-auth-profile");
         const profileImage = document.createElement("img");
         profileImage.className = "pm-auth-avatar";
@@ -99,7 +99,7 @@ if (!configReady) {
     }
     if (accountName) {
       if (!user) { window.location.replace("login.html"); return; }
-      accountName.textContent = user.displayName || "PDFMaster user";
+      accountName.textContent = user.displayName || "nexora user";
       accountEmail.textContent = user.email || "Email not available";
       accountCreated.textContent = user.metadata?.creationTime
         ? new Date(user.metadata.creationTime).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
@@ -129,14 +129,14 @@ if (!configReady) {
       accountSignOut.disabled = true;
       try { await signOut(auth); window.location.replace("index.html"); }
       catch (error) {
-        console.error("PDFMaster sign-out error:", error);
+        console.error("nexora sign-out error:", error);
         accountSignOut.disabled = false;
         if (accountStatus) accountStatus.textContent = "Could not sign out. Please try again.";
       }
     };
     if (loginButton && user) {
       showStatus("Already signed in as " + (user.email || "your Google account") + ".");
-      loginButton.textContent = "Continue to PDFMaster";
+      loginButton.textContent = "Continue to nexora";
       loginButton.onclick = () => window.location.replace("index.html");
     }
   });
