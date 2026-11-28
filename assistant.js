@@ -881,8 +881,8 @@
     if (/\b(pdf|form|1099|w-2|w-9|tax|document)\b/.test(q)) return null;
     // Local calculator must only handle a standalone calculation request.
     // Multi-topic messages belong to the AI assistant, not this single-purpose tool.
-    const standaloneMath = /^(?:(?:please\\s+)?(?:calculate|solve|evaluate|compute|what is|find)\\s+)?[0-9().+\\-*\\/^ \\t]+(?:\\s*(?:kitna(?:\\s+hota\\s+hai)?|equals?|equal to)\\s*)?[?!.]*$/i.test(q)
-      || /^(?:(?:please\\s+)?(?:calculate|solve|evaluate|compute|what is|find)\\s+)?[0-9().+\\-*\\/^ \\t]*(?:plus|minus|times|multiplied by|divided by)[0-9().+\\-*\\/^ \\t]*(?:kitna(?:\\s+hota\\s+hai)?|equals?|equal to)?[?!.]*$/i.test(q);
+    const standaloneMath = /^(?:(?:please\s+)?(?:calculate|solve|evaluate|compute|what is|find)\s+)?[0-9().+\-*\/^ \t]+(?:\s*(?:kitna(?:\s+hota\s+hai)?|equals?|equal to)\s*)?[?!.]*$/i.test(q)
+      || /^(?:(?:please\s+)?(?:calculate|solve|evaluate|compute|what is|find)\s+)?[0-9().+\-*\/^ \t]*(?:plus|minus|times|multiplied by|divided by)[0-9().+\-*\/^ \t]*(?:kitna(?:\s+hota\s+hai)?|equals?|equal to)?[?!.]*$/i.test(q);
     if (!standaloneMath) return null;
     const hasMathCue = /\b(calculate|solve|evaluate|compute|work out|plus|minus|times|multiplied by|divided by|add|subtract)\b|[0-9]\s*[+*\/^]\s*[0-9]|[0-9]\s+-\s*[0-9]|कितना|जोड़|गुणा|भाग|हल करो/.test(q);
     const cleaned = q
