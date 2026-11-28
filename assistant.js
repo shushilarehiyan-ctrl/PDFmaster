@@ -1664,6 +1664,12 @@
     const answeredByAssistant = await askNexoraAI(value);
     if (answeredByAssistant) return;
 
+    const isCodingRequest = /\b(javascript|typescript|python|java|programming|coding|code|calculator|compiler|debug|algorithm|api|html|css)\b/i.test(value) ||
+      /\b(write|create|build|implement|generate|make)\b.{0,50}\b(code|program|calculator|function|script|app|website)\b/i.test(value);
+    if (isCodingRequest) {
+      addMessage("Nexora AI se abhi connection nahi ho paaya, isliye main coding request ka sahi runnable code generate nahi kar saka. Please thodi der baad retry karo; main ise galat offline lesson se answer nahi karunga.", "assistant");
+      return;
+    }
     const offlineEducation = window.PDFMASTER_EDUCATION && window.PDFMASTER_EDUCATION.answer(value);
     if (offlineEducation) { addMessage(offlineEducation, "assistant"); return; }
     const offlineKnowledge = window.PDFMASTER_KNOWLEDGE && window.PDFMASTER_KNOWLEDGE.answer(value);
