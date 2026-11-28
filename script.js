@@ -1,4 +1,4 @@
-// Reusable, accessible PDFMaster toast notifications.
+// Reusable, accessible nexora toast notifications.
 let pmToastTimer = null;
 function showToast(message) {
     let toast = document.querySelector(".pm-toast");
@@ -151,7 +151,7 @@ async function convertImagesToPDF() {
             }
         }
 
-        pdf.save("PDFMaster.pdf");
+        pdf.save("nexora.pdf");
 
     } catch (error) {
         console.error(error);
@@ -720,7 +720,7 @@ async function mergePDFs() {
         const link = document.createElement("a");
 
         link.href = url;
-        link.download = "PDFMaster_Merged.pdf";
+        link.download = "nexora_Merged.pdf";
 
         document.body.appendChild(link);
         link.click();
@@ -745,7 +745,7 @@ async function mergePDFs() {
             lowerMessage.includes("password") ||
             lowerMessage.includes("encrypted")
         ) {
-            userMessage = "One of the PDFs may be password-protected. PDFMaster cannot merge it unless it can be opened with the correct password.";
+            userMessage = "One of the PDFs may be password-protected. nexora cannot merge it unless it can be opened with the correct password.";
         } else if (
             lowerMessage.includes("memory") ||
             lowerMessage.includes("allocation") ||
@@ -969,8 +969,8 @@ async function splitPDF() {
         downloadLink.href = splitDownloadURL;
         downloadLink.download =
             mode === "extract"
-                ? "PDFMaster_Extracted.pdf"
-                : "PDFMaster_Remaining.pdf";
+                ? "nexora_Extracted.pdf"
+                : "nexora_Remaining.pdf";
         downloadLink.textContent = "Download PDF ↓";
 
         splitPDFResult.innerHTML = "";
@@ -1226,7 +1226,7 @@ async function compressPDF() {
 
         const downloadLink = document.createElement("a");
         downloadLink.href = compressedPDFURL;
-        downloadLink.download = "PDFMaster_Compressed.pdf";
+        downloadLink.download = "nexora_Compressed.pdf";
         downloadLink.textContent = "Download Compressed PDF ↓";
 
         const resultTitle = document.createElement("h4");
