@@ -1,4 +1,4 @@
-/* PDFMaster Assistant — guided PDF help, calculator and Smart Web Research */
+/* nexora Assistant — guided PDF help, calculator and Smart Web Research */
 (function () {
   const launcher = document.getElementById("pmAssistantLauncher");
   const panel = document.getElementById("pmAssistantPanel");
@@ -117,7 +117,7 @@
     try {
       chatHistory = chatHistory.filter(chat => chat && Array.isArray(chat.messages) && chat.messages.length).sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, MAX_SAVED_CHATS);
       localStorage.setItem(HISTORY_KEY, JSON.stringify(chatHistory));
-    } catch (error) { console.warn("PDFMaster chat history could not be saved in this browser.", error); }
+    } catch (error) { console.warn("nexora chat history could not be saved in this browser.", error); }
   }
 
   // Keep generated image binaries in IndexedDB; localStorage is too small for image data.
@@ -165,7 +165,7 @@
     const download = document.createElement("a");
     download.className = "pm-assistant-image-download";
     download.href = dataUrl;
-    download.download = dataUrl.startsWith("data:image/png") ? "PDFMaster_Edited_Image.png" : "PDFMaster_Edited_Image.jpg";
+    download.download = dataUrl.startsWith("data:image/png") ? "nexora_Edited_Image.png" : "nexora_Edited_Image.jpg";
     download.textContent = "↓ Download Edited Image";
     content.append(image, download);
   }
@@ -205,7 +205,7 @@
       const editedDownload = document.createElement("a");
       editedDownload.className = "pm-assistant-image-download";
       editedDownload.href = editedDataUrl;
-      editedDownload.download = editedDataUrl.startsWith("data:image/png") ? "PDFMaster_Edited_Image.png" : "PDFMaster_Edited_Image.jpg";
+      editedDownload.download = editedDataUrl.startsWith("data:image/png") ? "nexora_Edited_Image.png" : "nexora_Edited_Image.jpg";
       editedDownload.textContent = "↓ Download Edited Image";
       after.append(afterLabel, editedImage, editedDownload);
       comparison.append(before, after);
@@ -221,7 +221,7 @@
         restoreButton.textContent = showingOriginal ? "↶ Original Restore" : "↻ Show Edited Image";
       });
       content.append(comparison, restoreButton);
-    }).catch(error => console.warn("PDFMaster could not restore an image from chat history.", error));
+    }).catch(error => console.warn("nexora could not restore an image from chat history.", error));
   }
   function getCurrentChat() {
     let chat = chatHistory.find(item => item.id === currentChatId);
@@ -347,7 +347,7 @@
     if (who === "assistant") {
       const label = document.createElement("span");
       label.className = "pm-assistant-message-label";
-      label.textContent = "PDFMASTER ASSISTANT";
+      label.textContent = "nexora assistant";
       bubble.appendChild(label);
       const content = document.createElement("div");
       content.className = "pm-assistant-content";
@@ -500,7 +500,7 @@
 
   const sidebar = document.createElement("aside");
   sidebar.className = "pm-assistant-sidebar";
-  sidebar.innerHTML = '<div class="pm-assistant-brand"><span class="pm-assistant-brand-mark">✦</span><span>PDFMaster</span></div><button class="pm-assistant-new" type="button"><span>＋</span><span>New chat</span></button><div class="pm-assistant-history-label">Your chats</div><div class="pm-assistant-history" aria-label="Chat history"><div class="pm-assistant-history-list"></div></div><div class="pm-assistant-sidebar-note">Your conversations are saved in this browser on this device.</div>';
+  sidebar.innerHTML = '<div class="pm-assistant-brand"><span class="pm-assistant-brand-mark">✦</span><span>nexora</span></div><button class="pm-assistant-new" type="button"><span>＋</span><span>New chat</span></button><div class="pm-assistant-history-label">Your chats</div><div class="pm-assistant-history" aria-label="Chat history"><div class="pm-assistant-history-list"></div></div><div class="pm-assistant-sidebar-note">Your conversations are saved in this browser on this device.</div>';
   panel.insertBefore(sidebar, panel.firstChild);
   const newChatButton = sidebar.querySelector(".pm-assistant-new");
   const historyList = sidebar.querySelector(".pm-assistant-history-list");
@@ -568,11 +568,11 @@
   function shareChat(chat) {
     if (!chat || !Array.isArray(chat.messages) || !chat.messages.length) return;
     const transcript = chat.messages.map(item =>
-      (item.role === "user" ? "You" : "PDFMaster Assistant") + ":\n" + String(item.content || "")
+      (item.role === "user" ? "You" : "nexora Assistant") + ":\n" + String(item.content || "")
     ).join("\n\n");
-    const shareText = (chat.title || "PDFMaster chat") + "\n\n" + transcript;
+    const shareText = (chat.title || "nexora chat") + "\n\n" + transcript;
     if (navigator.share) {
-      navigator.share({ title: chat.title || "PDFMaster chat", text: shareText }).catch(error => {
+      navigator.share({ title: chat.title || "nexora chat", text: shareText }).catch(error => {
         if (error && error.name !== "AbortError") showShareCopyDialog(shareText);
       });
       return;
@@ -789,7 +789,7 @@
     chat.messages.forEach(item => {
       const legacyImagePlaceholder = item.role === "assistant" && /^(?:creating your image(?:…|\.\.\.)?|your image is creating\.?|your image is being created\.?|image is generating\.?|creating image\.\.\.)$/i.test(String(item.content || "").trim());
       const restoredContent = legacyImagePlaceholder
-        ? "This image was generated before PDFMaster added image history saving, so the original image is unavailable."
+        ? "This image was generated before nexora added image history saving, so the original image is unavailable."
         : item.content;
       if (!legacyImagePlaceholder) addMessage(restoredContent, item.role, item.sources || [], { persist:false, imageId:item.imageId, originalImageId:item.originalImageId });
       else addMessage(restoredContent, item.role, [], { persist:false });
@@ -1003,7 +1003,7 @@
       [/^(what is )?(operating system|os)\??$/,"Operating System hardware aur applications manage karta hai. Examples: Windows, Linux, Android, macOS."]
     ];
     for(const [re,answer] of facts) if(re.test(q)) return answer;
-    if(/help|what can you do|commands|features|kya kar sakte/.test(q)) return "Main PDFMASTER ASSISTANT hoon — ek general-purpose AI assistant. Aap mujhse lagbhag kisi bhi vishay par sawaal poochh sakte hain: Science, Maths, Physics, Chemistry, Biology, Computer Science, Programming, History, Geography, Economics, GK, language, grammar, writing, reasoning, study help aur everyday questions. Main concepts samjha sakta hoon, examples de sakta hoon, calculations solve kar sakta hoon aur coding mein madad kar sakta hoon.\n\nPDFMaster ki khaas suvidhayein: PDF merge, split, compress, convert aur protect; calculator, percentage, unit conversion aur text tools.\n\nLimitations: Offline mode mein main built-in knowledge aur tools tak seemit hoon. Detailed open-ended answers ke liye connected AI backend zaroori hai; latest/current information ke liye Web Research ON karein. Agar mujhe jawab pakka na ho, main andaza lagane ke bajay apni limitation bataunga.";
+    if(/help|what can you do|commands|features|kya kar sakte/.test(q)) return "Main nexora assistant hoon — ek general-purpose AI assistant. Aap mujhse lagbhag kisi bhi vishay par sawaal poochh sakte hain: Science, Maths, Physics, Chemistry, Biology, Computer Science, Programming, History, Geography, Economics, GK, language, grammar, writing, reasoning, study help aur everyday questions. Main concepts samjha sakta hoon, examples de sakta hoon, calculations solve kar sakta hoon aur coding mein madad kar sakta hoon.\n\nnexora ki khaas suvidhayein: PDF merge, split, compress, convert aur protect; calculator, percentage, unit conversion aur text tools.\n\nLimitations: Offline mode mein main built-in knowledge aur tools tak seemit hoon. Detailed open-ended answers ke liye connected AI backend zaroori hai; latest/current information ke liye Web Research ON karein. Agar mujhe jawab pakka na ho, main andaza lagane ke bajay apni limitation bataunga.";
     return null;
   }
 
@@ -1326,7 +1326,7 @@
       });
     } catch (error) {
       imageVerification.textContent = "Image verification could not load. Please refresh and try again.";
-      console.warn("PDFMaster chat image verification failed to load.", error);
+      console.warn("nexora chat image verification failed to load.", error);
     }
   }
 
@@ -1457,7 +1457,7 @@
         selectedImageOriginalDataUrl = "";
         pookieHistory = pookieHistory.concat([{ role: "assistant", content: "An image was generated and is visible in the chat. Its text description/prompt is: " + String(data.promptUsed || prompt).slice(0, 1500) + ". Use this prompt context to answer follow-up questions about the generated image, while being clear that you cannot inspect visual details that are not stated in the prompt." }]).slice(-12);
       } catch (storageError) {
-        console.warn("PDFMaster could not save this image to persistent chat history.", storageError);
+        console.warn("nexora could not save this image to persistent chat history.", storageError);
         const bubble = addMessage("Your image is ready.", "assistant");
         appendGeneratedImage(bubble.querySelector(".pm-assistant-content"), data.image);
         pookieHistory = pookieHistory.concat([{ role: "assistant", content: "An image was generated and is visible in the chat. Its text description/prompt is: " + String(data.promptUsed || prompt).slice(0, 1500) + ". Use this prompt context to answer follow-up questions about the generated image, while being clear that you cannot inspect visual details that are not stated in the prompt." }]).slice(-12);
@@ -1475,7 +1475,7 @@
     }
   }
 
-  async function askPDFMasterAI(question) {
+  async function askNexoraAI(question) {
     if (!RESEARCH_API_URL) return false;
 
     const latestQuestion = String(question || "").trim();
@@ -1573,7 +1573,7 @@
     if (!(/\b(how man?ny|how many|number of|count)\b.*\b(tools?|features)\b|\b(tools?|features)\b.*\b(how man?ny|how many|count)\b/.test(q))) return null;
     const count = document.querySelectorAll(".tools-container .tool-card").length;
     if (!count) return "I cannot count the tools until the tool list has loaded.";
-    return "PDFMaster currently displays " + count + " tools. This count is read from the tool cards actually shown on this page.";
+    return "nexora currently displays " + count + " tools. This count is read from the tool cards actually shown on this page.";
   }
 
   function answer(question) {
@@ -1595,9 +1595,9 @@
     if (/split|extract.*page|remove.*page|पेज अलग|पेज निकाल/.test(q)) return "Let's split your document.\n\nStep 1: Open the Split PDF tool.\n\nTell me when it’s open, and I’ll guide you through selecting pages.";
     if (/photo|image|jpg|png|फोटो|तस्वीर/.test(q) && /pdf|convert|बनाना/.test(q)) return "Let's turn your photos into a PDF.\n\nStep 1: Open the Photo to PDF tool.\n\nTell me when it’s open.";
     if (/(?:pdf|document|file|दस्तावेज|पीडीएफ)/.test(q) && /(?:password|protect|lock|encrypt|पासवर्ड|सुरक्षित|लॉक|सुरक्षा)/.test(q)) return "To add password protection to a PDF, open the Protect PDF tool. Keep a secure copy of your password.";
-    if (/not open|cannot open|can't open|won't open|error|failed|issue|problem|upload|नहीं खुल|एरर|समस्या/.test(q)) return "First, check whether the file opens on your device outside PDFMaster. Also confirm it is a PDF and the upload has finished.\n\nWhat exact error message do you see?";
+    if (/not open|cannot open|can't open|won't open|error|failed|issue|problem|upload|नहीं खुल|एरर|समस्या/.test(q)) return "First, check whether the file opens on your device outside nexora. Also confirm it is a PDF and the upload has finished.\n\nWhat exact error message do you see?";
     if (/\\b(?:ms\s+)?word\\b|\\bdocx\\b/.test(q) && /pdf|document|docx|convert|format|file/.test(q)) return "PDF and Word documents can have different layouts after conversion. Do you want to convert Word to PDF, convert PDF to Word, or fix formatting?";
-    if (/^(?:hello|hi|hey|namaste|नमस्ते|नमस्कार)[!,.?\\s]*$/i.test(q)) return "Hello! Main PDFMASTER ASSISTANT hoon. Aap mujhse kisi bhi topic par sawaal poochh sakte hain—Science, Maths, GK, Programming, writing, reasoning, PDF tools aur bahut kuchh. Detailed answers ke liye AI backend connected hona chahiye; latest information ke liye Web Research ON karein.";
+    if (/^(?:hello|hi|hey|namaste|नमस्ते|नमस्कार)[!,.?\\s]*$/i.test(q)) return "Hello! Main nexora assistant hoon. Aap mujhse kisi bhi topic par sawaal poochh sakte hain—Science, Maths, GK, Programming, writing, reasoning, PDF tools aur bahut kuchh. Detailed answers ke liye AI backend connected hona chahiye; latest information ke liye Web Research ON karein.";
     return "I don't have a reliable offline answer for that yet. Main kai tarah ke topics mein madad kar sakta hoon, lekin is sawaal ke liye connected AI backend ki zaroorat hai. Connection available na ho to main galat jawab banane ke bajay apni limitation bataunga.";
   }
 
@@ -1628,19 +1628,19 @@
       return;
     }
 
-    // Unknown questions go to Cloudflare-hosted PDFMASTER ASSISTANT first.
+    // Unknown questions go to Cloudflare-hosted nexora assistant first.
     // Web Research must only run when the user explicitly turns it ON.
-    const answeredByAssistant = await askPDFMasterAI(value);
+    const answeredByAssistant = await askNexoraAI(value);
     if (answeredByAssistant) return;
 
-    // If PDFMASTER ASSISTANT is unavailable, use the offline learning libraries.
+    // If nexora assistant is unavailable, use the offline learning libraries.
     const offlineEducation = window.PDFMASTER_EDUCATION && window.PDFMASTER_EDUCATION.answer(value);
     if (offlineEducation) { addMessage(offlineEducation, "assistant"); return; }
     const offlineKnowledge = window.PDFMASTER_KNOWLEDGE && window.PDFMASTER_KNOWLEDGE.answer(value);
     if (offlineKnowledge) { addMessage(offlineKnowledge, "assistant"); return; }
 
     // Do not silently switch to source-based research while Web Research is OFF.
-    addMessage("PDFMASTER ASSISTANT se connection nahi ho paya. Web Research OFF hai, isliye maine research search start nahi ki. Please check the Cloudflare /api/chat connection and try again.", "assistant");
+    addMessage("nexora assistant se connection nahi ho paya. Web Research OFF hai, isliye maine research search start nahi ki. Please check the Cloudflare /api/chat connection and try again.", "assistant");
   }
 
   form.addEventListener("submit", event => {
