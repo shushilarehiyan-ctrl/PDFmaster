@@ -1,0 +1,6 @@
+﻿name = "nexora"
+main = "api/worker.js"
+compatibility_date = "2026-11-24"
+
+[ai]
+binding = "AI"
